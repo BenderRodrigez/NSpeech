@@ -6,7 +6,7 @@ namespace NSpeech.Clustering.Metrics
     /// <summary>
     /// Realizing Euclidian distance metric calculation
     /// </summary>
-    public class EuclidianMetric : IMetric
+    public class EuclidianDistance : IMetric
     {
         /// <summary>
         /// Calculates Euclidian distance betwen two points

@@ -41,8 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Clustering\Metrics\EuclidianMetric.cs" />
+    <Compile Include="Clustering\Metrics\EuclidianDistance.cs" />
     <Compile Include="Clustering\Metrics\IMetric.cs" />
+    <Compile Include="Clustering\Metrics\ManhattanDistance.cs" />
     <Compile Include="Clustering\Metrics\MetricGenerator.cs" />
     <Compile Include="Clustering\Metrics\Metrics.cs" />
     <Compile Include="DSPAlgorithms\Filters\IDigitalFilter.cs" />
