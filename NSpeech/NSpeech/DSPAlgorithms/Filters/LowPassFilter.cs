@@ -5,7 +5,7 @@ namespace NSpeech.DSPAlgorithms.Filters
     /// <summary>
     /// Implements Butterworth 4th order LowPassFilter  
     /// </summary>
-    class LowPassFilter:IDigitalFilter
+    public class LowPassFilter:IDigitalFilter
     {
         /// <summary>
         /// Signal sampling rate

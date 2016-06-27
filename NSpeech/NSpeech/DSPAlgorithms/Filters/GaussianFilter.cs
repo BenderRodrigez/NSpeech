@@ -5,7 +5,7 @@ namespace NSpeech.DSPAlgorithms.Filters
     /// <summary>
     /// Implements one dimensional Gaussian Blur
     /// </summary>
-    class GaussianFilter: IDigitalFilter
+    public class GaussianFilter: IDigitalFilter
     {
         private readonly int _blurDiameter;
         private double _sigma;

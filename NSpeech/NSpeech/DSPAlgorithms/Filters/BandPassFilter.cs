@@ -3,11 +3,11 @@
 namespace NSpeech.DSPAlgorithms.Filters
 {
     /// <summary>
-    /// Implemets Butterworth 4th order HighPassFilter
+    /// Implemets BandPass Butterworth 4th order filter
     /// </summary>
-    public class HighPassFilter : IDigitalFilter
+    public class BandPassFilter:IDigitalFilter
     {
-        /// <summary>
+       /// <summary>
         /// Signal sampling rate
         /// </summary>
         private readonly int _sampleRate;
@@ -17,37 +17,57 @@ namespace NSpeech.DSPAlgorithms.Filters
         private double[] _a;
         private double[] _b;
         private double[] _c;
+        private double[] _d;
+        private double[] _e;
+        private double _a1;
         private double[] _w0;
         private double[] _w1;
         private double[] _w2;
+        private double[] _w3;
+        private double[] _w4;
 
         /// <summary>
         /// Creates new filter
         /// </summary>
-        /// <param name="cutFrequency">Filter's cut frequency</param>
+        /// <param name="cutFrequencyLow">Lowest pass frequency</param>
+        /// <param name="cutFrequencyHigh">Highest pass frequency</param>
         /// <param name="sampleRate">Signal sampling rate</param>
-        public HighPassFilter(float cutFrequency, int sampleRate)
+        public BandPassFilter(float cutFrequencyLow, float cutFrequencyHigh, int sampleRate)
         {
             _sampleRate = sampleRate;
-            InitFilter(cutFrequency);
+            InitFilter(cutFrequencyLow, cutFrequencyHigh);
         }
 
         /// <summary>
         /// Init filter parameters
         /// </summary>
-        /// <param name="cutFreq">Filter's cut frequency</param>
-        private void InitFilter(float cutFreq)
+        /// <param name="cutFreqLow">Filter's lowest cut frequency</param>
+        /// <param name="cutFreqHigh">Filter's highest cut frequency</param>
+        private void InitFilter(float cutFreqLow, float cutFreqHigh)
         {
+            var lowFreq = 2.0*(Math.Sin(Math.PI*cutFreqLow/_sampleRate))/Math.Cos(Math.PI*cutFreqLow/_sampleRate);
+            var highFreq = 2.0*(Math.Sin(Math.PI*cutFreqHigh/_sampleRate))/Math.Cos(Math.PI*cutFreqHigh/_sampleRate);
+
             _a = new double[FilterOrder];
             _b = new double[FilterOrder];
             _c = new double[FilterOrder];
-            var d = 2.0*Math.Sin(Math.PI*cutFreq*(1.0/_sampleRate))/Math.Cos(Math.PI*cutFreq*(1.0/_sampleRate));
+            _d = new double[FilterOrder];
+            _e = new double[FilterOrder];
+            _a1 = Math.Pow(highFreq - lowFreq, 2.0);
+            var c1 = 2.0 * highFreq * lowFreq + Math.Pow(highFreq - lowFreq, 2.0);
+            var e1 = Math.Pow(highFreq * lowFreq, 2.0);
+
             for (int i = 0; i < FilterOrder; i++)
             {
-                var cos = Math.Cos(Math.PI*(0.5 + (2*(i + 1) - 1)/(4.0*FilterOrder)));
-                _a[i] = d*d + 4.0*d*cos + 4.0;
-                _b[i] = -8.0 + 2.0*d*d;
-                _c[i] = d*d - 4.0*d*cos + 4.0;
+                var cos = Math.Cos(Math.PI * (0.5 + (2.0 * (i + 1.0) - 1.0) / (4.0 * (FilterOrder + 1.0))));
+                var b1 = -2.0 * cos;
+                var d1 = -2.0 * highFreq * lowFreq * (highFreq - lowFreq) * cos;
+
+                _a[i] = 16.0 - 8.0 * b1 + 4.0 * c1 - 2.0 * d1 + e1;
+                _b[i] = -64.0 + 16.0 * b1 - 4.0 * d1 + 4.0 * e1;
+                _c[i] = 96.0 - 8.0 * c1 + 6.0 * e1;
+                _d[i] = -64.0 - 16.0 * b1 + 4.0 * d1 + 4.0 * e1;
+                _e[i] = 16.0 + 8.0 * b1 + 4.0 * c1 + 2.0 * d1 + e1;
             }
         }
 
@@ -59,8 +79,10 @@ namespace NSpeech.DSPAlgorithms.Filters
         /// <returns>Output sample</returns>
         private double FilterElementPass(int k, double x)
         {
-            _w0[k] = (1.0*x - _a[k]*_w2[k] - _b[k]*_w1[k])/_c[k];
-            var y = (4.0f*(_w0[k] + _w2[k] - 2.0f*_w1[k]));
+            _w0[k] = (x - _a[k] * _w4[k] - _b[k] * _w3[k] - _c[k] * _w2[k] - _d[k] * _w1[k]) / _e[k];
+            var y = ((_w0[k] - (2.0 * _w2[k]) + _w4[k]) * 4.0 * _a1);
+            _w4[k] = _w3[k];
+            _w3[k] = _w2[k];
             _w2[k] = _w1[k];
             _w1[k] = _w0[k];
             return y;
@@ -76,6 +98,8 @@ namespace NSpeech.DSPAlgorithms.Filters
             _w0 = new double[FilterOrder];
             _w1 = new double[FilterOrder];
             _w2 = new double[FilterOrder];
+            _w3 = new double[FilterOrder];
+            _w4 = new double[FilterOrder];
             var resSignal = new float[signal.Length];
             for (int i = 0; i < signal.Length; i++)
             {
@@ -101,6 +125,8 @@ namespace NSpeech.DSPAlgorithms.Filters
             _w0 = new double[FilterOrder];
             _w1 = new double[FilterOrder];
             _w2 = new double[FilterOrder];
+            _w3 = new double[FilterOrder];
+            _w4 = new double[FilterOrder];
             var resSignal = new double[signal.Length];
             for (int i = 0; i < signal.Length; i++)
             {
@@ -126,6 +152,8 @@ namespace NSpeech.DSPAlgorithms.Filters
             _w0 = new double[FilterOrder];
             _w1 = new double[FilterOrder];
             _w2 = new double[FilterOrder];
+            _w3 = new double[FilterOrder];
+            _w4 = new double[FilterOrder];
             var resSignal = new short[signal.Length];
             for (int i = 0; i < signal.Length; i++)
             {
