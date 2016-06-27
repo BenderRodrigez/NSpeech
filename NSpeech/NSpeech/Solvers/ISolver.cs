@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NSpeech.Solvers
+﻿namespace NSpeech.Solvers
 {
-    interface ISolver
+    /// <summary>
+    /// Desccribes main methods for any solver for verification task
+    /// </summary>
+    public interface ISolver
     {
+        SolutionState MakeDecision(double feature);
     }
 }

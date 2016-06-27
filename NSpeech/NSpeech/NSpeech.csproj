@@ -58,7 +58,9 @@
     <Compile Include="DSPAlgorithms\WindowFunctions\WindowFunctions.cs" />
     <Compile Include="DSPAlgorithms\WindowFunctions\WindowFunctionSelector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Solvers\FuzzySolver.cs" />
     <Compile Include="Solvers\ISolver.cs" />
+    <Compile Include="Solvers\SolutionState.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DSPAlgorithms\Basic\" />
