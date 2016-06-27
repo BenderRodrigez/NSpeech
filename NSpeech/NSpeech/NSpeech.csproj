@@ -46,6 +46,7 @@
     <Compile Include="Clustering\Metrics\ManhattanDistance.cs" />
     <Compile Include="Clustering\Metrics\MetricGenerator.cs" />
     <Compile Include="Clustering\Metrics\Metrics.cs" />
+    <Compile Include="DSPAlgorithms\Filters\GaussianFilter.cs" />
     <Compile Include="DSPAlgorithms\Filters\HighPassFilter.cs" />
     <Compile Include="DSPAlgorithms\Filters\IDigitalFilter.cs" />
     <Compile Include="DSPAlgorithms\Filters\LowPassFilter.cs" />
