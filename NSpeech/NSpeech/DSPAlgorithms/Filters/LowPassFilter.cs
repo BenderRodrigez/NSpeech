@@ -3,9 +3,9 @@
 namespace NSpeech.DSPAlgorithms.Filters
 {
     /// <summary>
-    /// Implemets Butterworth 4th order HighPassFilter
+    /// Implements Butterworth 4th order LowPassFilter  
     /// </summary>
-    internal class HighPassFilter : IDigitalFilter
+    class LowPassFilter:IDigitalFilter
     {
         /// <summary>
         /// Signal sampling rate
@@ -17,6 +17,7 @@ namespace NSpeech.DSPAlgorithms.Filters
         private double[] _a;
         private double[] _b;
         private double[] _c;
+        private double _d;
         private double[] _w0;
         private double[] _w1;
         private double[] _w2;
@@ -26,7 +27,7 @@ namespace NSpeech.DSPAlgorithms.Filters
         /// </summary>
         /// <param name="cutFrequency">Filter's cut frequency</param>
         /// <param name="sampleRate">Signal sampling rate</param>
-        public HighPassFilter(float cutFrequency, int sampleRate)
+        public LowPassFilter(float cutFrequency, int sampleRate)
         {
             _sampleRate = sampleRate;
             InitFilter(cutFrequency);
@@ -38,16 +39,20 @@ namespace NSpeech.DSPAlgorithms.Filters
         /// <param name="cutFreq">Filter's cut frequency</param>
         private void InitFilter(float cutFreq)
         {
+            _d = 0.0;
             _a = new double[FilterOrder];
             _b = new double[FilterOrder];
             _c = new double[FilterOrder];
-            var d = 2.0*Math.Sin(Math.PI*cutFreq*(1.0/_sampleRate))/Math.Cos(Math.PI*cutFreq*(1.0/_sampleRate));
+
+            var tangens = (float)(2.0 * Math.Sin(Math.PI * cutFreq * (1.0 / _sampleRate)) / Math.Cos(Math.PI * cutFreq * (1.0 / _sampleRate)));
+            _d = (float)Math.Pow(tangens, 2);
             for (int i = 0; i < FilterOrder; i++)
             {
-                var cos = Math.Cos(Math.PI*(0.5 + (2*(i + 1) - 1)/(4.0*FilterOrder)));
-                _a[i] = d*d + 4.0*d*cos + 4.0;
-                _b[i] = -8.0 + 2.0*d*d;
-                _c[i] = d*d - 4.0*d*cos + 4.0;
+                var sinus = tangens * Math.Sin(Math.PI * (0.5 + (2.0 * (i + 1) - 1.0) / (2.0 * FilterOrder)));
+                var cosinus = tangens * Math.Cos(Math.PI * (0.5 + (2.0 * (i + 1) - 1.0) / (2.0 * FilterOrder)));
+                _a[i] = (float)(4.0 + 4.0 * cosinus + Math.Pow(cosinus, 2) + Math.Pow(sinus, 2));
+                _b[i] = (float)(-8.0 + 2.0 * (Math.Pow(cosinus, 2) + Math.Pow(sinus, 2)));
+                _c[i] = (float)(4.0 - 4.0 * cosinus + Math.Pow(cosinus, 2) + Math.Pow(sinus, 2));
             }
         }
 
@@ -59,8 +64,8 @@ namespace NSpeech.DSPAlgorithms.Filters
         /// <returns>Output sample</returns>
         private double FilterElementPass(int k, double x)
         {
-            _w0[k] = (1.0*x - _a[k]*_w2[k] - _b[k]*_w1[k])/_c[k];
-            var y = (4.0f*(_w0[k] + _w2[k] - 2.0f*_w1[k]));
+            _w0[k] = (1.0f * x - (_a[k] * _w2[k]) - (_b[k] * _w1[k])) / _c[k];
+            var y = _d * (_w0[k] + _w2[k] + (2.0f * _w1[k]));
             _w2[k] = _w1[k];
             _w1[k] = _w0[k];
             return y;
