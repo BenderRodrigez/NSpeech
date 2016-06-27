@@ -3,9 +3,9 @@
 namespace NSpeech.Clustering.Metrics
 {
     /// <summary>
-    /// Genetate specific metric selected by user (or not) with enumerable.
+    /// Select specific metric selected by user (or not) with enumerable.
     /// </summary>
-    internal static class MetricGenerator
+    internal static class MetricSelector
     {
         /// <summary>
         /// Look at enumerable value and return specific object
