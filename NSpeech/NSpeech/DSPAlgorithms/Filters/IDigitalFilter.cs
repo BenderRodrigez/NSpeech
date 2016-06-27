@@ -6,11 +6,6 @@
     public interface IDigitalFilter
     {
         /// <summary>
-        /// Initialize filter parameters and coeficients
-        /// </summary>
-        void InitFilter();
-
-        /// <summary>
         /// Apply filter to signal
         /// </summary>
         /// <param name="signal">Some signal</param>
