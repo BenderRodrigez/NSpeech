@@ -46,6 +46,8 @@
     <Compile Include="Clustering\Metrics\ManhattanDistance.cs" />
     <Compile Include="Clustering\Metrics\MetricSelector.cs" />
     <Compile Include="Clustering\Metrics\Metrics.cs" />
+    <Compile Include="DSPAlgorithms\Basic\IBasicFeature.cs" />
+    <Compile Include="DSPAlgorithms\Basic\SignalEnergy.cs" />
     <Compile Include="DSPAlgorithms\Filters\BandPassFilter.cs" />
     <Compile Include="DSPAlgorithms\Filters\GaussianFilter.cs" />
     <Compile Include="DSPAlgorithms\Filters\HighPassFilter.cs" />
@@ -58,12 +60,12 @@
     <Compile Include="DSPAlgorithms\WindowFunctions\WindowFunctions.cs" />
     <Compile Include="DSPAlgorithms\WindowFunctions\WindowFunctionSelector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Signal.cs" />
     <Compile Include="Solvers\FuzzySolver.cs" />
     <Compile Include="Solvers\ISolver.cs" />
     <Compile Include="Solvers\SolutionState.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="DSPAlgorithms\Basic\" />
     <Folder Include="DSPAlgorithms\SpeechFeatures\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
