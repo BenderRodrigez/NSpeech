@@ -76,15 +76,15 @@ namespace NSpeech.DSPAlgorithms.Filters
         /// </summary>
         /// <param name="signal">Input signal</param>
         /// <returns>Filtred signal</returns>
-        public float[] Filter(float[] signal)
+        public Signal Filter(Signal signal)
         {
             _w0 = new double[FilterOrder];
             _w1 = new double[FilterOrder];
             _w2 = new double[FilterOrder];
-            var resSignal = new float[signal.Length];
-            for (int i = 0; i < signal.Length; i++)
+            var resSignal = new float[signal.Samples.Length];
+            for (int i = 0; i < signal.Samples.Length; i++)
             {
-                var x = (double)signal[i];
+                var x = (double)signal.Samples[i];
                 for (int k = 0; k < FilterOrder; k++)
                 {
                     //iterative filter chain input
@@ -93,57 +93,7 @@ namespace NSpeech.DSPAlgorithms.Filters
 
                 resSignal[i] = (float)x;
             }
-            return resSignal;
-        }
-
-        /// <summary>
-        /// Apply filter for some signal
-        /// </summary>
-        /// <param name="signal">Input signal</param>
-        /// <returns>Filtred signal</returns>
-        public double[] Filter(double[] signal)
-        {
-            _w0 = new double[FilterOrder];
-            _w1 = new double[FilterOrder];
-            _w2 = new double[FilterOrder];
-            var resSignal = new double[signal.Length];
-            for (int i = 0; i < signal.Length; i++)
-            {
-                var x = signal[i];
-                for (int k = 0; k < FilterOrder; k++)
-                {
-                    //iterative filter chain input
-                    x = FilterElementPass(k, x);
-                }
-
-                resSignal[i] = x;
-            }
-            return resSignal;
-        }
-
-        /// <summary>
-        /// Apply filter for some signal
-        /// </summary>
-        /// <param name="signal">Input signal</param>
-        /// <returns>Filtred signal</returns>
-        public short[] Filter(short[] signal)
-        {
-            _w0 = new double[FilterOrder];
-            _w1 = new double[FilterOrder];
-            _w2 = new double[FilterOrder];
-            var resSignal = new short[signal.Length];
-            for (int i = 0; i < signal.Length; i++)
-            {
-                var x = (double)signal[i];
-                for (int k = 0; k < FilterOrder; k++)
-                {
-                    //iterative filter chain input
-                    x = FilterElementPass(k, x);
-                }
-
-                resSignal[i] = (short)Math.Round(x);
-            }
-            return resSignal;
+            return new Signal(resSignal, signal.SignalFormat.SampleRate);
         }
     }
 }

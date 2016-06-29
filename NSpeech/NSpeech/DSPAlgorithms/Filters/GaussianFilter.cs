@@ -42,59 +42,19 @@ namespace NSpeech.DSPAlgorithms.Filters
         /// </summary>
         /// <param name="signal">Input signal</param>
         /// <returns>Blured signal</returns>
-        public float[] Filter(float[] signal)
+        public Signal Filter(Signal signal)
         {
-            var data = new float[signal.Length];
+            var data = new float[signal.Samples.Length];
             for (int i = (int)_delta; i < data.Length - _delta; i++)
             {
                 var res = 0.0;
                 for (int j = (int)-_delta; j <= _delta; j++)
                 {
-                    res += signal[i + j] * (Math.Exp(-Math.Pow(j, 2) / (2.0 * Math.Pow(_sigma, 2))) / (Math.Sqrt(2 * Math.PI) * _sigma)) / _sum;
+                    res += signal.Samples[i + j] * (Math.Exp(-Math.Pow(j, 2) / (2.0 * Math.Pow(_sigma, 2))) / (Math.Sqrt(2 * Math.PI) * _sigma)) / _sum;
                 }
-                data[i] = (float) res;
+                data[i] = (float)res;
             }
-            return data;
-        }
-
-        /// <summary>
-        /// Apply filter for some signal
-        /// </summary>
-        /// <param name="signal">Input signal</param>
-        /// <returns>Blured signal</returns>
-        public double[] Filter(double[] signal)
-        {
-            var data = new double[signal.Length];
-            for (int i = (int)_delta; i < data.Length - _delta; i++)
-            {
-                var res = 0.0;
-                for (int j = (int)-_delta; j <= _delta; j++)
-                {
-                    res += signal[i + j] * (Math.Exp(-Math.Pow(j, 2) / (2.0 * Math.Pow(_sigma, 2))) / (Math.Sqrt(2 * Math.PI) * _sigma)) / _sum;
-                }
-                data[i] = res;
-            }
-            return data;
-        }
-
-        /// <summary>
-        /// Apply filter for some signal
-        /// </summary>
-        /// <param name="signal">Input signal</param>
-        /// <returns>Blured signal</returns>
-        public short[] Filter(short[] signal)
-        {
-            var data = new short[signal.Length];
-            for (int i = (int)_delta; i < data.Length - _delta; i++)
-            {
-                var res = 0.0;
-                for (int j = (int)-_delta; j <= _delta; j++)
-                {
-                    res += signal[i + j] * (Math.Exp(-Math.Pow(j, 2) / (2.0 * Math.Pow(_sigma, 2))) / (Math.Sqrt(2 * Math.PI) * _sigma)) / _sum;
-                }
-                data[i] = (short)Math.Round(res);
-            }
-            return data;
+            return new Signal(data, signal.SignalFormat.SampleRate);
         }
     }
 }

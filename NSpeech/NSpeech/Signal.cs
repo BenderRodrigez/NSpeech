@@ -14,7 +14,7 @@ namespace NSpeech
         /// <summary>
         /// Signal data
         /// </summary>
-        public float[] Samples { get; set; }
+        public float[] Samples { get; private set; }
 
         /// <summary>
         /// Format of the signal (curently only sampling rate)
