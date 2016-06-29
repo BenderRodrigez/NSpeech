@@ -47,6 +47,7 @@
     <Compile Include="Clustering\Metrics\MetricSelector.cs" />
     <Compile Include="Clustering\Metrics\Metrics.cs" />
     <Compile Include="DSPAlgorithms\Basic\IBasicFeature.cs" />
+    <Compile Include="DSPAlgorithms\Basic\SignalCorrelation.cs" />
     <Compile Include="DSPAlgorithms\Basic\SignalEnergy.cs" />
     <Compile Include="DSPAlgorithms\Filters\BandPassFilter.cs" />
     <Compile Include="DSPAlgorithms\Filters\GaussianFilter.cs" />

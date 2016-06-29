@@ -43,6 +43,17 @@ namespace NSpeech
         }
 
         /// <summary>
+        /// Calulates correlation of the whole signal with provided delay
+        /// </summary>
+        /// <param name="delay">Correlation delay in samples</param>
+        /// <returns>Corellation coefficient value</returns>
+        public double GetCorrelation(int delay = 1)
+        {
+            var correlation = new SignalCorrelation(Samples) {Delay = delay};
+            return correlation.CalculateFeature();
+        }
+
+        /// <summary>
         /// Splits the signal on intervals of analysis
         /// </summary>
         /// <param name="intervalTime">Analysis interval time in seconds</param>
