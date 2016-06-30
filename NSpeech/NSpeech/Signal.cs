@@ -53,6 +53,23 @@ namespace NSpeech
             return correlation.CalculateFeature();
         }
 
+        public ComplexSignal GetSpectrum(int size  = 1024)
+        {
+            var furierTransform = new FastFurierTransform(Samples) {TransformSize = 1024};
+            return furierTransform.GetFunction() as ComplexSignal;
+        }
+
+        public Signal PerformBackwardFurierTransform(int size = 1024)
+        {
+            var furierTansform = new FastFurierTransform(Samples)
+            {
+                TransformSize = size,
+                Direction = FastFurierTransform.TransformationDirection.Backward
+            };
+
+            return furierTansform.GetFunction();
+        }
+
         /// <summary>
         /// Splits the signal on intervals of analysis
         /// </summary>

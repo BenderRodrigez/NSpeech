@@ -36,7 +36,7 @@ namespace NSpeech.DSPAlgorithms.Basic
                 energy += Math.Pow(_samples[j], 2);
                 corellation += _samples[j] * _samples[j + Delay];
             }
-            corellation = (float)(50.0f * (corellation / energy));
+            corellation = (float)(corellation / energy);
 
             return corellation;
         }

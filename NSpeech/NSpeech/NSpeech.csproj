@@ -46,7 +46,11 @@
     <Compile Include="Clustering\Metrics\ManhattanDistance.cs" />
     <Compile Include="Clustering\Metrics\MetricSelector.cs" />
     <Compile Include="Clustering\Metrics\Metrics.cs" />
+    <Compile Include="Complex.cs" />
+    <Compile Include="ComplexSignal.cs" />
+    <Compile Include="DSPAlgorithms\Basic\FastFurierTransform.cs" />
     <Compile Include="DSPAlgorithms\Basic\IBasicFeature.cs" />
+    <Compile Include="DSPAlgorithms\Basic\IBasicFunction.cs" />
     <Compile Include="DSPAlgorithms\Basic\SignalCorrelation.cs" />
     <Compile Include="DSPAlgorithms\Basic\SignalEnergy.cs" />
     <Compile Include="DSPAlgorithms\Filters\BandPassFilter.cs" />
