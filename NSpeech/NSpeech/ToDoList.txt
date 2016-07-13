@@ -1,0 +1,8 @@
+﻿/*TO-DO LIST:
+* Add all basic signal features (like autocorrelation or average zero line corssings count);
+* Make some descidion about speech signal representation;
+* Add speech features (pitch, LPC);
+* Make dictor's model;
+* Add vector quantisation algorithm as dictor model learning algorithm;
+* Should this framework dealth with DB storages or somthing like that to store dictor's models and reuse it or not?
+*/
