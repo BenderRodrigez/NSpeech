@@ -53,12 +53,22 @@ namespace NSpeech
             return correlation.CalculateFeature();
         }
 
+        /// <summary>
+        /// Calculates signal's complex spectrum
+        /// </summary>
+        /// <param name="size">Furier transform size</param>
+        /// <returns>Frequency domain signal</returns>
         public ComplexSignal GetSpectrum(int size  = 1024)
         {
             var furierTransform = new FastFurierTransform(Samples) {TransformSize = 1024};
             return furierTransform.GetFunction() as ComplexSignal;
         }
 
+        /// <summary>
+        /// Converts amplitude spectrum into time domain signal
+        /// </summary>
+        /// <param name="size">Furier transform size</param>
+        /// <returns>Time domain signal</returns>
         public Signal PerformBackwardFurierTransform(int size = 1024)
         {
             var furierTansform = new FastFurierTransform(Samples)
