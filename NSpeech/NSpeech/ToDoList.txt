@@ -1,5 +1,11 @@
 ﻿/*TO-DO LIST:
 * Add all basic signal features (like autocorrelation or average zero line corssings count);
++	* Additive noise generator;
+	* Voiced speech intervals detector;
+	* Start/stop speech detector;
+	* Linear predict coefficients;
+	* Pitch;
+	* Maybe cepstrum (MFCC);
 * Make some descidion about speech signal representation;
 * Add speech features (pitch, LPC);
 * Make dictor's model;

@@ -81,6 +81,21 @@ namespace NSpeech
         }
 
         /// <summary>
+        /// Apply additive noise to signal with specifed level.
+        /// </summary>
+        /// <param name="noiseLevel">Noise level</param>
+        /// <param name="maxEnergyStart">Start of the maximum energy signal interval</param>
+        /// <param name="maxEnergyStop">End of the maximum energy signal interval</param>
+        /// <returns>Noised signal</returns>
+        public Signal ApplyNoise(double noiseLevel, int maxEnergyStart = 0, int maxEnergyStop = -1)
+        {
+            var generator = new AdditiveNoiseGenerator(this, maxEnergyStart,
+                maxEnergyStop > -1 ? maxEnergyStop : Samples.Length) {NoiseLevel = noiseLevel};
+            double snr;
+            return generator.ApplyNoise(out snr);
+        }
+
+        /// <summary>
         /// Calculates signal's autocorrelation 
         /// </summary>
         /// <returns>Autocorrelational signal</returns>
