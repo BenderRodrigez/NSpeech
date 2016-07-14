@@ -81,6 +81,16 @@ namespace NSpeech
         }
 
         /// <summary>
+        /// Calculates signal's autocorrelation 
+        /// </summary>
+        /// <returns>Autocorrelational signal</returns>
+        public Signal GetAutocorrelation()
+        {
+            var autocorr = new Autocorrelation(this);
+            return autocorr.GetFunction();
+        }
+
+        /// <summary>
         /// Splits the signal on intervals of analysis
         /// </summary>
         /// <param name="intervalTime">Analysis interval time in seconds</param>
