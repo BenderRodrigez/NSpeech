@@ -73,6 +73,7 @@
     <Compile Include="Solvers\FuzzySolver.cs" />
     <Compile Include="Solvers\ISolver.cs" />
     <Compile Include="Solvers\SolutionState.cs" />
+    <Compile Include="SpeechSignal.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
