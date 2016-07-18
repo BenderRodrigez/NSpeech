@@ -105,6 +105,11 @@ namespace NSpeech
             return autocorr.GetFunction();
         }
 
+        public double[] GetLinearPredictCoefficients(int numberOfCoefficients)
+        {
+            return null;//TODO: implement
+        }
+
         /// <summary>
         /// Splits the signal on intervals of analysis
         /// </summary>
