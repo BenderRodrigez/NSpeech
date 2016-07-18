@@ -7,7 +7,7 @@ using NSpeech.DSPAlgorithms.WindowFunctions;
 namespace NSpeech
 {
     /// <summary>
-    /// Represent some signal in framework
+    /// Represent some signal
     /// </summary>
     public class Signal
     {
