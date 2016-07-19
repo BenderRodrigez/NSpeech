@@ -105,9 +105,10 @@ namespace NSpeech
             return autocorr.GetFunction();
         }
 
-        public double[] GetLinearPredictCoefficients(int numberOfCoefficients)
+        public Signal GetLinearPredictCoefficients(int numberOfCoefficients)
         {
-            return null;//TODO: implement
+            var lpc = new LinearPrediction(this) {Order = numberOfCoefficients};
+            return lpc.GetFunction();
         }
 
         /// <summary>
