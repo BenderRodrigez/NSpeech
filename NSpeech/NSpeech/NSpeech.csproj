@@ -62,6 +62,7 @@
     <Compile Include="DSPAlgorithms\Filters\IDigitalFilter.cs" />
     <Compile Include="DSPAlgorithms\Filters\LowPassFilter.cs" />
     <Compile Include="DSPAlgorithms\SpeechFeatures\ISpeechFeature.cs" />
+    <Compile Include="DSPAlgorithms\SpeechFeatures\Pitch.cs" />
     <Compile Include="DSPAlgorithms\SpeechFeatures\VoicedSeechFeature.cs" />
     <Compile Include="DSPAlgorithms\WindowFunctions\BlackmanWindow.cs" />
     <Compile Include="DSPAlgorithms\WindowFunctions\HammingWindow.cs" />

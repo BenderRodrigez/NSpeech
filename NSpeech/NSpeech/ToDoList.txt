@@ -3,7 +3,7 @@
 +	* Additive noise generator;
 +	* Voiced speech intervals detector;
 +	* Start/stop speech detector;
-	* Linear predict coefficients;
++	* Linear predict coefficients;
 	* Pitch;
 	* Maybe cepstrum (MFCC);
 * Make some descidion about speech signal representation;
