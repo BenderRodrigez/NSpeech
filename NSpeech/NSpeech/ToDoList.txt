@@ -4,7 +4,8 @@
 +	* Voiced speech intervals detector;
 +	* Start/stop speech detector;
 +	* Linear predict coefficients;
-	* Pitch;
++	* Pitch;
+	* Fix all descriptions, made some refactoring;
 	* Maybe cepstrum (MFCC);
 * Make some descidion about speech signal representation;
 * Add speech features (pitch, LPC);
