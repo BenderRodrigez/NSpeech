@@ -6,5 +6,7 @@
     public interface IWindowFunction
     {
         float[] ApplyWindowFunction(float[] signal);
+
+        Signal ApplyWindowFunction(Signal signal);
     }
 }

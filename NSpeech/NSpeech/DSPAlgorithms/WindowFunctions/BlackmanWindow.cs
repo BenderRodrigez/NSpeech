@@ -26,5 +26,10 @@ namespace NSpeech.DSPAlgorithms.WindowFunctions
             }
             return x;
         }
+
+        public Signal ApplyWindowFunction(Signal signal)
+        {
+            return new Signal(ApplyWindowFunction(signal.Samples), signal.SignalFormat.SampleRate);
+        }
     }
 }

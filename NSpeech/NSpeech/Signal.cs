@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NSpeech.DSPAlgorithms.Basic;
+using NSpeech.DSPAlgorithms.SpeechFeatures;
 using NSpeech.DSPAlgorithms.WindowFunctions;
 
 namespace NSpeech
@@ -105,10 +106,50 @@ namespace NSpeech
             return autocorr.GetFunction();
         }
 
+        public Signal GetPitchTrack()
+        {
+            var voicedSpeechFeature = new VoicedSeechFeature(this, 0.04, 0.95).GetFeature();
+            var speechMarks = new List<Tuple<int, int>>();
+            var start = -1;
+            for (int i = 0; i < voicedSpeechFeature.Samples.Length; i++)
+            {
+                if (voicedSpeechFeature.Samples[i] > 5.0f && start == -1)
+                {
+                    start = i;
+                }
+                if (voicedSpeechFeature.Samples[i] <= 5.0 && start > -1)
+                {
+                    speechMarks.Add(new Tuple<int, int>(start, i));
+                    start = -1;
+                }
+            }
+
+            if (start > -1)
+            {
+                speechMarks.Add(new Tuple<int, int>(start, voicedSpeechFeature.Samples.Length));
+            }
+
+            var pitch = new Pitch(this, speechMarks);
+            return pitch.GetFeature();
+        }
+
         public Signal GetLinearPredictCoefficients(int numberOfCoefficients)
         {
             var lpc = new LinearPrediction(this) {Order = numberOfCoefficients};
             return lpc.GetFunction();
+        }
+
+        public Signal ExtractAnalysisInterval(int startPosition, int length)
+        {
+            var interval = new float[length];
+            Array.Copy(Samples, startPosition, interval, 0, length);
+            return new Signal(interval, SignalFormat.SampleRate);
+        }
+
+        public Signal ApplyCentralLimitation(double level)
+        {
+            var maxSignal = Samples.Max(x => Math.Abs(x))*level;
+            return new Signal(Samples.Select(x => Math.Abs(x) > maxSignal ? x : 0.0f).ToArray(), SignalFormat.SampleRate);
         }
 
         /// <summary>

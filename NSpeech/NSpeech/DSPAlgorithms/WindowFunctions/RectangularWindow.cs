@@ -13,7 +13,12 @@
         public float[] ApplyWindowFunction(float[] signal)
         {
             //Rectangular window == no window.
-            return signal;
+            return (float[]) signal.Clone();
+        }
+
+        public Signal ApplyWindowFunction(Signal signal)
+        {
+            return new Signal(signal.Samples, signal.SignalFormat.SampleRate);
         }
     }
 }
