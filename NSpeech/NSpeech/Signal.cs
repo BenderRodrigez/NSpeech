@@ -34,6 +34,17 @@ namespace NSpeech
         }
 
         /// <summary>
+        /// Creates signal with some format info
+        /// </summary>
+        /// <param name="samples"></param>
+        /// <param name="signalFormat"></param>
+        public Signal(float[] samples, Format signalFormat)
+        {
+            SignalFormat = signalFormat;
+            Samples = samples;
+        }
+
+        /// <summary>
         /// Calculates energy of the whole signal
         /// </summary>
         /// <returns>Energy value</returns>
@@ -174,26 +185,6 @@ namespace NSpeech
                 intervals.Add(new Signal(windowFunction.ApplyWindowFunction(intervalSamples), SignalFormat.SampleRate));
             }
             return intervals.ToArray();
-        }
-
-        /// <summary>
-        /// Signal's format parameters
-        /// </summary>
-        public struct Format
-        {
-            /// <summary>
-            /// Signal sampling rate
-            /// </summary>
-            public int SampleRate { get; private set; }
-
-            /// <summary>
-            /// Creates new signal's format
-            /// </summary>
-            /// <param name="sampleRate">Signal's sampling rate</param>
-            public Format(int sampleRate) : this()
-            {
-                SampleRate = sampleRate;
-            }
         }
     }
 }
