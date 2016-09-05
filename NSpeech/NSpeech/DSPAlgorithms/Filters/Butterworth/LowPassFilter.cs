@@ -1,18 +1,18 @@
 ﻿using System;
 
-namespace NSpeech.DSPAlgorithms.Filters
+namespace NSpeech.DSPAlgorithms.Filters.Butterworth
 {
     /// <summary>
     /// Implements Butterworth 4th order LowPassFilter  
     /// </summary>
-    public class LowPassFilter:IDigitalFilter
+    public sealed class LowPassFilter:ButterworthFilter, IDigitalFilter
     {
         /// <summary>
         /// Signal sampling rate
         /// </summary>
         private readonly int _sampleRate;
 
-        private const int FilterOrder = 4;
+        public float CutFrequency { get; set; }
 
         private double[] _a;
         private double[] _b;
@@ -30,45 +30,8 @@ namespace NSpeech.DSPAlgorithms.Filters
         public LowPassFilter(float cutFrequency, int sampleRate)
         {
             _sampleRate = sampleRate;
-            InitFilter(cutFrequency);
-        }
-
-        /// <summary>
-        /// Init filter parameters
-        /// </summary>
-        /// <param name="cutFreq">Filter's cut frequency</param>
-        private void InitFilter(float cutFreq)
-        {
-            _d = 0.0;
-            _a = new double[FilterOrder];
-            _b = new double[FilterOrder];
-            _c = new double[FilterOrder];
-
-            var tangens = (float)(2.0 * Math.Sin(Math.PI * cutFreq * (1.0 / _sampleRate)) / Math.Cos(Math.PI * cutFreq * (1.0 / _sampleRate)));
-            _d = (float)Math.Pow(tangens, 2);
-            for (int i = 0; i < FilterOrder; i++)
-            {
-                var sinus = tangens * Math.Sin(Math.PI * (0.5 + (2.0 * (i + 1) - 1.0) / (2.0 * FilterOrder)));
-                var cosinus = tangens * Math.Cos(Math.PI * (0.5 + (2.0 * (i + 1) - 1.0) / (2.0 * FilterOrder)));
-                _a[i] = (float)(4.0 + 4.0 * cosinus + Math.Pow(cosinus, 2) + Math.Pow(sinus, 2));
-                _b[i] = (float)(-8.0 + 2.0 * (Math.Pow(cosinus, 2) + Math.Pow(sinus, 2)));
-                _c[i] = (float)(4.0 - 4.0 * cosinus + Math.Pow(cosinus, 2) + Math.Pow(sinus, 2));
-            }
-        }
-
-        /// <summary>
-        /// K-th filter chain
-        /// </summary>
-        /// <param name="k">Chain order</param>
-        /// <param name="x">Input sample</param>
-        /// <returns>Output sample</returns>
-        private double FilterElementPass(int k, double x)
-        {
-            _w0[k] = (1.0f * x - (_a[k] * _w2[k]) - (_b[k] * _w1[k])) / _c[k];
-            var y = _d * (_w0[k] + _w2[k] + (2.0f * _w1[k]));
-            _w2[k] = _w1[k];
-            _w1[k] = _w0[k];
-            return y;
+            CutFrequency = cutFrequency;
+            Init();
         }
 
         /// <summary>
@@ -88,12 +51,40 @@ namespace NSpeech.DSPAlgorithms.Filters
                 for (int k = 0; k < FilterOrder; k++)
                 {
                     //iterative filter chain input
-                    x = FilterElementPass(k, x);
+                    x = PassFilter(k, x);
                 }
 
                 resSignal[i] = (float)x;
             }
             return new Signal(resSignal, signal.SignalFormat.SampleRate);
+        }
+
+        protected override void Init()
+        {
+            _d = 0.0;
+            _a = new double[FilterOrder];
+            _b = new double[FilterOrder];
+            _c = new double[FilterOrder];
+
+            var tangens = (float)(2.0 * Math.Sin(Math.PI * CutFrequency * (1.0 / _sampleRate)) / Math.Cos(Math.PI * CutFrequency * (1.0 / _sampleRate)));
+            _d = (float)Math.Pow(tangens, 2);
+            for (int i = 0; i < FilterOrder; i++)
+            {
+                var sinus = tangens * Math.Sin(Math.PI * (0.5 + (2.0 * (i + 1) - 1.0) / (2.0 * FilterOrder)));
+                var cosinus = tangens * Math.Cos(Math.PI * (0.5 + (2.0 * (i + 1) - 1.0) / (2.0 * FilterOrder)));
+                _a[i] = (float)(4.0 + 4.0 * cosinus + Math.Pow(cosinus, 2) + Math.Pow(sinus, 2));
+                _b[i] = (float)(-8.0 + 2.0 * (Math.Pow(cosinus, 2) + Math.Pow(sinus, 2)));
+                _c[i] = (float)(4.0 - 4.0 * cosinus + Math.Pow(cosinus, 2) + Math.Pow(sinus, 2));
+            }
+        }
+
+        protected override double PassFilter(int k, double x)
+        {
+            _w0[k] = (1.0f * x - (_a[k] * _w2[k]) - (_b[k] * _w1[k])) / _c[k];
+            var y = _d * (_w0[k] + _w2[k] + (2.0f * _w1[k]));
+            _w2[k] = _w1[k];
+            _w1[k] = _w0[k];
+            return y;
         }
     }
 }

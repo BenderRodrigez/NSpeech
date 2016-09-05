@@ -56,11 +56,12 @@
     <Compile Include="DSPAlgorithms\Basic\LinearPrediction.cs" />
     <Compile Include="DSPAlgorithms\Basic\SignalCorrelation.cs" />
     <Compile Include="DSPAlgorithms\Basic\SignalEnergy.cs" />
-    <Compile Include="DSPAlgorithms\Filters\BandPassFilter.cs" />
+    <Compile Include="DSPAlgorithms\Filters\Butterworth\BandPassFilter.cs" />
+    <Compile Include="DSPAlgorithms\Filters\Butterworth\ButterworthFilter.cs" />
     <Compile Include="DSPAlgorithms\Filters\GaussianFilter.cs" />
-    <Compile Include="DSPAlgorithms\Filters\HighPassFilter.cs" />
+    <Compile Include="DSPAlgorithms\Filters\Butterworth\HighPassFilter.cs" />
     <Compile Include="DSPAlgorithms\Filters\IDigitalFilter.cs" />
-    <Compile Include="DSPAlgorithms\Filters\LowPassFilter.cs" />
+    <Compile Include="DSPAlgorithms\Filters\Butterworth\LowPassFilter.cs" />
     <Compile Include="DSPAlgorithms\SpeechFeatures\ISpeechFeature.cs" />
     <Compile Include="DSPAlgorithms\SpeechFeatures\Pitch.cs" />
     <Compile Include="DSPAlgorithms\SpeechFeatures\VoicedSeechFeature.cs" />

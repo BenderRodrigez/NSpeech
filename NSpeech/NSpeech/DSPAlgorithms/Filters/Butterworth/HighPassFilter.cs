@@ -1,18 +1,18 @@
 ﻿using System;
 
-namespace NSpeech.DSPAlgorithms.Filters
+namespace NSpeech.DSPAlgorithms.Filters.Butterworth
 {
     /// <summary>
     /// Implemets Butterworth 4th order HighPassFilter
     /// </summary>
-    public class HighPassFilter : IDigitalFilter
+    public sealed class HighPassFilter : ButterworthFilter, IDigitalFilter
     {
         /// <summary>
         /// Signal sampling rate
         /// </summary>
         private readonly int _sampleRate;
 
-        private const int FilterOrder = 4;
+        public float CutFrequency { get; set; }
 
         private double[] _a;
         private double[] _b;
@@ -29,25 +29,22 @@ namespace NSpeech.DSPAlgorithms.Filters
         public HighPassFilter(float cutFrequency, int sampleRate)
         {
             _sampleRate = sampleRate;
-            InitFilter(cutFrequency);
+            CutFrequency = cutFrequency;
+            Init();
         }
 
-        /// <summary>
-        /// Init filter parameters
-        /// </summary>
-        /// <param name="cutFreq">Filter's cut frequency</param>
-        private void InitFilter(float cutFreq)
+        protected override void Init()
         {
             _a = new double[FilterOrder];
             _b = new double[FilterOrder];
             _c = new double[FilterOrder];
-            var d = 2.0*Math.Sin(Math.PI*cutFreq*(1.0/_sampleRate))/Math.Cos(Math.PI*cutFreq*(1.0/_sampleRate));
+            var d = 2.0 * Math.Sin(Math.PI * CutFrequency * (1.0 / _sampleRate)) / Math.Cos(Math.PI * CutFrequency * (1.0 / _sampleRate));
             for (int i = 0; i < FilterOrder; i++)
             {
-                var cos = Math.Cos(Math.PI*(0.5 + (2*(i + 1) - 1)/(4.0*FilterOrder)));
-                _a[i] = d*d + 4.0*d*cos + 4.0;
-                _b[i] = -8.0 + 2.0*d*d;
-                _c[i] = d*d - 4.0*d*cos + 4.0;
+                var cos = Math.Cos(Math.PI * (0.5 + (2 * (i + 1) - 1) / (4.0 * FilterOrder)));
+                _a[i] = d * d + 4.0 * d * cos + 4.0;
+                _b[i] = -8.0 + 2.0 * d * d;
+                _c[i] = d * d - 4.0 * d * cos + 4.0;
             }
         }
 
@@ -57,7 +54,7 @@ namespace NSpeech.DSPAlgorithms.Filters
         /// <param name="k">Chain order</param>
         /// <param name="x">Input sample</param>
         /// <returns>Output sample</returns>
-        private double FilterElementPass(int k, double x)
+        protected override double PassFilter(int k, double x)
         {
             _w0[k] = (1.0*x - _a[k]*_w2[k] - _b[k]*_w1[k])/_c[k];
             var y = (4.0f*(_w0[k] + _w2[k] - 2.0f*_w1[k]));
@@ -83,7 +80,7 @@ namespace NSpeech.DSPAlgorithms.Filters
                 for (int k = 0; k < FilterOrder; k++)
                 {
                     //iterative filter chain input
-                    x = FilterElementPass(k, x);
+                    x = PassFilter(k, x);
                 }
 
                 resSignal[i] = (float)x;

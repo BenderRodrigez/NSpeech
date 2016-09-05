@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NSpeech.DSPAlgorithms.Filters;
+using NSpeech.DSPAlgorithms.Filters.Butterworth;
 
 namespace NSpeech.DSPAlgorithms.SpeechFeatures
 {
