@@ -65,10 +65,7 @@
     <Compile Include="DSPAlgorithms\SpeechFeatures\ISpeechFeature.cs" />
     <Compile Include="DSPAlgorithms\SpeechFeatures\Pitch.cs" />
     <Compile Include="DSPAlgorithms\SpeechFeatures\VoicedSeechFeature.cs" />
-    <Compile Include="DSPAlgorithms\WindowFunctions\BlackmanWindow.cs" />
-    <Compile Include="DSPAlgorithms\WindowFunctions\HammingWindow.cs" />
     <Compile Include="DSPAlgorithms\WindowFunctions\IWindowFunction.cs" />
-    <Compile Include="DSPAlgorithms\WindowFunctions\RectangularWindow.cs" />
     <Compile Include="DSPAlgorithms\WindowFunctions\WindowFunctions.cs" />
     <Compile Include="DSPAlgorithms\WindowFunctions\WindowFunctionSelector.cs" />
     <Compile Include="Format.cs" />

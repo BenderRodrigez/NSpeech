@@ -81,9 +81,8 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
                     var data = _signal.ExtractAnalysisInterval(samples, size); 
                     var filterdData = filtredSignal.ExtractAnalysisInterval(samples, size);
 
-                    var window = WindowFunctions.WindowFunctionSelector.SelectWindowFunction(WindowFunction);
-                    data = window.ApplyWindowFunction(data);
-                    filterdData = window.ApplyWindowFunction(filterdData);
+                    data = data.ApplyWindowFunction(WindowFunction);
+                    filterdData = filterdData.ApplyWindowFunction(WindowFunction);
 
                     filterdData = filterdData.ApplyCentralLimitation(CentralLimitation);
 

@@ -182,9 +182,21 @@ namespace NSpeech
                 var intervalSamples = Samples.Skip(i).Take(intervalInSamples).ToArray();
                 var windowFunction = WindowFunctionSelector.SelectWindowFunction(window);
 
-                intervals.Add(new Signal(windowFunction.ApplyWindowFunction(intervalSamples), SignalFormat.SampleRate));
+                intervals.Add(new Signal(windowFunction(intervalSamples), SignalFormat.SampleRate));
             }
             return intervals.ToArray();
+        }
+
+
+        /// <summary>
+        /// Apply window function to signal's samples
+        /// </summary>
+        /// <param name="window">Window function type</param>
+        /// <returns>Windowed signal</returns>
+        public Signal ApplyWindowFunction(WindowFunctions window)
+        {
+            var windowFunction = WindowFunctionSelector.SelectWindowFunction(window);
+            return new Signal(windowFunction(Samples), SignalFormat);
         }
     }
 }
