@@ -5,7 +5,7 @@ namespace NSpeech.DSPAlgorithms.Filters.Butterworth
     /// <summary>
     /// Implemets BandPass Butterworth 4th order filter
     /// </summary>
-    public sealed class BandPassFilter: ButterworthFilter, IDigitalFilter
+    internal sealed class BandPassFilter: ButterworthFilter, IDigitalFilter
     {
        /// <summary>
         /// Signal sampling rate
@@ -66,33 +66,6 @@ namespace NSpeech.DSPAlgorithms.Filters.Butterworth
                 resSignal[i] = (float)x;
             }
             return resSignal;
-        }
-
-        /// <summary>
-        /// Apply filter for some signal
-        /// </summary>
-        /// <param name="signal">Input signal</param>
-        /// <returns>Filtred signal</returns>
-        public Signal Filter(Signal signal)
-        {
-            _w0 = new double[FilterOrder];
-            _w1 = new double[FilterOrder];
-            _w2 = new double[FilterOrder];
-            _w3 = new double[FilterOrder];
-            _w4 = new double[FilterOrder];
-            var resSignal = new float[signal.Samples.Length];
-            for (int i = 0; i < signal.Samples.Length; i++)
-            {
-                var x = (double)signal.Samples[i];
-                for (int k = 0; k < FilterOrder; k++)
-                {
-                    //iterative filter chain input
-                    x = PassFilter(k, x);
-                }
-
-                resSignal[i] = (short)Math.Round(x);
-            }
-            return new Signal(resSignal, signal.SignalFormat.SampleRate);
         }
 
         protected override void Init()

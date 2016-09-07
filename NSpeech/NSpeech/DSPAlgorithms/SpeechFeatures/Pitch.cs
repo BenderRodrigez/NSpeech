@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NSpeech.DSPAlgorithms.Filters;
-using NSpeech.DSPAlgorithms.Filters.Butterworth;
 
 namespace NSpeech.DSPAlgorithms.SpeechFeatures
 {
@@ -49,10 +47,8 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
         private double[] TrackPitch()
         {
             //preprocessing
-            var hpf = new HighPassFilter(HighPassFilterBorder, _signal.SignalFormat.SampleRate);
-            var filtredSignal = hpf.Filter(_signal);
-            var lpf = new LowPassFilter(LowPassFilterBorder, _signal.SignalFormat.SampleRate);
-            filtredSignal = lpf.Filter(filtredSignal);
+            var filtredSignal = _signal.ApplyHighPassFiltration(HighPassFilterBorder);
+            filtredSignal = filtredSignal.ApplyLowPassFiltration(LowPassFilterBorder);
 
             //analysis variables
             var size = (int)Math.Round(AnalysisInterval*_signal.SignalFormat.SampleRate);
@@ -227,7 +223,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
         public Signal GetFeature()
         {
-            return new Signal(TrackPitch().Select(x => (float) x).ToArray(), _signal.SignalFormat.SampleRate);
+            return new Signal(TrackPitch().Select(x => (float) x).ToArray(), _signal.SignalFormat);
         }
     }
 }

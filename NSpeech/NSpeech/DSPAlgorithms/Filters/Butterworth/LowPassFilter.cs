@@ -5,7 +5,7 @@ namespace NSpeech.DSPAlgorithms.Filters.Butterworth
     /// <summary>
     /// Implements Butterworth 4th order LowPassFilter  
     /// </summary>
-    public sealed class LowPassFilter:ButterworthFilter, IDigitalFilter
+    internal sealed class LowPassFilter:ButterworthFilter, IDigitalFilter
     {
         /// <summary>
         /// Signal sampling rate
@@ -39,15 +39,15 @@ namespace NSpeech.DSPAlgorithms.Filters.Butterworth
         /// </summary>
         /// <param name="signal">Input signal</param>
         /// <returns>Filtred signal</returns>
-        public Signal Filter(Signal signal)
+        public float[] Filter(float[] signal)
         {
             _w0 = new double[FilterOrder];
             _w1 = new double[FilterOrder];
             _w2 = new double[FilterOrder];
-            var resSignal = new float[signal.Samples.Length];
-            for (int i = 0; i < signal.Samples.Length; i++)
+            var resSignal = new float[signal.Length];
+            for (int i = 0; i < signal.Length; i++)
             {
-                var x = (double)signal.Samples[i];
+                var x = (double)signal[i];
                 for (int k = 0; k < FilterOrder; k++)
                 {
                     //iterative filter chain input
@@ -56,7 +56,7 @@ namespace NSpeech.DSPAlgorithms.Filters.Butterworth
 
                 resSignal[i] = (float)x;
             }
-            return new Signal(resSignal, signal.SignalFormat.SampleRate);
+            return resSignal;
         }
 
         protected override void Init()

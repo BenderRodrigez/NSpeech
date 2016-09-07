@@ -5,7 +5,7 @@ namespace NSpeech.DSPAlgorithms.Filters
     /// <summary>
     /// Implements one dimensional Gaussian Blur
     /// </summary>
-    public class GaussianFilter: IDigitalFilter
+    internal class GaussianFilter: IDigitalFilter
     {
         private readonly int _blurDiameter;
         private double _sigma;
@@ -42,19 +42,19 @@ namespace NSpeech.DSPAlgorithms.Filters
         /// </summary>
         /// <param name="signal">Input signal</param>
         /// <returns>Blured signal</returns>
-        public Signal Filter(Signal signal)
+        public float[] Filter(float[] signal)
         {
-            var data = new float[signal.Samples.Length];
+            var data = new float[signal.Length];
             for (int i = (int)_delta; i < data.Length - _delta; i++)
             {
                 var res = 0.0;
                 for (int j = (int)-_delta; j <= _delta; j++)
                 {
-                    res += signal.Samples[i + j] * (Math.Exp(-Math.Pow(j, 2) / (2.0 * Math.Pow(_sigma, 2))) / (Math.Sqrt(2 * Math.PI) * _sigma)) / _sum;
+                    res += signal[i + j] * (Math.Exp(-Math.Pow(j, 2) / (2.0 * Math.Pow(_sigma, 2))) / (Math.Sqrt(2 * Math.PI) * _sigma)) / _sum;
                 }
                 data[i] = (float)res;
             }
-            return new Signal(data, signal.SignalFormat.SampleRate);
+            return data;
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace NSpeech.DSPAlgorithms.Filters
 {
-    public abstract class ButterworthFilter
+    internal abstract class ButterworthFilter
     {
         public ButterworthFilter()
         {

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NSpeech.DSPAlgorithms.Filters;
-using NSpeech.DSPAlgorithms.Filters.Butterworth;
 
 namespace NSpeech.DSPAlgorithms.SpeechFeatures
 {
@@ -41,8 +39,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
         private double[] GetEnergy(double windowSize, double overlapping)
         {
-            var filter = new LowPassFilter(LowPassFilterBorder, _signal.SignalFormat.SampleRate);
-            var file = filter.Filter(_signal);
+            var file = _signal.ApplyLowPassFiltration(LowPassFilterBorder);
 
             return
                 file.Split(windowSize, overlapping, WindowFunctions.WindowFunctions.Rectangular)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NSpeech.DSPAlgorithms.Basic;
+using NSpeech.DSPAlgorithms.Filters.Butterworth;
 using NSpeech.DSPAlgorithms.SpeechFeatures;
 using NSpeech.DSPAlgorithms.WindowFunctions;
 
@@ -197,6 +198,40 @@ namespace NSpeech
         {
             var windowFunction = WindowFunctionSelector.SelectWindowFunction(window);
             return new Signal(windowFunction(Samples), SignalFormat);
+        }
+
+        /// <summary>
+        /// Apply low-pass filter to signal
+        /// </summary>
+        /// <param name="borderFrequency">Cut frequency</param>
+        /// <returns>Filtred signal</returns>
+        public Signal ApplyLowPassFiltration(float borderFrequency)
+        {
+            var lpf = new LowPassFilter(borderFrequency, SignalFormat.SampleRate);
+            return new Signal(lpf.Filter(Samples), SignalFormat);
+        }
+
+        /// <summary>
+        /// Apply high-pass filter to signal
+        /// </summary>
+        /// <param name="borderFrequency">Cut frequency</param>
+        /// <returns>Filtred signal</returns>
+        public Signal ApplyHighPassFiltration(float borderFrequency)
+        {
+            var hpf = new HighPassFilter(borderFrequency, SignalFormat.SampleRate);
+            return new Signal(hpf.Filter(Samples), SignalFormat);
+        }
+
+        /// <summary>
+        /// Apply band-pass filter to signal
+        /// </summary>
+        /// <param name="lowerBoder">Lower cut frequency</param>
+        /// <param name="upperBorder">Upper cut frequency</param>
+        /// <returns>Filtred signal</returns>
+        public Signal ApplyBandPassFiltration(float lowerBoder, float upperBorder)
+        {
+            var bpf = new BandPassFilter(lowerBoder, upperBorder, SignalFormat.SampleRate);
+            return new Signal(bpf.Filter(Samples), SignalFormat);
         }
     }
 }
