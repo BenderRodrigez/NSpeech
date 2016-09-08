@@ -73,8 +73,8 @@ namespace NSpeech
         /// <returns>Frequency domain signal</returns>
         public ComplexSignal GetSpectrum(int size  = 1024)
         {
-            var furierTransform = new FastFurierTransform(Samples) {TransformSize = 1024};
-            return furierTransform.GetFunction() as ComplexSignal;
+            var furierTransform = new FastFurierTransform(Samples);
+            return new ComplexSignal(furierTransform.PerformForwardTransform(size), SignalFormat);
         }
 
         /// <summary>
@@ -84,13 +84,9 @@ namespace NSpeech
         /// <returns>Time domain signal</returns>
         public Signal PerformBackwardFurierTransform(int size = 1024)
         {
-            var furierTansform = new FastFurierTransform(Samples)
-            {
-                TransformSize = size,
-                Direction = FastFurierTransform.TransformationDirection.Backward
-            };
+            var furierTansform = new FastFurierTransform(Samples);
 
-            return furierTansform.GetFunction();
+            return new Signal(furierTansform.PerformBackwardTransform(size), SignalFormat);
         }
 
         /// <summary>
@@ -114,8 +110,8 @@ namespace NSpeech
         /// <returns>Autocorrelational signal</returns>
         public Signal GetAutocorrelation()
         {
-            var autocorr = new Autocorrelation(this);
-            return autocorr.GetFunction();
+            var autocorr = new Autocorrelation(Samples);
+            return new Signal(autocorr.GetFunction(), SignalFormat);
         }
 
         public Signal GetPitchTrack()
@@ -147,8 +143,8 @@ namespace NSpeech
 
         public Signal GetLinearPredictCoefficients(int numberOfCoefficients)
         {
-            var lpc = new LinearPrediction(this) {Order = numberOfCoefficients};
-            return lpc.GetFunction();
+            var lpc = new LinearPrediction(this);
+            return new Signal(lpc.GetCoefficients(numberOfCoefficients), SignalFormat);
         }
 
         public Signal ExtractAnalysisInterval(int startPosition, int length)

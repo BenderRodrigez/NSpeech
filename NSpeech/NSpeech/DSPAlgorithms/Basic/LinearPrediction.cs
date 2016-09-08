@@ -3,23 +3,20 @@ using System.Linq;
 
 namespace NSpeech.DSPAlgorithms.Basic
 {
-    class LinearPrediction:IBasicFunction
+    class LinearPrediction
     {
-        private Signal _signal;
-
-        public int Order { get; set; }
+        private readonly Signal _signal;
 
         public LinearPrediction(Signal signal)
         {
             _signal = signal;
-            Order = 10;
         }
 
-        private double[] MakeInitialAutocorrelationalVector()
+        private double[] MakeInitialAutocorrelationalVector(int order)
         {
-            var vector = new double[Order+1];
+            var vector = new double[order+1];
             var autocorr = _signal.GetAutocorrelation();
-            Array.Copy(autocorr.Samples, vector, Order + 1);//TODO: possible time loss for unnecessary calculations
+            Array.Copy(autocorr.Samples, vector, order + 1);//TODO: possible time loss for unnecessary calculations
             return vector;
         }
 
@@ -27,15 +24,15 @@ namespace NSpeech.DSPAlgorithms.Basic
         /// Calcs LPC coefficients by Durbin algorythm
         /// </summary>
         /// <param name="initialVector">Auto-correlation vector from 0 to N</param>
-        /// <param name="lpcCoefficients">Output LPC values vector</param>
-        private double[] DurbinAlgLpcCoefficients(double[] initialVector)
+        /// <param name="order">Number of LPC coefficients</param>
+        private double[] DurbinAlgLpcCoefficients(double[] initialVector, int order)
         {
-            var tmp = new double[Order];
-            var lpcCoefficients = new double[Order];
+            var tmp = new double[order];
+            var lpcCoefficients = new double[order];
 
             var e = initialVector[0];
 
-            for (int i = 0; i < Order; i++)
+            for (int i = 0; i < order; i++)
             {
                 var tmp0 = initialVector[i + 1];
                 for (int j = 0; j < i; j++)
@@ -56,12 +53,15 @@ namespace NSpeech.DSPAlgorithms.Basic
             return lpcCoefficients;
         }
 
-        public Signal GetFunction()
+        public float[] GetCoefficients(int order)
         {
+            if(order < 1)
+                throw new ArgumentException("Invalid order parameter! Should larger than 0.", "order");
+
             return
-                new Signal(
-                    DurbinAlgLpcCoefficients(MakeInitialAutocorrelationalVector()).Select(x => (float) x).ToArray(),
-                    _signal.SignalFormat.SampleRate);
+                DurbinAlgLpcCoefficients(MakeInitialAutocorrelationalVector(order), order)
+                    .Select(x => (float) x)
+                    .ToArray();
         }
     }
 }

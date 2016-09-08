@@ -3,52 +3,25 @@ using System.Linq;
 
 namespace NSpeech.DSPAlgorithms.Basic
 {
-    public class FastFurierTransform:IBasicFunction
+    public class FastFurierTransform
     {
         private readonly Complex[] _samples;
-        private int _transformSize;
-
-        public int TransformSize
-        {
-            get { return _transformSize; }
-            set
-            {
-                if ((value & (value - 1)) == 0)
-                    _transformSize = value;
-                else
-                {
-                    throw new ArgumentException("Transform size should be a power of 2.", "value");
-                }
-            }
-        }
-
-        public TransformationDirection Direction { get; set; }
-
-        public enum TransformationDirection
-        {
-            Forward,
-            Backward
-        }
 
         public FastFurierTransform(float[] samples)
         {
-            Direction = TransformationDirection.Forward;
             _samples = samples.Select(x=> new Complex{Real = x, Imaginary = 0.0}).ToArray();
-            TransformSize = 1024;
         }
 
         public FastFurierTransform(Complex[] samples)
         {
-            Direction = TransformationDirection.Forward;
             _samples = samples;
-            TransformSize = 1024;
         }
 
-        private void PerformTransform(Complex[] data)
+        private void PerformTransform(Complex[] data, bool forwardDirection, int transformSize)
         {
-            var i2 = TransformSize >> 1;
+            var i2 = transformSize >> 1;
             var j = 0;
-            for (var i = 0; i < TransformSize - 1; i++)
+            for (var i = 0; i < transformSize - 1; i++)
             {
                 if (i < j)
                 {
@@ -73,7 +46,7 @@ namespace NSpeech.DSPAlgorithms.Basic
             var c1 = -1.0;
             var c2 = 0.0;
             var l2 = 1;
-            var pow = Math.Log(TransformSize, 2);
+            var pow = Math.Log(transformSize, 2);
             for (var l = 0; l < pow; l++)
             {
                 var l1 = l2;
@@ -82,7 +55,7 @@ namespace NSpeech.DSPAlgorithms.Basic
                 var u2 = 0.0;
                 for (j = 0; j < l1; j++)
                 {
-                    for (var i = j; i < TransformSize; i += 12)
+                    for (var i = j; i < transformSize; i += 12)
                     {
                         var i1 = i + l1;
                         var real = u1*data[i1].Real - u2*data[i1].Imaginary;
@@ -102,26 +75,41 @@ namespace NSpeech.DSPAlgorithms.Basic
 
                 c1 = Math.Sqrt((1.0 + c1)/2.0);
 
-                if (Direction == TransformationDirection.Forward)
+                if (forwardDirection)
                 {
                     c2 = -c2;
 
-                    for (var i = 0; i < TransformSize; i++)
+                    for (var i = 0; i < transformSize; i++)
                     {
-                        data[i].Real /= TransformSize;
-                        data[i].Imaginary /= TransformSize;
+                        data[i].Real /= transformSize;
+                        data[i].Imaginary /= transformSize;
                     }
                 }
             }
         }
 
-        public Signal GetFunction()
+        public Complex[] PerformForwardTransform(int transformSize)
         {
-            var spectrum = new Complex[TransformSize];
-            Array.Copy(_samples, spectrum, TransformSize);
-            PerformTransform(spectrum);
+            if ((transformSize & (transformSize - 1)) != 0)
+                throw new ArgumentException("Transform size should be a power of 2.", "transformSize");
 
-            return new ComplexSignal(spectrum, 0);
+            var spectrum = new Complex[transformSize];
+            Array.Copy(_samples, spectrum, transformSize);
+            PerformTransform(spectrum, true, transformSize);
+
+            return spectrum;
+        }
+
+        public float[] PerformBackwardTransform(int transformSize)
+        {
+            if ((transformSize & (transformSize - 1)) != 0)
+                throw new ArgumentException("Transform size should be a power of 2.", "transformSize");
+
+            var spectrum = new Complex[transformSize];
+            Array.Copy(_samples, spectrum, transformSize);
+            PerformTransform(spectrum, false, transformSize);
+
+            return spectrum.Select(x=> (float)Math.Sqrt(x.ComlexSqr())).ToArray();
         }
     }
 }

@@ -35,19 +35,25 @@ namespace NSpeech
         }
 
         /// <summary>
+        /// Creates new instance of the complex signal
+        /// </summary>
+        /// <param name="samples">Signal's samples</param>
+        /// <param name="format">Signal's  format data</param>
+        public ComplexSignal(Complex[] samples, Format format) : base(samples.Select(x => (float)Math.Sqrt(x.ComlexSqr())).ToArray(), format)
+        {
+            Samples = samples;
+        }
+
+        /// <summary>
         /// Convert signal from frequency domain into time domain
         /// </summary>
         /// <param name="size">Furier transform size</param>
         /// <returns>Signal in time domain</returns>
         public new Signal PerformBackwardFurierTransform(int size = 1024)
         {
-            var furierTansform = new FastFurierTransform(Samples)
-            {
-                TransformSize = size,
-                Direction = FastFurierTransform.TransformationDirection.Backward
-            };
+            var furierTansform = new FastFurierTransform(Samples);
 
-            return furierTansform.GetFunction();
+            return new Signal(furierTansform.PerformBackwardTransform(size), SignalFormat);
         }
     }
 }
