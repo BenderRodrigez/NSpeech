@@ -23,6 +23,8 @@ namespace NSpeech
         /// </summary>
         public Format SignalFormat { get; private set; }
 
+        private readonly BasicOperations _operations;
+
         /// <summary>
         /// Creates signal
         /// </summary>
@@ -32,6 +34,7 @@ namespace NSpeech
         {
             Samples = samples;
             SignalFormat = new Format(sampleRate);
+            _operations = new BasicOperations();
         }
 
         /// <summary>
@@ -43,6 +46,7 @@ namespace NSpeech
         {
             SignalFormat = signalFormat;
             Samples = samples;
+            _operations = new BasicOperations();
         }
 
         /// <summary>
@@ -51,8 +55,7 @@ namespace NSpeech
         /// <returns>Energy value</returns>
         public double GetEnergy()
         {
-            var energy = new SignalEnergy(Samples);
-            return energy.CalculateFeature();
+            return _operations.Energy(Samples);
         }
 
         /// <summary>
@@ -62,8 +65,7 @@ namespace NSpeech
         /// <returns>Corellation coefficient value</returns>
         public double GetCorrelation(int delay = 1)
         {
-            var correlation = new SignalCorrelation(Samples) {Delay = delay};
-            return correlation.CalculateFeature();
+            return _operations.Correlation(delay, Samples);
         }
 
         /// <summary>
@@ -96,12 +98,9 @@ namespace NSpeech
         /// <param name="maxEnergyStart">Start of the maximum energy signal interval</param>
         /// <param name="maxEnergyStop">End of the maximum energy signal interval</param>
         /// <returns>Noised signal</returns>
-        public Signal ApplyNoise(double noiseLevel, int maxEnergyStart = 0, int maxEnergyStop = -1)
+        public Signal ApplyNoise(float noiseLevel, out double snr, int maxEnergyStart = 0, int maxEnergyStop = -1)
         {
-            var generator = new AdditiveNoiseGenerator(this, maxEnergyStart,
-                maxEnergyStop > -1 ? maxEnergyStop : Samples.Length) {NoiseLevel = noiseLevel};
-            double snr;
-            return generator.ApplyNoise(out snr);
+            return new Signal(_operations.ApplyNoise(maxEnergyStart, maxEnergyStop, Samples, noiseLevel, out snr), SignalFormat);
         }
 
         /// <summary>
@@ -110,8 +109,7 @@ namespace NSpeech
         /// <returns>Autocorrelational signal</returns>
         public Signal GetAutocorrelation()
         {
-            var autocorr = new Autocorrelation(Samples);
-            return new Signal(autocorr.GetFunction(), SignalFormat);
+            return new Signal(_operations.CalcAutocorrelation(Samples), SignalFormat);
         }
 
         public Signal GetPitchTrack()

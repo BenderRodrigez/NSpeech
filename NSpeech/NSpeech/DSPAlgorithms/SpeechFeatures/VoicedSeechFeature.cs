@@ -48,9 +48,10 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
         private double[] GetCorellation(double windowSize, double overlapping)
         {
+            double snr;
             return 
                 _signal.Split(windowSize, overlapping, WindowFunctions.WindowFunctions.Rectangular)
-                    .Select(x => x.ApplyNoise(AdditiveNoiseLevel).GetCorrelation())
+                    .Select(x => x.ApplyNoise(AdditiveNoiseLevel, out snr).GetCorrelation())
                     .ToArray();
         }
 
