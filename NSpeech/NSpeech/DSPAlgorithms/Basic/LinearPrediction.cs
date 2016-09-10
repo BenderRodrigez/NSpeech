@@ -5,9 +5,9 @@ namespace NSpeech.DSPAlgorithms.Basic
 {
     class LinearPrediction
     {
-        private readonly Signal _signal;
+        private readonly float[] _signal;
 
-        public LinearPrediction(Signal signal)
+        public LinearPrediction(float[] signal)
         {
             _signal = signal;
         }
@@ -15,8 +15,9 @@ namespace NSpeech.DSPAlgorithms.Basic
         private double[] MakeInitialAutocorrelationalVector(int order)
         {
             var vector = new double[order+1];
-            var autocorr = _signal.GetAutocorrelation();
-            Array.Copy(autocorr.Samples, vector, order + 1);//TODO: possible time loss for unnecessary calculations
+            var ops = new BasicOperations();
+            var autocorr = ops.CalcAutocorrelation(_signal);
+            Array.Copy(autocorr, vector, order + 1);//TODO: possible time loss for unnecessary calculations
             return vector;
         }
 

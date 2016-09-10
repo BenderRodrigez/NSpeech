@@ -50,7 +50,6 @@
     <Compile Include="ComplexSignal.cs" />
     <Compile Include="DSPAlgorithms\Basic\BasicOperations.cs" />
     <Compile Include="DSPAlgorithms\Basic\FastFurierTransform.cs" />
-    <Compile Include="DSPAlgorithms\Basic\IBasicFeature.cs" />
     <Compile Include="DSPAlgorithms\Basic\LinearPrediction.cs" />
     <Compile Include="DSPAlgorithms\Filters\Butterworth\BandPassFilter.cs" />
     <Compile Include="DSPAlgorithms\Filters\Butterworth\ButterworthFilter.cs" />
@@ -70,7 +69,6 @@
     <Compile Include="Solvers\FuzzySolver.cs" />
     <Compile Include="Solvers\ISolver.cs" />
     <Compile Include="Solvers\SolutionState.cs" />
-    <Compile Include="SpeechSignal.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
