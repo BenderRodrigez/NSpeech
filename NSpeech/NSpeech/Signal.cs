@@ -23,6 +23,9 @@ namespace NSpeech
         /// </summary>
         public Format SignalFormat { get; private set; }
 
+        /// <summary>
+        /// Provides access to the basic signal operations
+        /// </summary>
         private readonly BasicOperations _operations;
 
         /// <summary>
@@ -112,6 +115,10 @@ namespace NSpeech
             return new Signal(_operations.CalcAutocorrelation(Samples), SignalFormat);
         }
 
+        /// <summary>
+        /// Detect voiced speech and calculates the vioced speech pitch track
+        /// </summary>
+        /// <returns>Signal with pitch track in Hertz (0 = no pitch)</returns>
         public Signal GetPitchTrack()
         {
             var voicedSpeechFeature = new VoicedSeechFeature(this, 0.04, 0.95).GetFeature();
@@ -139,12 +146,23 @@ namespace NSpeech
             return pitch.GetFeature();
         }
 
-        public Signal GetLinearPredictCoefficients(int numberOfCoefficients)
+        /// <summary>
+        /// Returns linear prediction coefficients for the signal
+        /// </summary>
+        /// <param name="numberOfCoefficients">Number of the coefficients to calculate</param>
+        /// <returns>Array of the coefficients</returns>
+        public float[] GetLinearPredictCoefficients(int numberOfCoefficients)
         {
             var lpc = new LinearPrediction(Samples);
-            return new Signal(lpc.GetCoefficients(numberOfCoefficients), SignalFormat);
+            return lpc.GetCoefficients(numberOfCoefficients);
         }
 
+        /// <summary>
+        /// Makes copy of the signal from <paramref name="startPosition"/> sample with length of <paramref name="length"/>
+        /// </summary>
+        /// <param name="startPosition">First sample to copy</param>
+        /// <param name="length">Number of samples to copy</param>
+        /// <returns>Part of the original signal</returns>
         public Signal ExtractAnalysisInterval(int startPosition, int length)
         {
             var interval = new float[length];
@@ -152,6 +170,11 @@ namespace NSpeech
             return new Signal(interval, SignalFormat.SampleRate);
         }
 
+        /// <summary>
+        /// Limit samples by amplitude value. Replace all small samples by zero
+        /// </summary>
+        /// <param name="level">Percents value from maximal sample to limit the signal</param>
+        /// <returns>Limited signal</returns>
         public Signal ApplyCentralLimitation(double level)
         {
             var maxSignal = Samples.Max(x => Math.Abs(x))*level;
@@ -228,6 +251,13 @@ namespace NSpeech
             return new Signal(bpf.Filter(Samples), SignalFormat);
         }
 
+        /// <summary>
+        /// Returns voiced speech beginning and finish samples of the signal
+        /// </summary>
+        /// <param name="windowSize">Signal analysis interval in seconds</param>
+        /// <param name="overlapping">analysis interval overlapping in percents</param>
+        /// <param name="border">Solution border</param>
+        /// <returns>Returns start (Item1) and stop (Item2) positions in signal</returns>
         public Tuple<int, int> GetVoicedSpeechBorder(double windowSize = 0.04, double overlapping = 0.95, double border = 5.0)
         {
             var voicedSpechFeature = new VoicedSeechFeature(this, windowSize, overlapping);
@@ -257,6 +287,13 @@ namespace NSpeech
             return new Tuple<int, int>(start, stop);
         }
 
+        /// <summary>
+        /// Returns voiced speech borders in signal
+        /// </summary>
+        /// <param name="windowSize">Signal analysis interval in seconds</param>
+        /// <param name="overlapping">analysis interval overlapping in percents</param>
+        /// <param name="border">Solution border</param>
+        /// <returns>Returns list of start (Item1) and stop (Item2) positions in signal</returns>
         public List<Tuple<int, int>> GetVoicedSpeechMarkers(double windowSize = 0.04, double overlapping = 0.95, double border = 5.0)
         {
             var voicedSpechFeature = new VoicedSeechFeature(this, windowSize, overlapping);
