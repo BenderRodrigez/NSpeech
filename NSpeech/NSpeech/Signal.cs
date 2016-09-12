@@ -98,6 +98,7 @@ namespace NSpeech
         /// Apply additive noise to signal with specifed level.
         /// </summary>
         /// <param name="noiseLevel">Noise level</param>
+        /// <param name="snr">Resulting Signal-to-Noise Raito</param>
         /// <param name="maxEnergyStart">Start of the maximum energy signal interval</param>
         /// <param name="maxEnergyStop">End of the maximum energy signal interval</param>
         /// <returns>Noised signal</returns>
