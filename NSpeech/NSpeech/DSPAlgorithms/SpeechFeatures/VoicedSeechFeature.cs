@@ -65,5 +65,70 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             }
             return tmp.ToArray();
         }
+
+        /// <summary>
+        /// Returns voiced speech beginning and finish samples of the signal
+        /// </summary>
+        /// <param name="border">Solution border</param>
+        /// <returns>Returns start (Item1) and stop (Item2) positions in signal</returns>
+        public Tuple<int, int> GetVoicedSpeechBorder(double border = 5.0)
+        {
+            var feature = GetFeature();
+            var start = -1;
+            var stop = -1;
+            for (int i = 0; i < feature.Samples.Length && feature.Samples.Length - i > -1; i++)
+            {
+                if (feature.Samples[i] > border)
+                {
+                    if (start <= -1)
+                    {
+                        start = i;
+                    }
+                    if (stop <= -1)
+                    {
+                        stop = feature.Samples.Length - i - 1;
+                    }
+                }
+            }
+
+            if (start == -1)
+                start = 0;
+            if (stop == -1)
+                stop = feature.Samples.Length - 1;
+            return new Tuple<int, int>(start, stop);
+        }
+
+        /// <summary>
+        /// Returns voiced speech borders in signal
+        /// </summary>
+        /// <param name="border">Solution border</param>
+        /// <returns>Returns list of start (Item1) and stop (Item2) positions in signal</returns>
+        public List<Tuple<int, int>> GetVoicedSpeechMarkers(double border = 5.0)
+        {
+            var feature = GetFeature();
+            var marks = new List<Tuple<int, int>>();
+            var start = -1;
+            for (int i = 0; i < feature.Samples.Length; i++)
+            {
+                if (feature.Samples[i] > border)
+                {
+                    if (start > -1)
+                    {
+                        marks.Add(new Tuple<int, int>(start, i));
+                        start = -1;
+                    }
+                    else
+                    {
+                        start = i;
+                    }
+                }
+            }
+
+            if (start > -1)
+            {
+                marks.Add(new Tuple<int, int>(start, feature.Samples.Length - 1));
+            }
+            return marks;
+        }
     }
 }

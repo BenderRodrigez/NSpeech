@@ -117,37 +117,6 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Detect voiced speech and calculates the vioced speech pitch track
-        /// </summary>
-        /// <returns>Signal with pitch track in Hertz (0 = no pitch)</returns>
-        public Signal GetPitchTrack()
-        {
-            var voicedSpeechFeature = new VoicedSeechFeature(this, 0.04, 0.95).GetFeature();
-            var speechMarks = new List<Tuple<int, int>>();
-            var start = -1;
-            for (int i = 0; i < voicedSpeechFeature.Samples.Length; i++)
-            {
-                if (voicedSpeechFeature.Samples[i] > 5.0f && start == -1)
-                {
-                    start = i;
-                }
-                if (voicedSpeechFeature.Samples[i] <= 5.0 && start > -1)
-                {
-                    speechMarks.Add(new Tuple<int, int>(start, i));
-                    start = -1;
-                }
-            }
-
-            if (start > -1)
-            {
-                speechMarks.Add(new Tuple<int, int>(start, voicedSpeechFeature.Samples.Length));
-            }
-
-            var pitch = new Pitch(this, speechMarks);
-            return pitch.GetFeature();
-        }
-
-        /// <summary>
         /// Returns linear prediction coefficients for the signal
         /// </summary>
         /// <param name="numberOfCoefficients">Number of the coefficients to calculate</param>
@@ -250,79 +219,6 @@ namespace NSpeech
         {
             var bpf = new BandPassFilter(lowerBoder, upperBorder, SignalFormat.SampleRate);
             return new Signal(bpf.Filter(Samples), SignalFormat);
-        }
-
-        /// <summary>
-        /// Returns voiced speech beginning and finish samples of the signal
-        /// </summary>
-        /// <param name="windowSize">Signal analysis interval in seconds</param>
-        /// <param name="overlapping">analysis interval overlapping in percents</param>
-        /// <param name="border">Solution border</param>
-        /// <returns>Returns start (Item1) and stop (Item2) positions in signal</returns>
-        public Tuple<int, int> GetVoicedSpeechBorder(double windowSize = 0.04, double overlapping = 0.95, double border = 5.0)
-        {
-            var voicedSpechFeature = new VoicedSeechFeature(this, windowSize, overlapping);
-
-            var feature = voicedSpechFeature.GetFeature();
-            var start = -1;
-            var stop = -1;
-            for (int i = 0; i < feature.Samples.Length && feature.Samples.Length - i > -1; i++)
-            {
-                if (feature.Samples[i] > border)
-                {
-                    if (start <= -1)
-                    {
-                        start = i;
-                    }
-                    if (stop <= -1)
-                    {
-                        stop = feature.Samples.Length - i - 1;
-                    }
-                }
-            }
-
-            if (start == -1)
-                start = 0;
-            if (stop == -1)
-                stop = feature.Samples.Length - 1;
-            return new Tuple<int, int>(start, stop);
-        }
-
-        /// <summary>
-        /// Returns voiced speech borders in signal
-        /// </summary>
-        /// <param name="windowSize">Signal analysis interval in seconds</param>
-        /// <param name="overlapping">analysis interval overlapping in percents</param>
-        /// <param name="border">Solution border</param>
-        /// <returns>Returns list of start (Item1) and stop (Item2) positions in signal</returns>
-        public List<Tuple<int, int>> GetVoicedSpeechMarkers(double windowSize = 0.04, double overlapping = 0.95, double border = 5.0)
-        {
-            var voicedSpechFeature = new VoicedSeechFeature(this, windowSize, overlapping);
-
-            var feature = voicedSpechFeature.GetFeature();
-            var marks = new List<Tuple<int, int>>();
-            var start = -1;
-            for (int i = 0; i < feature.Samples.Length; i++)
-            {
-                if (feature.Samples[i] > border)
-                {
-                    if (start > -1)
-                    {
-                        marks.Add(new Tuple<int, int>(start, i));
-                        start = -1;
-                    }
-                    else
-                    {
-                        start = i;
-                    }
-                }
-            }
-
-            if (start > -1)
-            {
-                marks.Add(new Tuple<int, int>(start, feature.Samples.Length - 1));
-            }
-            return marks;
         }
     }
 }
