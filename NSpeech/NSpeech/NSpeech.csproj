@@ -41,11 +41,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Clustering\Metrics\EuclidianDistance.cs" />
-    <Compile Include="Clustering\Metrics\IMetric.cs" />
-    <Compile Include="Clustering\Metrics\ManhattanDistance.cs" />
-    <Compile Include="Clustering\Metrics\MetricSelector.cs" />
-    <Compile Include="Clustering\Metrics\Metrics.cs" />
+    <Compile Include="Verification\Clustering\Metrics\EuclidianDistance.cs" />
+    <Compile Include="Verification\Clustering\Metrics\IMetric.cs" />
+    <Compile Include="Verification\Clustering\Metrics\ManhattanDistance.cs" />
+    <Compile Include="Verification\Clustering\Metrics\MetricSelector.cs" />
+    <Compile Include="Verification\Clustering\Metrics\Metrics.cs" />
     <Compile Include="Complex.cs" />
     <Compile Include="ComplexSignal.cs" />
     <Compile Include="DSPAlgorithms\Basic\BasicOperations.cs" />
@@ -66,9 +66,13 @@
     <Compile Include="Format.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Signal.cs" />
-    <Compile Include="Solvers\FuzzySolver.cs" />
-    <Compile Include="Solvers\ISolver.cs" />
-    <Compile Include="Solvers\SolutionState.cs" />
+    <Compile Include="Verification\Clustering\VectorQuantization.cs" />
+    <Compile Include="Verification\Solvers\FuzzySolver.cs" />
+    <Compile Include="Verification\Solvers\ISolver.cs" />
+    <Compile Include="Verification\Solvers\SolutionState.cs" />
+    <Compile Include="Verification\Dictor.cs" />
+    <Compile Include="Verification\VoiceFeature.cs" />
+    <Compile Include="Verification\VoiceKey.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
