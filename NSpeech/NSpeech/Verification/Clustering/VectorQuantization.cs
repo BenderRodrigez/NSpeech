@@ -11,16 +11,6 @@ namespace NSpeech.Verification.Clustering
     public class VectorQuantization
     {
         /// <summary>
-        /// Code book what represents whole signal with saving maximum information
-        /// </summary>
-        public double[][] CodeBook;
-
-        /// <summary>
-        /// Signal to aproximate
-        /// </summary>
-        public readonly double[][] TrainingSet;
-
-        /// <summary>
         /// Code book size
         /// </summary>
         private readonly int _codeBookSize;
@@ -30,116 +20,96 @@ namespace NSpeech.Verification.Clustering
         /// </summary>
         public double DistortionDelta { get; set; }
 
-        /// <summary>
-        /// Average distortion measure on train signal
-        /// </summary>
-        public double AverageDistortionMeasure { get; set; }
-
-        /// <summary>
-        /// Dispertion of distortion on train signal
-        /// </summary>
-        public double DistortionDispertion { get; set; }
+        public int KMeansIterationsBorder { get; set; }
 
         /// <summary>
         /// Init quantizer <see cref="VectorQuantization"/>.
         /// </summary>
-        /// <param name="traningSet">Aproximating signal</param>
         /// <param name="codeBookSize">Size of the codebook</param>
-        public VectorQuantization(double[][] traningSet, int codeBookSize)
+        public VectorQuantization(int codeBookSize)
         {
             _codeBookSize = codeBookSize;
-            TrainingSet = traningSet;
             DistortionDelta = 0.05;
-            ClearCodeBook();
-
-            DistortionDispertion = DistortionMeasureDispersion();
+            KMeansIterationsBorder = 50;
         }
 
-        private void ClearCodeBook()
+        /// <summary>
+        /// Remove all doubled and not used codewords from code book
+        /// </summary>
+        /// <returns>Code book without garbage</returns>
+        public float[][] ClearCodeBook(float[][] trainingSet, float[][] codeBook)
         {
-            var effecivness = new int[CodeBook.Length];
-            foreach (var t in TrainingSet)
+            var effecivness = new int[codeBook.Length];
+            foreach (var t in trainingSet)
             {
-                effecivness[QuantazationIndex(t)]++;
+                effecivness[QuantazationIndex(t, codeBook)]++;
             }
 
-            var clearCodeBook = new List<double[]>(CodeBook.Length);
+            var clearCodeBook = new List<float[]>(codeBook.Length);
             for (int i = 0; i < effecivness.Length; i++)
             {
                 if (effecivness[i] > 0)
-                    clearCodeBook.Add(CodeBook[i]);
+                    clearCodeBook.Add(codeBook[i]);
             }
-            CodeBook = clearCodeBook.ToArray();
-        }
-
-        private double DistortionMeasureDispersion()
-        {
-            double msquare = 0.0;
-            for (int i = 0; i < TrainingSet.Length; i++)
-            {
-                msquare += Math.Pow(QuantizationError(TrainingSet[i], Quantize(TrainingSet[i])) - AverageDistortionMeasure, 2);
-            }
-            msquare /= (TrainingSet.Length);
-
-            return msquare;
+            return clearCodeBook.ToArray();
         }
 
         /// <summary>
         /// Generates new codebook
         /// </summary>
-        public void Learn(int vectorLength)
+        public float[][] Learn(int vectorLength, float[][] trainingSet)
         {
             int iteration = 1;//current iteration
-            CodeBook = new double[iteration][];
-            CodeBook[0] = new double[vectorLength];
+            var codeBook = new float[iteration][];
+            codeBook[0] = new float[vectorLength];
             for (int j = 0; j < vectorLength; j++)
             {
                 var j1 = j;
-                var res = Parallel.For(0, TrainingSet.Length, i =>
-                    CodeBook[0][j1] += TrainingSet[i][j1]);//init codebook as average value 
+                var res = Parallel.For(0, trainingSet.Length, i =>
+                    codeBook[0][j1] += trainingSet[i][j1]);//init codebook as average value 
                 while (!res.IsCompleted)
                 {
 
                 }
-                CodeBook[0][j] /= TrainingSet.Length;
+                codeBook[0][j] /= trainingSet.Length;
             }
-            var averageQuantError = AverageQuantizationError();
+            var averageQuantError = AverageQuantizationError(trainingSet, codeBook);
 
             while (iteration < _codeBookSize)
             {
-                var newCodeBook = new double[iteration * 2][];
-                Parallel.For(0, CodeBook.Length, cb =>
+                var newCodeBook = new float[iteration * 2][];
+                Parallel.For(0, codeBook.Length, cb =>
                 {
                     var maxDistance = double.NegativeInfinity;
-                    var centrOne = new double[vectorLength];
-                    var centrTwo = new double[vectorLength];
-                    for (int i = 0; i < TrainingSet.Length - 1; i++)
+                    var centrOne = new float[vectorLength];
+                    var centrTwo = new float[vectorLength];
+                    for (int i = 0; i < trainingSet.Length - 1; i++)
                     {
-                        if (QuantazationIndex(TrainingSet[i]) != cb) continue;
+                        if (QuantazationIndex(trainingSet[i], codeBook) != cb) continue;
 
-                        for (int j = i + 1; j < TrainingSet.Length; j++)
+                        for (int j = i + 1; j < trainingSet.Length; j++)
                         {
-                            if (QuantazationIndex(TrainingSet[j]) != cb) continue;
+                            if (QuantazationIndex(trainingSet[j], codeBook) != cb) continue;
 
-                            var distance = QuantizationError(TrainingSet[i], TrainingSet[j]);
+                            var distance = QuantizationError(trainingSet[i], trainingSet[j]);
                             if (distance > maxDistance)
                             {
-                                centrOne = TrainingSet[i];
-                                centrTwo = TrainingSet[j];
+                                centrOne = trainingSet[i];
+                                centrTwo = trainingSet[j];
                                 maxDistance = distance;
                             }
                         }
                     }
 
-                    newCodeBook[(cb + 1) * 2 - 1] = new double[vectorLength];
-                    newCodeBook[(cb + 1) * 2 - 2] = new double[vectorLength];
+                    newCodeBook[(cb + 1) * 2 - 1] = new float[vectorLength];
+                    newCodeBook[(cb + 1) * 2 - 2] = new float[vectorLength];
 
                     if (centrOne.Sum() == 0.0)
                     {
                         var rand = new Random();
                         for (int i = 0; i < vectorLength; i++)
                         {
-                            newCodeBook[(cb + 1) * 2 - 1][i] = CodeBook[cb][i] - CodeBook[cb][i] * rand.NextDouble() * 0.1;
+                            newCodeBook[(cb + 1) * 2 - 1][i] = codeBook[cb][i] - codeBook[cb][i] * (float)rand.NextDouble() * 0.1f;
                         }
                     }
                     else
@@ -151,7 +121,7 @@ namespace NSpeech.Verification.Clustering
                         var rand = new Random();
                         for (int i = 0; i < vectorLength; i++)
                         {
-                            newCodeBook[(cb + 1) * 2 - 2][i] = CodeBook[cb][i] + CodeBook[cb][i] * rand.NextDouble() * 0.1;
+                            newCodeBook[(cb + 1) * 2 - 2][i] = codeBook[cb][i] + codeBook[cb][i] * (float)rand.NextDouble() * 0.1f;
                         }
                     }
                     else
@@ -161,25 +131,25 @@ namespace NSpeech.Verification.Clustering
                 });
 
                 iteration *= 2;
-                CodeBook = newCodeBook;
+                codeBook = newCodeBook;
 
                 //D(m-1) - Dm > DistortionDelta?
                 var averageQuantErrorOld = averageQuantError;
-                averageQuantError = AverageQuantizationError();
+                averageQuantError = AverageQuantizationError(trainingSet, codeBook);
                 var kMeansIntertionsCount = 0;
-                while (Math.Abs(averageQuantErrorOld - averageQuantError) > DistortionDelta && kMeansIntertionsCount < 50)//learning stop criteria
+                while (Math.Abs(averageQuantErrorOld - averageQuantError) > DistortionDelta && kMeansIntertionsCount < KMeansIterationsBorder)//learning stop criteria
                 {
                     //yi = total_sum(xi)/N
-                    var tmpCodeBook = new double[CodeBook.Length][];
-                    var vectorsCount = new int[CodeBook.Length];
-                    var res = Parallel.For(0, TrainingSet.Length, i =>
+                    var tmpCodeBook = new float[codeBook.Length][];
+                    var vectorsCount = new int[codeBook.Length];
+                    var res = Parallel.For(0, trainingSet.Length, i =>
                     {
-                        int codeBookIndex = QuantazationIndex(TrainingSet[i]);
+                        var codeBookIndex = QuantazationIndex(trainingSet[i], codeBook);
                         if (tmpCodeBook[codeBookIndex] == null)
-                            tmpCodeBook[codeBookIndex] = new double[vectorLength];
+                            tmpCodeBook[codeBookIndex] = new float[vectorLength];
                         for (int j = 0; j < vectorLength; j++)
                         {
-                            tmpCodeBook[codeBookIndex][j] += TrainingSet[i][j];
+                            tmpCodeBook[codeBookIndex][j] += trainingSet[i][j];
                         }
                         vectorsCount[codeBookIndex]++;
                     });
@@ -193,8 +163,8 @@ namespace NSpeech.Verification.Clustering
                     {
                         if (tmpCodeBook[i] == null)
                         {
-                            tmpCodeBook[i] = new double[vectorLength];
-                            Array.Copy(CodeBook[i], tmpCodeBook[i], vectorLength);
+                            tmpCodeBook[i] = new float[vectorLength];
+                            Array.Copy(codeBook[i], tmpCodeBook[i], vectorLength);
                         }
                         else if (vectorsCount[i] > 0)
                         {
@@ -206,23 +176,23 @@ namespace NSpeech.Verification.Clustering
                     {
 
                     }
-                    CodeBook = tmpCodeBook;
+                    codeBook = tmpCodeBook;
                     averageQuantErrorOld = averageQuantError;
-                    averageQuantError = AverageQuantizationError();
+                    averageQuantError = AverageQuantizationError(trainingSet, codeBook);
                     kMeansIntertionsCount++;
                 }
             }
-            AverageDistortionMeasure = AverageQuantizationError();
+            return codeBook;
         }
 
         /// <summary>
         /// Calulates the average distortion measure for train set
         /// </summary>
         /// <returns>Average value</returns>
-        private double AverageQuantizationError()
+        private double AverageQuantizationError(float[][] trainingSet, float[][] codeBook)
         {//D=(total_sum(d(x, Q(x))))/N
-            var errorRate = TrainingSet.Sum(t => QuantizationError(t, Quantize(t)));
-            errorRate /= TrainingSet.Length;
+            var errorRate = trainingSet.Sum(t => QuantizationError(t, Quantize(t, codeBook)));
+            errorRate /= trainingSet.Length;
             return errorRate;
         }
 
@@ -230,34 +200,36 @@ namespace NSpeech.Verification.Clustering
         /// Vector quantization operator
         /// </summary>
         /// <param name="x">Input data vector</param>
-        public double[] Quantize(double[] x)
+        /// <param name="codeBook"></param>
+        public float[] Quantize(float[] x, float[][] codeBook)
         {//Оператор квантования
             var minError = double.PositiveInfinity;
             int min = 0;
-            for (int i = 0; i < CodeBook.Length; i++)
+            for (int i = 0; i < codeBook.Length; i++)
             {
-                var error = QuantizationError(x, CodeBook[i]);
+                var error = QuantizationError(x, codeBook[i]);
                 if (error < minError)
                 {
                     min = i;
                     minError = error;
                 }
             }
-            return CodeBook[min];
+            return codeBook[min];
         }
 
         /// <summary>
         /// Returns codeword position in code book
         /// </summary>
-        /// <returns>Индекс в кодовой книге</returns>
-        /// <param name="x">Вектор сходных значений</param>
-        private int QuantazationIndex(double[] x)
-        {//Тоже, что и оператор квантования, но возвращает индекс в книге
+        /// <returns>Code word index in code book</returns>
+        /// <param name="x">Test vector</param>
+        /// <param name="codeBook">Code book</param>
+        private int QuantazationIndex(float[] x, float[][] codeBook)
+        {//same as Quantize, but returns index of codeword
             var minError = double.PositiveInfinity;
             int min = 0;
-            for (int i = 0; i < CodeBook.Length; i++)
+            for (int i = 0; i < codeBook.Length; i++)
             {
-                var error = QuantizationError(x, CodeBook[i]);
+                var error = QuantizationError(x, codeBook[i]);
 
                 if (!(error < minError)) continue;
 
@@ -268,65 +240,36 @@ namespace NSpeech.Verification.Clustering
         }
 
         /// <summary>
-        /// Расчитывает ошибку между двумя векторами
+        /// Distortion measure between two vectors
         /// </summary>
-        /// <returns>The error.</returns>
-        /// <param name="a">The alpha component.</param>
-        /// <param name="b">The blue component.</param>
-        public static double QuantizationError(double[] a, double[] b)
+        /// <returns>The error</returns>
+        /// <param name="a">The alpha component</param>
+        /// <param name="b">The blue component</param>
+        private static float QuantizationError(float[] a, float[] b)
         {//d=total_sum(a^2-b^2)
             if (a.Length == b.Length)
             {
-                var error = a.Select((t, i) => Math.Pow(t - b[i], 2)).Sum();
+                var error = (float)a.Select((t, i) => Math.Pow(t - b[i], 2)).Sum();
                 return error;
             }
             throw new Exception("Вектора разной длины!");
         }
 
-        public double DistortionMeasureEnergy(double[][] testImage)
+        /// <summary>
+        /// Calculates energy of the distortion measure signal (quantization noise)
+        /// </summary>
+        /// <param name="testSet">Source signal</param>
+        /// <param name="codeBook">Vector quantization codebook</param>
+        /// <returns>Energy value</returns>
+        public double DistortionMeasureEnergy(float[][] testSet, float[][] codeBook)
         {
             double res = 0;
-            for (int i = 0; i < testImage.Length; i++)
+            for (int i = 0; i < testSet.Length; i++)
             {
-                res += Math.Pow(QuantizationError(testImage[i], Quantize(testImage[i])), 2);
+                res += Math.Pow(QuantizationError(testSet[i], Quantize(testSet[i], codeBook)), 2);
             }
-            res /= testImage.Length;
+            res /= testSet.Length;
             return res;
-        }
-
-        public double QuantizationErrorNormal(double[] a, double[] b)
-        {//d=total_sum(a^2-b^2)
-            double error = 0;
-            if (a.Length == b.Length)
-            {
-                for (int i = 0; i < a.Length; i++)
-                {
-                    error += Math.Pow(a[i] - b[i], 2);
-                }
-                return (error - AverageDistortionMeasure) / DistortionDispertion;
-            }
-            else
-                throw new Exception("Вектора разной длины!");
-        }
-
-        private double[] CodeBookDistances(double[][] cb1, double[][] cb2)
-        {
-            if (cb1.Length == cb2.Length)
-            {
-                double[] distance = new double[cb1.Length];
-                for (int i = 0; i < cb1.Length; i++)
-                {
-                    distance[i] = QuantizationError(cb1[i], cb2[i]);
-                }
-                return distance;
-            }
-            else
-                throw new Exception("Вектора разной длины!");
-        }
-
-        public double AverageCodeBookDistance(double[][] cb1, double[][] cb2)
-        {
-            return CodeBookDistances(cb1, cb2).Average();
         }
     }
 }
