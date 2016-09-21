@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NSpeech.Verification.Clustering.Metrics;
 
 namespace NSpeech.Verification.Clustering
 {
@@ -26,12 +27,16 @@ namespace NSpeech.Verification.Clustering
         /// Init quantizer <see cref="VectorQuantization"/>.
         /// </summary>
         /// <param name="codeBookSize">Size of the codebook</param>
-        public VectorQuantization(int codeBookSize)
+        /// <param name="metric">Used distance function for distortion calculations</param>
+        public VectorQuantization(int codeBookSize, Metrics.Metrics metric)
         {
+            _quantizationError = MetricSelector.GetMetric(metric);
             _codeBookSize = codeBookSize;
             DistortionDelta = 0.05;
             KMeansIterationsBorder = 50;
         }
+
+        private readonly Func<float[], float[], double> _quantizationError;
 
         /// <summary>
         /// Remove all doubled and not used codewords from code book
@@ -91,7 +96,7 @@ namespace NSpeech.Verification.Clustering
                         {
                             if (QuantazationIndex(trainingSet[j], codeBook) != cb) continue;
 
-                            var distance = QuantizationError(trainingSet[i], trainingSet[j]);
+                            var distance = _quantizationError(trainingSet[i], trainingSet[j]);
                             if (distance > maxDistance)
                             {
                                 centrOne = trainingSet[i];
@@ -191,7 +196,7 @@ namespace NSpeech.Verification.Clustering
         /// <returns>Average value</returns>
         private double AverageQuantizationError(float[][] trainingSet, float[][] codeBook)
         {//D=(total_sum(d(x, Q(x))))/N
-            var errorRate = trainingSet.Sum(t => QuantizationError(t, Quantize(t, codeBook)));
+            var errorRate = trainingSet.Sum(t => _quantizationError(t, Quantize(t, codeBook)));
             errorRate /= trainingSet.Length;
             return errorRate;
         }
@@ -207,7 +212,7 @@ namespace NSpeech.Verification.Clustering
             int min = 0;
             for (int i = 0; i < codeBook.Length; i++)
             {
-                var error = QuantizationError(x, codeBook[i]);
+                var error = _quantizationError(x, codeBook[i]);
                 if (error < minError)
                 {
                     min = i;
@@ -229,7 +234,7 @@ namespace NSpeech.Verification.Clustering
             int min = 0;
             for (int i = 0; i < codeBook.Length; i++)
             {
-                var error = QuantizationError(x, codeBook[i]);
+                var error = _quantizationError(x, codeBook[i]);
 
                 if (!(error < minError)) continue;
 
@@ -237,22 +242,6 @@ namespace NSpeech.Verification.Clustering
                 minError = error;
             }
             return min;
-        }
-
-        /// <summary>
-        /// Distortion measure between two vectors
-        /// </summary>
-        /// <returns>The error</returns>
-        /// <param name="a">The alpha component</param>
-        /// <param name="b">The blue component</param>
-        private static float QuantizationError(float[] a, float[] b)
-        {//d=total_sum(a^2-b^2)
-            if (a.Length == b.Length)
-            {
-                var error = (float)a.Select((t, i) => Math.Pow(t - b[i], 2)).Sum();
-                return error;
-            }
-            throw new Exception("Вектора разной длины!");
         }
 
         /// <summary>
@@ -266,7 +255,7 @@ namespace NSpeech.Verification.Clustering
             double res = 0;
             for (int i = 0; i < testSet.Length; i++)
             {
-                res += Math.Pow(QuantizationError(testSet[i], Quantize(testSet[i], codeBook)), 2);
+                res += Math.Pow(_quantizationError(testSet[i], Quantize(testSet[i], codeBook)), 2);
             }
             res /= testSet.Length;
             return res;
