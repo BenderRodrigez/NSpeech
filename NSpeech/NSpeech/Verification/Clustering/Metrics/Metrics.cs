@@ -1,4 +1,4 @@
-﻿namespace NSpeech.Clustering.Metrics
+﻿namespace NSpeech.Verification.Clustering.Metrics
 {
     /// <summary>
     /// Enumerates all availible metrics on the current moment in MetricSelector

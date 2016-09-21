@@ -41,9 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Verification\Clustering\Metrics\EuclidianDistance.cs" />
-    <Compile Include="Verification\Clustering\Metrics\IMetric.cs" />
-    <Compile Include="Verification\Clustering\Metrics\ManhattanDistance.cs" />
     <Compile Include="Verification\Clustering\Metrics\MetricSelector.cs" />
     <Compile Include="Verification\Clustering\Metrics\Metrics.cs" />
     <Compile Include="Complex.cs" />

@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Linq;
 
-namespace NSpeech.Clustering.Metrics
+namespace NSpeech.Verification.Clustering.Metrics
 {
     /// <summary>
     /// Select specific metric selected by user (or not) with enumerable.
@@ -12,14 +13,28 @@ namespace NSpeech.Clustering.Metrics
         /// </summary>
         /// <param name="selectedMetric">An metric</param>
         /// <returns>Metric calculator class</returns>
-        internal static IMetric GetMetric(Metrics selectedMetric)
+        internal static Func<float[], float[], double> GetMetric(Metrics selectedMetric)
         {
             switch (selectedMetric)
             {
                 case Metrics.Euclidian:
-                    return new EuclidianDistance();
+                    return (a, b) =>
+                    {
+                        //d=total_sum(a^2-b^2)
+                        if (a.Length != b.Length)
+                            throw new ArgumentException("Points have a different number of dimensions");
+
+                        return a.Select((t, i) => Math.Pow(t - b[i], 2)).Sum();
+                    };
                 case Metrics.Manhattan:
-                    return new ManhattanDistance();
+                    return (a, b) =>
+                    {
+                        //d=total_sum(abs(a-b))
+                        if (a.Length != b.Length)
+                            throw new ArgumentException("Points have a different number of dimensions");
+
+                        return a.Select((t, i) => Math.Abs(t - b[i])).Sum();
+                    };
                 default:
                     throw new ArgumentException("This metric is unknown.");
             }
