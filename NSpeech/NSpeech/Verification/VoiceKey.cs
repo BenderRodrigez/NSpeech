@@ -1,13 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NSpeech.Solvers;
+using NSpeech.Verification.Clustering;
+using NSpeech.Verification.Clustering.Metrics;
 
 namespace NSpeech.Verification
 {
-    class VoiceKey
+    public class VoiceKey
     {
-        public float[][] Key { get; set; }
+        private readonly VectorQuantization _vq;
+        public VoiceKey(int keySize, Metrics metric)
+        {
+            Key = new float[keySize][];
+            _vq = new VectorQuantization(keySize, metric);
+        }
+
+        public float[][] Key { get; private set; }
+
+        public void Generate(float[][] trainData)
+        {
+            Key = _vq.Learn(trainData[0].Length, trainData);
+        }
+
+        public SolutionState Verify(float[][] testData)
+        {
+            var solver = new FuzzySolver();
+            return solver.MakeDecision(_vq.DistortionMeasureEnergy(testData, Key));
+        }
     }
 }

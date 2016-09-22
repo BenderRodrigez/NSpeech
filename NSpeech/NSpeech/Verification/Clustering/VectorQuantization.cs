@@ -9,7 +9,7 @@ namespace NSpeech.Verification.Clustering
     /// <summary>
     /// Using the codebook to approximate multdimentional signal
     /// </summary>
-    public class VectorQuantization
+    internal class VectorQuantization
     {
         /// <summary>
         /// Code book size
@@ -19,16 +19,16 @@ namespace NSpeech.Verification.Clustering
         /// <summary>
         /// Quantization distortion measure boreder to stop learning
         /// </summary>
-        public double DistortionDelta { get; set; }
+        internal double DistortionDelta { get; set; }
 
-        public int KMeansIterationsBorder { get; set; }
+        internal int KMeansIterationsBorder { get; set; }
 
         /// <summary>
         /// Init quantizer <see cref="VectorQuantization"/>.
         /// </summary>
         /// <param name="codeBookSize">Size of the codebook</param>
         /// <param name="metric">Used distance function for distortion calculations</param>
-        public VectorQuantization(int codeBookSize, Metrics.Metrics metric)
+        internal VectorQuantization(int codeBookSize, Metrics.Metrics metric)
         {
             _quantizationError = MetricSelector.GetMetric(metric);
             _codeBookSize = codeBookSize;
@@ -42,7 +42,7 @@ namespace NSpeech.Verification.Clustering
         /// Remove all doubled and not used codewords from code book
         /// </summary>
         /// <returns>Code book without garbage</returns>
-        public float[][] ClearCodeBook(float[][] trainingSet, float[][] codeBook)
+        internal float[][] ClearCodeBook(float[][] trainingSet, float[][] codeBook)
         {
             var effecivness = new int[codeBook.Length];
             foreach (var t in trainingSet)
@@ -62,7 +62,7 @@ namespace NSpeech.Verification.Clustering
         /// <summary>
         /// Generates new codebook
         /// </summary>
-        public float[][] Learn(int vectorLength, float[][] trainingSet)
+        internal float[][] Learn(int vectorLength, float[][] trainingSet)
         {
             int iteration = 1;//current iteration
             var codeBook = new float[iteration][];
@@ -187,7 +187,7 @@ namespace NSpeech.Verification.Clustering
                     kMeansIntertionsCount++;
                 }
             }
-            return codeBook;
+            return ClearCodeBook(trainingSet, codeBook);
         }
 
         /// <summary>
@@ -206,7 +206,7 @@ namespace NSpeech.Verification.Clustering
         /// </summary>
         /// <param name="x">Input data vector</param>
         /// <param name="codeBook"></param>
-        public float[] Quantize(float[] x, float[][] codeBook)
+        internal float[] Quantize(float[] x, float[][] codeBook)
         {//Оператор квантования
             var minError = double.PositiveInfinity;
             int min = 0;
@@ -250,7 +250,7 @@ namespace NSpeech.Verification.Clustering
         /// <param name="testSet">Source signal</param>
         /// <param name="codeBook">Vector quantization codebook</param>
         /// <returns>Energy value</returns>
-        public double DistortionMeasureEnergy(float[][] testSet, float[][] codeBook)
+        internal double DistortionMeasureEnergy(float[][] testSet, float[][] codeBook)
         {
             double res = 0;
             for (int i = 0; i < testSet.Length; i++)

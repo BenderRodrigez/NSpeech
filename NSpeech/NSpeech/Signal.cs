@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NSpeech.DSPAlgorithms.Basic;
 using NSpeech.DSPAlgorithms.Filters.Butterworth;
-using NSpeech.DSPAlgorithms.SpeechFeatures;
 using NSpeech.DSPAlgorithms.WindowFunctions;
 
 namespace NSpeech
