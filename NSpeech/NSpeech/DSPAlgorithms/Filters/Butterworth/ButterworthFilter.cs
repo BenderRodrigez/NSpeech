@@ -1,6 +1,6 @@
 ﻿namespace NSpeech.DSPAlgorithms.Filters
 {
-    internal abstract class ButterworthFilter
+    internal abstract class ButterworthFilter :IDigitalFilter
     {
         public ButterworthFilter()
         {
@@ -21,5 +21,7 @@
         /// <param name="x">Input sample</param>
         /// <returns>Output sample</returns>
         protected abstract double PassFilter(int k, double x);
+
+        public abstract float[] Filter(float[] signal);
     }
 }

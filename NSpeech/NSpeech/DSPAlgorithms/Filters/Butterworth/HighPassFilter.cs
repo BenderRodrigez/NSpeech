@@ -5,7 +5,7 @@ namespace NSpeech.DSPAlgorithms.Filters.Butterworth
     /// <summary>
     /// Implemets Butterworth 4th order HighPassFilter
     /// </summary>
-    internal sealed class HighPassFilter : ButterworthFilter, IDigitalFilter
+    internal sealed class HighPassFilter : ButterworthFilter
     {
         /// <summary>
         /// Signal sampling rate
@@ -68,7 +68,7 @@ namespace NSpeech.DSPAlgorithms.Filters.Butterworth
         /// </summary>
         /// <param name="signal">Input signal</param>
         /// <returns>Filtred signal</returns>
-        public float[] Filter(float[] signal)
+        public override float[] Filter(float[] signal)
         {
             _w0 = new double[FilterOrder];
             _w1 = new double[FilterOrder];
