@@ -1,28 +1,66 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NAudio.Wave;
 using NSpeech;
+using NSpeechUnitTests.Properties;
 
 namespace NSpeechUnitTests
 {
     [TestClass]
     public class TestSignal
     {
-        private float[] _fixedSpectrumSignal;
+        private Signal _fixedSpectrumSignal;
 
-        private float[] ReadFile(string fileName)
+        private float[] ReadFile(string fileName, out int sampleRate)
         {
-            
+            float[] file;
+            using (var reader = new WaveFileReader(fileName))
+            {
+                var sampleProvider = reader.ToSampleProvider();
+                file = new float[reader.SampleCount];
+                sampleProvider.Read(file, 0, (int)reader.SampleCount);
+                sampleRate = reader.WaveFormat.SampleRate;
+            }
+            return file;
+        }
+
+        private bool Equals(Signal a, Signal b)
+        {
+            var res = a.SignalFormat.SampleRate == b.SignalFormat.SampleRate;
+
+            if (a.Samples.Length != b.Samples.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < a.Samples.Length ; i++)
+            {
+                res = Math.Abs(a.Samples[i] - b.Samples[i]) < 0.0001;
+            }
+            return res;
         }
 
         [TestInitialize]
         public void Init()
         {
-            
+            var fixedFreqFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "Files", Settings.Default.SpectrumTest);
+
+            int sampleRate;
+            _fixedSpectrumSignal = new Signal(ReadFile(fixedFreqFileName, out sampleRate), sampleRate);
+
+
         }
 
         [TestMethod]
         public void ApplyBandPassFiltrationTest()
         {
-            
+            var filteredSignal = _fixedSpectrumSignal.ApplyBandPassFiltration(100, 3000);
+
+            Assert.IsFalse(Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
+
+            //should compare sectrums
         }
 
         [TestMethod]
