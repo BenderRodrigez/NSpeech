@@ -61,6 +61,17 @@ namespace NSpeech
         }
 
         /// <summary>
+        /// Normalize signal's samples to range from -1 to 1
+        /// </summary>
+        /// <returns>Normalized signal</returns>
+        public Signal Normalize()
+        {
+            var max = Samples.Max(f => Math.Abs(f));
+
+            return new Signal(Samples.Select(x=> x/max).ToArray(), SignalFormat);
+        }
+
+        /// <summary>
         /// Calulates correlation of the whole signal with provided delay
         /// </summary>
         /// <param name="delay">Correlation delay in samples</param>

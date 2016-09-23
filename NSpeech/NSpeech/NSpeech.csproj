@@ -71,7 +71,9 @@
     <Compile Include="Verification\VoiceFeature.cs" />
     <Compile Include="Verification\VoiceKey.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="ToDoList.txt" />
   </ItemGroup>

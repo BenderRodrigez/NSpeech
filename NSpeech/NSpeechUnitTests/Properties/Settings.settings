@@ -1,0 +1,18 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="NSpeechUnitTests.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="SpectrumTest" Type="System.String" Scope="User">
+      <Value Profile="(Default)">1500kHz.wav</Value>
+    </Setting>
+    <Setting Name="Silence" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Silence.wav</Value>
+    </Setting>
+    <Setting Name="Speech" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Speech.wav</Value>
+    </Setting>
+    <Setting Name="WhiteNoise" Type="System.String" Scope="User">
+      <Value Profile="(Default)">WhiteNoise.wav</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
