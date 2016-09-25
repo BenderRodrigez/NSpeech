@@ -78,20 +78,20 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Files\1500kHz.wav">
+    <Content Include="Files\1500kHz.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Files\Silence.wav">
+    </Content>
+    <Content Include="Files\Silence.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Files\Speech.wav">
+    </Content>
+    <Content Include="Files\Speech.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Files\WhiteNoise.wav">
+    <Content Include="Files\WhiteNoise.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    </Content>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

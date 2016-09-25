@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NAudio.Wave;
 using NSpeech;
@@ -41,12 +43,31 @@ namespace NSpeechUnitTests
             return res;
         }
 
+        private static double ExtractFrequency(int sectrumPosition, int sampleRate, int spectrumSize)
+        {
+            return sampleRate * sectrumPosition / (double)spectrumSize;
+        }
+
+        private List<int> GetExtremums(Signal signal)
+        {
+            var res = new List<int>();
+            for (int i = 1; i < signal.Samples.Length -1; i++)
+            {
+                if(signal.Samples[i] < 0.002) continue;
+
+                if(signal.Samples[i] > signal.Samples[i - 1] && signal.Samples[i] > signal.Samples[i + 1])
+                    res.Add(i);
+                else if(signal.Samples[i] < signal.Samples[i - 1] && signal.Samples[i] < signal.Samples[i + 1])
+                    res.Add(i);
+            }
+            return res;
+        }
+
         [TestInitialize]
         public void Init()
         {
-            var fixedFreqFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "Files", Settings.Default.SpectrumTest);
-
+            var fixedFreqFileName = Path.Combine(Environment.CurrentDirectory, "Files", Settings.Default.SpectrumTest);
+            
             int sampleRate;
             _fixedSpectrumSignal = new Signal(ReadFile(fixedFreqFileName, out sampleRate), sampleRate);
 
@@ -56,11 +77,20 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void ApplyBandPassFiltrationTest()
         {
-            var filteredSignal = _fixedSpectrumSignal.ApplyBandPassFiltration(100, 3000);
+            var filteredSignal = _fixedSpectrumSignal.Normalize().ApplyBandPassFiltration(100, 3000);
 
             Assert.IsFalse(Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             //should compare sectrums
+            var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum().Normalize();
+            var modifiedSpectrum = filteredSignal.Normalize().GetSpectrum().Normalize();
+
+            //Assert.IsFalse(Equals(initialSpectrum, modifiedSpectrum), "Equals(initialSpectrum, modifiedSpectrum)");
+
+            var modifiedExtr = GetExtremums(modifiedSpectrum).Select(x => ExtractFrequency(x, _fixedSpectrumSignal.SignalFormat.SampleRate, 1024));
+            var intitExtr = GetExtremums(initialSpectrum).Select(x => ExtractFrequency(x, _fixedSpectrumSignal.SignalFormat.SampleRate, 1024));
+
+            Assert.IsFalse(modifiedExtr.Any(x => x > 100 && x < 3000), "modifiedExtr.Any(x => x > 100 && x < 3000)");
         }
 
         [TestMethod]
@@ -126,7 +156,13 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void GetSpectrumTest()
         {
-            
+            var spectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(1024);
+
+            Assert.IsTrue(spectrum.Samples.Length == 1024);
+
+            var extremums = GetExtremums(spectrum.Normalize());
+            Assert.IsTrue(extremums.Count == 2);
+            Assert.IsTrue(Math.Abs(ExtractFrequency(extremums[0], _fixedSpectrumSignal.SignalFormat.SampleRate, 1024) - 1500.0) < 10.0);
         }
 
         [TestMethod]

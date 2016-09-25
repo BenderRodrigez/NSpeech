@@ -55,7 +55,7 @@ namespace NSpeech.DSPAlgorithms.Basic
                 var u2 = 0.0;
                 for (j = 0; j < l1; j++)
                 {
-                    for (var i = j; i < transformSize; i += 12)
+                    for (var i = j; i < transformSize; i += l2)
                     {
                         var i1 = i + l1;
                         var real = u1*data[i1].Real - u2*data[i1].Imaginary;
@@ -107,8 +107,8 @@ namespace NSpeech.DSPAlgorithms.Basic
 
             var spectrum = new Complex[transformSize];
             Array.Copy(_samples, spectrum, transformSize);
-            PerformTransform(spectrum, false, transformSize);
 
+            PerformTransform(spectrum, false, transformSize);
             return spectrum.Select(x=> (float)Math.Sqrt(x.ComlexSqr())).ToArray();
         }
     }
