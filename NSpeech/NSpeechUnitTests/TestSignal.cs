@@ -138,6 +138,7 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void ApplyHighPassFiltrationTest()
         {
+            //Test to filter lower frequencies
             var filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(3000);
 
             Assert.IsFalse(Equals(filteredSignal, _fixedSpectrumSignal.Normalize()), "Equals(filteredSignal, _fixedSpectrumSignal)");
@@ -150,9 +151,16 @@ namespace NSpeechUnitTests
 
             Assert.IsFalse(Equals(GetExtremums(((Signal)initialSpectrum).Samples), GetExtremums(diffSpectrum)));
 
-            
+            //Test to pass higher frequencies
+            filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(100);
 
-            //Assert.IsFalse(modifiedExtr.Any(x => x > 100), "modifiedExtr.Any(x => x > 100)");
+            Assert.IsFalse(Equals(filteredSignal, _fixedSpectrumSignal.Normalize()), "Equals(filteredSignal, _fixedSpectrumSignal)");
+
+            modifiedSpectrum = filteredSignal.GetSpectrum();
+
+            diffSpectrum = DiffSignal(((Signal)initialSpectrum).Samples, ((Signal)modifiedSpectrum).Samples);
+
+            Assert.IsFalse(!Equals(GetExtremums(((Signal)initialSpectrum).Samples), GetExtremums(diffSpectrum)));
         }
 
         [TestMethod]
