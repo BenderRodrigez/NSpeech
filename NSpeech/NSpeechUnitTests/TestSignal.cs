@@ -38,7 +38,22 @@ namespace NSpeechUnitTests
 
             for (int i = 0; i < a.Samples.Length ; i++)
             {
-                res = Math.Abs(a.Samples[i] - b.Samples[i]) < 0.0001;
+                res &= Math.Abs(a.Samples[i] - b.Samples[i]) < 0.0001;
+            }
+            return res;
+        }
+
+        private bool Equals(float[] a, float[] b)
+        {
+            if (a.Length != b.Length)
+            {
+                return false;
+            }
+
+            var res = true;
+            for (int i = 0; i < a.Length; i++)
+            {
+                res &= Math.Abs(a[i] - b[i]) < 0.0001;
             }
             return res;
         }
@@ -118,8 +133,8 @@ namespace NSpeechUnitTests
             Assert.IsFalse(Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             //should compare sectrums
-            var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum().Normalize();
-            var modifiedSpectrum = filteredSignal.Normalize().GetSpectrum().Normalize();
+            var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(1024).Normalize();
+            var modifiedSpectrum = filteredSignal.Normalize().GetSpectrum(1024).Normalize();
 
             //Assert.IsFalse(Equals(initialSpectrum, modifiedSpectrum), "Equals(initialSpectrum, modifiedSpectrum)");
 
@@ -141,11 +156,11 @@ namespace NSpeechUnitTests
             //Test to filter lower frequencies
             var filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(3000);
 
-            Assert.IsFalse(Equals(filteredSignal, _fixedSpectrumSignal.Normalize()), "Equals(filteredSignal, _fixedSpectrumSignal)");
+            Assert.IsFalse(Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             //should compare sectrums
-            var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum();
-            var modifiedSpectrum = filteredSignal.GetSpectrum();
+            var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(1024);
+            var modifiedSpectrum = filteredSignal.GetSpectrum(1024);
 
             var diffSpectrum = DiffSignal(((Signal) initialSpectrum).Samples, ((Signal) modifiedSpectrum).Samples);
 
@@ -154,13 +169,11 @@ namespace NSpeechUnitTests
             //Test to pass higher frequencies
             filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(100);
 
-            Assert.IsFalse(Equals(filteredSignal, _fixedSpectrumSignal.Normalize()), "Equals(filteredSignal, _fixedSpectrumSignal)");
+            Assert.IsFalse(Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
 
-            modifiedSpectrum = filteredSignal.GetSpectrum();
+            modifiedSpectrum = filteredSignal.GetSpectrum(1024);
 
-            diffSpectrum = DiffSignal(((Signal)initialSpectrum).Samples, ((Signal)modifiedSpectrum).Samples);
-
-            Assert.IsFalse(!Equals(GetExtremums(((Signal)initialSpectrum).Samples), GetExtremums(diffSpectrum)));
+            Assert.IsTrue(Equals(initialSpectrum, modifiedSpectrum));
         }
 
         [TestMethod]
