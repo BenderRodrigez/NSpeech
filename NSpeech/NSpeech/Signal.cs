@@ -86,7 +86,7 @@ namespace NSpeech
         /// </summary>
         /// <param name="size">Furier transform size</param>
         /// <returns>Frequency domain signal</returns>
-        public ComplexSignal GetSpectrum(int size  = 1024)
+        public ComplexSignal GetSpectrum(int size)
         {
             var furierTransform = new FastFurierTransform(Samples);
             return new ComplexSignal(furierTransform.PerformForwardTransform(size), SignalFormat);
