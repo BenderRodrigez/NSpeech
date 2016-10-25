@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NAudio.Wave;
 using NSpeech;
+using NSpeech.DSPAlgorithms.WindowFunctions;
 using NSpeechUnitTests.Properties;
 
 namespace NSpeechUnitTests
@@ -265,7 +266,18 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void SplitTest()
         {
-            
+            var splited = _fixedSpectrumSignal.Split(0.01, 0.0, WindowFunctions.Rectangular);
+            var windowSizeInSamples = (int)(_fixedSpectrumSignal.SignalFormat.SampleRate * 0.01);
+            var asumedNumberOfElements = (int)Math.Floor((double)_fixedSpectrumSignal.SignalFormat.SampleRate/windowSizeInSamples);
+
+            Assert.IsTrue(splited.Length == asumedNumberOfElements);//assert what we have same number of elements as expected
+            Assert.IsTrue(splited[0].Samples.Length == windowSizeInSamples);
+
+            splited = _fixedSpectrumSignal.Split(0.01, 0.99, WindowFunctions.Rectangular);
+            asumedNumberOfElements = (int)Math.Ceiling((double)(_fixedSpectrumSignal.SignalFormat.SampleRate - windowSizeInSamples) / (int)(windowSizeInSamples*0.01));
+
+            Assert.IsTrue(splited.Length == asumedNumberOfElements);//assert what we have same number of elements as expected
+            Assert.IsTrue(splited[0].Samples.Length == windowSizeInSamples);
         }
     }
 }
