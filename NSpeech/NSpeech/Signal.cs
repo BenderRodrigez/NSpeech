@@ -146,7 +146,7 @@ namespace NSpeech
         public Signal ExtractAnalysisInterval(int startPosition, int length)
         {
             var interval = new float[length];
-            Array.Copy(Samples, startPosition, interval, 0, length);
+            Array.Copy(Samples, startPosition, interval, 0, length < Samples.Length ? length : Samples.Length);
             return new Signal(interval, SignalFormat.SampleRate);
         }
 
@@ -157,6 +157,9 @@ namespace NSpeech
         /// <returns>Limited signal</returns>
         public Signal ApplyCentralLimitation(double level)
         {
+            if(level < 0.0 || level > 1.0)
+                throw new ArgumentOutOfRangeException(nameof(level), level, "Value should be in range from 0.0 to 1.0");
+
             var maxSignal = Samples.Max(x => Math.Abs(x))*level;
             return new Signal(Samples.Select(x => Math.Abs(x) > maxSignal ? x : 0.0f).ToArray(), SignalFormat.SampleRate);
         }

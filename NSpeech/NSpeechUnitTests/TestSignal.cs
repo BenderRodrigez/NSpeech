@@ -148,7 +148,20 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void ApplyCentralLimitationTest()
         {
-            
+            var limitedSignal = _fixedSpectrumSignal.Normalize().ApplyCentralLimitation(0.3);
+            Assert.IsFalse(limitedSignal.Samples.All(x=> Math.Abs(x) >= 0.3 || Math.Abs(x) < 0.0001));
+
+            limitedSignal = _fixedSpectrumSignal.Normalize().ApplyCentralLimitation(1.0);
+            Assert.IsTrue(Equals(limitedSignal, _fixedSpectrumSignal.Normalize()), "Signal shouldn't be changed");
+
+            try
+            {
+                _fixedSpectrumSignal.Normalize().ApplyCentralLimitation(-0.1);
+            }
+            catch (Exception ex)
+            {
+                Assert.IsInstanceOfType(ex, typeof(ArgumentOutOfRangeException), "Incorrect parameter value accepted");
+            }
         }
 
         [TestMethod]
@@ -218,7 +231,17 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void ExtractAnalysisIntervalTest()
         {
-            
+            var interval = _fixedSpectrumSignal.ExtractAnalysisInterval(0, 0);
+            Assert.IsTrue(interval.Samples.Length == 0);
+
+            interval = _fixedSpectrumSignal.ExtractAnalysisInterval(0, 100);
+            Assert.IsTrue(interval.Samples.Length == 100);
+
+            interval = _fixedSpectrumSignal.ExtractAnalysisInterval(100, 100);
+            Assert.IsTrue(interval.Samples.Length == 100);
+
+            interval = _fixedSpectrumSignal.ExtractAnalysisInterval(0, _fixedSpectrumSignal.Samples.Length + 1);
+            Assert.IsTrue(interval.Samples.Length == _fixedSpectrumSignal.Samples.Length + 1);
         }
 
         [TestMethod]
@@ -253,7 +276,7 @@ namespace NSpeechUnitTests
             Assert.IsTrue(spectrum.Samples.Length == 1024);
 
             var extremums = GetExtremums(spectrum.Normalize().Samples);
-            Assert.IsTrue(extremums.Count == 2);
+            Assert.IsTrue(extremums.Count == 1);
             Assert.IsTrue(Math.Abs(ExtractFrequency(extremums[0], _fixedSpectrumSignal.SignalFormat.SampleRate, 1024) - 1500.0) < 10.0);
         }
 
