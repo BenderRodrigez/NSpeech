@@ -134,24 +134,21 @@ namespace NSpeechUnitTests
             Assert.IsFalse(Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             //should compare sectrums
-            var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(1024).Normalize();
-            var modifiedSpectrum = filteredSignal.Normalize().GetSpectrum(1024).Normalize();
+            var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(1024);
+            var modifiedSpectrum = filteredSignal.GetSpectrum(1024);
 
-            //Assert.IsFalse(Equals(initialSpectrum, modifiedSpectrum), "Equals(initialSpectrum, modifiedSpectrum)");
+            var diffSpectrum = DiffSignal(((Signal)initialSpectrum).Samples, ((Signal)modifiedSpectrum).Samples);
 
-            var modifiedExtr = GetExtremums(modifiedSpectrum.Samples).Select(x => ExtractFrequency(x, _fixedSpectrumSignal.SignalFormat.SampleRate, 1024));
-            var intitExtr = GetExtremums(initialSpectrum.Samples).Select(x => ExtractFrequency(x, _fixedSpectrumSignal.SignalFormat.SampleRate, 1024));
-
-            Assert.IsFalse(modifiedExtr.Any(x => x > 100 && x < 3000), "modifiedExtr.Any(x => x > 100 && x < 3000)");
+            Assert.IsFalse(Equals(GetExtremums(((Signal)initialSpectrum).Samples), GetExtremums(diffSpectrum)));
         }
 
         [TestMethod]
         public void ApplyCentralLimitationTest()
         {
             var limitedSignal = _fixedSpectrumSignal.Normalize().ApplyCentralLimitation(0.3);
-            Assert.IsFalse(limitedSignal.Samples.All(x=> Math.Abs(x) >= 0.3 || Math.Abs(x) < 0.0001));
+            Assert.IsTrue(limitedSignal.Samples.All(x=> Math.Abs(x) >= 0.3 || Math.Abs(x) < 0.0001));
 
-            limitedSignal = _fixedSpectrumSignal.Normalize().ApplyCentralLimitation(1.0);
+            limitedSignal = _fixedSpectrumSignal.Normalize().ApplyCentralLimitation(0.0);
             Assert.IsTrue(Equals(limitedSignal, _fixedSpectrumSignal.Normalize()), "Signal shouldn't be changed");
 
             try
@@ -219,13 +216,26 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void ApplyNoiseTest()
         {
-            
+            Assert.Fail("Not implemented.");
         }
 
         [TestMethod]
         public void ApplyWindowFunctionTest()
         {
-            
+            var windowedSignal = _fixedSpectrumSignal.ApplyWindowFunction(WindowFunctions.Rectangular);
+            Assert.IsTrue(Equals(_fixedSpectrumSignal, windowedSignal), "Signals should be equals with and witout rectangular window function");
+
+            windowedSignal = _fixedSpectrumSignal.Normalize().ApplyWindowFunction(WindowFunctions.Hamming);
+            var normalizedSignal = _fixedSpectrumSignal.Normalize();
+            for (int i = 0; i < windowedSignal.Samples.Length; i++)
+            {
+                Assert.AreEqual(HammingWindow(normalizedSignal.Samples[i], i, normalizedSignal.Samples.Length), windowedSignal.Samples[i], 0.00001, "Unexpected data starting from "+i);
+            }
+        }
+
+        private float HammingWindow(float x, int i, int length)
+        {
+            return (float)(x * (0.54 - 0.46 * Math.Cos(2.0 * Math.PI * i / length)));
         }
 
         [TestMethod]
@@ -247,25 +257,25 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void GetAutocorrelationTest()
         {
-            
+            Assert.Fail("Not implemented.");
         }
 
         [TestMethod]
         public void GetCorrelationTest()
         {
-            
+            Assert.Fail("Not implemented.");
         }
 
         [TestMethod]
         public void GetEnergyTest()
         {
-            
+            Assert.Fail("Not implemented.");
         }
 
         [TestMethod]
         public void GetLinearPredictCoefficientsTest()
         {
-            
+            Assert.Fail("Not implemented.");
         }
 
         [TestMethod]
@@ -283,7 +293,10 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void PerformBackwardFurierTransformTest()
         {
-            
+            var spectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(2048);
+            var signal = spectrum.PerformBackwardFurierTransform(2048);
+
+            Assert.IsTrue(Equals(_fixedSpectrumSignal.Normalize().ExtractAnalysisInterval(0, 2048), signal));
         }
 
         [TestMethod]
