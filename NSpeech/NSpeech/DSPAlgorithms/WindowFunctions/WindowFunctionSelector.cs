@@ -44,7 +44,7 @@ namespace NSpeech.DSPAlgorithms.WindowFunctions
                     return (signal) =>
                     {
                         var x = new float[signal.Length];
-                        for (int i = 0; i < signal.Length/2; i++)
+                        for (int i = 0; i < signal.Length; i++)
                         {
                             x[i] = (float) (signal[i]*(0.54 - 0.46*Math.Cos(2.0*Math.PI*i/signal.Length)));
                         }
