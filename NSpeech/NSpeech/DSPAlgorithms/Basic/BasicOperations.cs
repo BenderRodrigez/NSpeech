@@ -81,12 +81,12 @@ namespace NSpeech.DSPAlgorithms.Basic
 
             var backFurier = new FastFurierTransform(tmp);
             doubleSized = backFurier.PerformBackwardTransform(tmp.Length);
-            Array.Copy(doubleSized, signal, signal.Length);
-
-
-
             var result = new double[signal.Length];
-            Array.Copy(complexData.Select(x => x.Real).ToArray(), result, signal.Length);
+            Array.Copy(doubleSized, result, result.Length);
+
+
+
+            //Array.Copy(complexData.Select(x => x.Real).ToArray(), result, result.Length);
             var k = result[0];
             return result.Select(x => (float)(x / k)).ToArray();
         }

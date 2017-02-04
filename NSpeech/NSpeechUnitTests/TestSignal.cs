@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NAudio.Wave;
 using NSpeech;
@@ -14,6 +15,7 @@ namespace NSpeechUnitTests
     public class TestSignal
     {
         private Signal _fixedSpectrumSignal;
+        private Signal _silenceSignal;
 
         private float[] ReadFile(string fileName, out int sampleRate)
         {
@@ -119,10 +121,11 @@ namespace NSpeechUnitTests
         public void Init()
         {
             var fixedFreqFileName = Path.Combine(Environment.CurrentDirectory, "Files", Settings.Default.SpectrumTest);
+            var silenceFileName = Path.Combine(Environment.CurrentDirectory, "Files", Settings.Default.Silence);
             
             int sampleRate;
             _fixedSpectrumSignal = new Signal(ReadFile(fixedFreqFileName, out sampleRate), sampleRate);
-
+            _silenceSignal = new Signal(ReadFile(silenceFileName, out sampleRate), sampleRate);
 
         }
 
@@ -216,7 +219,10 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void ApplyNoiseTest()
         {
-            Assert.Fail("Not implemented.");
+            double snr;
+            var noisedSignal = _silenceSignal.ApplyNoise(0.1f, out snr);
+            Assert.IsFalse(Equals(_silenceSignal, noisedSignal));
+            Assert.AreNotEqual(0.0, snr);
         }
 
         [TestMethod]
@@ -257,19 +263,28 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void GetAutocorrelationTest()
         {
+            PerformBackwardFurierTransformTest();
+
+            var autocorrelation = _fixedSpectrumSignal.GetAutocorrelation();
+
             Assert.Fail("Not implemented.");
         }
 
         [TestMethod]
         public void GetCorrelationTest()
         {
-            Assert.Fail("Not implemented.");
+            var correlation = _fixedSpectrumSignal.GetCorrelation(0);
+            Assert.AreEqual(1.0, correlation, 0.0001);
+
+            correlation = _fixedSpectrumSignal.GetCorrelation();
+            Assert.AreNotEqual(_fixedSpectrumSignal.GetEnergy(), correlation, 0.0001);
         }
 
         [TestMethod]
         public void GetEnergyTest()
         {
-            Assert.Fail("Not implemented.");
+            var energy = _fixedSpectrumSignal.Normalize().GetEnergy();
+            Assert.AreEqual(_fixedSpectrumSignal.Normalize().Samples.Sum(x=>Math.Pow(x, 2))/_fixedSpectrumSignal.Samples.Length, energy, 0.0001);
         }
 
         [TestMethod]
