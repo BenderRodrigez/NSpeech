@@ -109,7 +109,7 @@ namespace NSpeech.DSPAlgorithms.Basic
             Array.Copy(_samples, spectrum, transformSize);
 
             PerformTransform(spectrum, false, transformSize);
-            return spectrum.Select(x=> (float)Math.Sqrt(x.ComlexSqr())).ToArray();
+            return spectrum.Select(x=> (float)x.Real).ToArray();
         }
     }
 }

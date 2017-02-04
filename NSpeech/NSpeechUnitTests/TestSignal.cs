@@ -265,7 +265,14 @@ namespace NSpeechUnitTests
         {
             PerformBackwardFurierTransformTest();
 
-            var autocorrelation = _fixedSpectrumSignal.GetAutocorrelation();
+            var autocorrelation = _fixedSpectrumSignal.Normalize().GetAutocorrelation();
+
+            foreach (var sample in autocorrelation.Samples)
+            {
+                Assert.IsFalse(float.IsNaN(sample) || float.IsInfinity(sample));
+            }
+
+
 
             Assert.Fail("Not implemented.");
         }
@@ -290,7 +297,9 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void GetLinearPredictCoefficientsTest()
         {
-            Assert.Fail("Not implemented.");
+            var lpc = _fixedSpectrumSignal.GetLinearPredictCoefficients(10);
+            Assert.AreEqual(10, lpc.Length);
+            Assert.IsFalse(lpc.All(f => Math.Abs(f) < 0.00001));
         }
 
         [TestMethod]
@@ -309,7 +318,7 @@ namespace NSpeechUnitTests
         public void PerformBackwardFurierTransformTest()
         {
             var spectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(2048);
-            var signal = spectrum.PerformBackwardFurierTransform(2048);
+            var signal = spectrum.PerformBackwardFurierTransform(2048).Normalize();
 
             Assert.IsTrue(Equals(_fixedSpectrumSignal.Normalize().ExtractAnalysisInterval(0, 2048), signal));
         }

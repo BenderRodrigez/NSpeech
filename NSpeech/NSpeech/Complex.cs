@@ -5,7 +5,7 @@ namespace NSpeech
     /// <summary>
     /// Complex number
     /// </summary>
-    public class Complex
+    public struct Complex
     {
         /// <summary>
         /// Real part
@@ -30,7 +30,7 @@ namespace NSpeech
         /// </summary>
         public static Complex ImaginaryOne
         {
-            get { return new Complex{Real = 0.0, Imaginary = -1};}
+            get { return new Complex{Real = 0.0, Imaginary = -1.0};}
         }
 
         /// <summary>

@@ -72,21 +72,22 @@ namespace NSpeech.DSPAlgorithms.Basic
 
             var nearestSize = Math.Ceiling(Math.Log(signal.Length, 2));
             var newSize = (int)nearestSize + 1;
-            var doubleSized = new float[(int)Math.Pow(2, newSize)];
-            Array.Copy(signal, doubleSized, signal.Length);
+            var doubleSized = new Complex[(int)Math.Pow(2, newSize)];
+            Array.Copy(complexData, doubleSized, complexData.Length);
+            for (int i = complexData.Length; i < doubleSized.Length; i++)
+            {
+                doubleSized[i] = Complex.Zero;
+            }
 
             var furier = new FastFurierTransform(doubleSized);
 
             var tmp = furier.PerformForwardTransform(doubleSized.Length).Select(x => (float)x.ComlexSqr()).ToArray();
 
             var backFurier = new FastFurierTransform(tmp);
-            doubleSized = backFurier.PerformBackwardTransform(tmp.Length);
+            var resultedSignal = backFurier.PerformBackwardTransform(tmp.Length);
             var result = new double[signal.Length];
-            Array.Copy(doubleSized, result, result.Length);
+            Array.Copy(resultedSignal, result, result.Length);
 
-
-
-            //Array.Copy(complexData.Select(x => x.Real).ToArray(), result, result.Length);
             var k = result[0];
             return result.Select(x => (float)(x / k)).ToArray();
         }
