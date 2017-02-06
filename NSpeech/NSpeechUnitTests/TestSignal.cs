@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NAudio.Wave;
 using NSpeech;
 using NSpeech.DSPAlgorithms.WindowFunctions;
 using NSpeechUnitTests.Properties;
@@ -17,106 +14,6 @@ namespace NSpeechUnitTests
         private Signal _fixedSpectrumSignal;
         private Signal _silenceSignal;
 
-        private float[] ReadFile(string fileName, out int sampleRate)
-        {
-            float[] file;
-            using (var reader = new WaveFileReader(fileName))
-            {
-                var sampleProvider = reader.ToSampleProvider();
-                file = new float[reader.SampleCount];
-                sampleProvider.Read(file, 0, (int)reader.SampleCount);
-                sampleRate = reader.WaveFormat.SampleRate;
-            }
-            return file;
-        }
-
-        private bool Equals(Signal a, Signal b)
-        {
-            var res = a.SignalFormat.SampleRate == b.SignalFormat.SampleRate;
-
-            if (a.Samples.Length != b.Samples.Length)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < a.Samples.Length ; i++)
-            {
-                res &= Math.Abs(a.Samples[i] - b.Samples[i]) < 0.0001;
-            }
-            return res;
-        }
-
-        private bool Equals(float[] a, float[] b)
-        {
-            if (a.Length != b.Length)
-            {
-                return false;
-            }
-
-            var res = true;
-            for (int i = 0; i < a.Length; i++)
-            {
-                res &= Math.Abs(a[i] - b[i]) < 0.0001;
-            }
-            return res;
-        }
-
-        private bool Equals(List<int> a, List<int> b)
-        {
-            if (a.Count != b.Count)
-            {
-                return false;
-            }
-
-            var res = false;
-            for (int i = 0; i < a.Count; i++)
-            {
-                res = Math.Abs(a[i] - b[i]) < 0.0001;
-            }
-            return res;
-        }
-
-        private static double ExtractFrequency(int sectrumPosition, int sampleRate, int spectrumSize)
-        {
-            return sampleRate * sectrumPosition / (double)spectrumSize;
-        }
-
-        private List<int> GetExtremums(float[] signal)
-        {
-            var res = new List<int>();
-            for (int i = 1; i < signal.Length/2 -1; i++)
-            {
-                if(signal[i] < 0.002) continue;
-
-                if(signal[i] > signal[i - 1] && signal[i] > signal[i + 1])
-                    res.Add(i);
-                else if(signal[i] < signal[i - 1] && signal[i] < signal[i + 1])
-                    res.Add(i);
-            }
-            return res;
-        }
-
-        private float[] DiffSignal(float[] a, float[] b)
-        {
-            var res = new float[a.Length];
-            for (int i = 0; i < a.Length; i++)
-            {
-                res[i] = a[i] - b[i];
-            }
-            return res;
-        }
-
-        private void Dump(float[] data)
-        {
-            using (var writer = new StreamWriter(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dump.txt")))
-            {
-                foreach (var f in data)
-                {
-                    writer.WriteLine(f);
-                }
-            }
-        }
-
         [TestInitialize]
         public void Init()
         {
@@ -124,8 +21,8 @@ namespace NSpeechUnitTests
             var silenceFileName = Path.Combine(Environment.CurrentDirectory, "Files", Settings.Default.Silence);
             
             int sampleRate;
-            _fixedSpectrumSignal = new Signal(ReadFile(fixedFreqFileName, out sampleRate), sampleRate);
-            _silenceSignal = new Signal(ReadFile(silenceFileName, out sampleRate), sampleRate);
+            _fixedSpectrumSignal = new Signal(Helpers.ReadFile(fixedFreqFileName, out sampleRate), sampleRate);
+            _silenceSignal = new Signal(Helpers.ReadFile(silenceFileName, out sampleRate), sampleRate);
 
         }
 
@@ -140,9 +37,9 @@ namespace NSpeechUnitTests
             var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(1024);
             var modifiedSpectrum = filteredSignal.GetSpectrum(1024);
 
-            var diffSpectrum = DiffSignal(((Signal)initialSpectrum).Samples, ((Signal)modifiedSpectrum).Samples);
+            var diffSpectrum = Helpers.DiffSignal(((Signal)initialSpectrum).Samples, ((Signal)modifiedSpectrum).Samples);
 
-            Assert.IsFalse(Equals(GetExtremums(((Signal)initialSpectrum).Samples), GetExtremums(diffSpectrum)));
+            Assert.IsFalse(Equals(Helpers.GetExtremums(((Signal)initialSpectrum).Samples), Helpers.GetExtremums(diffSpectrum)));
         }
 
         [TestMethod]
@@ -176,9 +73,9 @@ namespace NSpeechUnitTests
             var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(1024);
             var modifiedSpectrum = filteredSignal.GetSpectrum(1024);
 
-            var diffSpectrum = DiffSignal(((Signal) initialSpectrum).Samples, ((Signal) modifiedSpectrum).Samples);
+            var diffSpectrum = Helpers.DiffSignal(((Signal) initialSpectrum).Samples, ((Signal) modifiedSpectrum).Samples);
 
-            Assert.IsFalse(Equals(GetExtremums(((Signal)initialSpectrum).Samples), GetExtremums(diffSpectrum)));
+            Assert.IsFalse(Equals(Helpers.GetExtremums(((Signal)initialSpectrum).Samples), Helpers.GetExtremums(diffSpectrum)));
 
             //Test to pass higher frequencies
             filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(100);
@@ -202,9 +99,9 @@ namespace NSpeechUnitTests
             var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(1024);
             var modifiedSpectrum = filteredSignal.GetSpectrum(1024);
 
-            var diffSpectrum = DiffSignal(((Signal)initialSpectrum).Samples, ((Signal)modifiedSpectrum).Samples);
+            var diffSpectrum = Helpers.DiffSignal(((Signal)initialSpectrum).Samples, ((Signal)modifiedSpectrum).Samples);
 
-            Assert.IsFalse(Equals(GetExtremums(((Signal)initialSpectrum).Samples), GetExtremums(diffSpectrum)));
+            Assert.IsFalse(Equals(Helpers.GetExtremums(((Signal)initialSpectrum).Samples), Helpers.GetExtremums(diffSpectrum)));
 
             //Test to pass lower frequencies
             filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(3000);
@@ -319,9 +216,9 @@ namespace NSpeechUnitTests
 
             Assert.IsTrue(spectrum.Samples.Length == 1024);
 
-            var extremums = GetExtremums(spectrum.Normalize().Samples);
+            var extremums = Helpers.GetExtremums(spectrum.Normalize().Samples);
             Assert.IsTrue(extremums.Count == 1);
-            Assert.IsTrue(Math.Abs(ExtractFrequency(extremums[0], _fixedSpectrumSignal.SignalFormat.SampleRate, 1024) - 1500.0) < 10.0);
+            Assert.IsTrue(Math.Abs(Helpers.ExtractFrequency(extremums[0], _fixedSpectrumSignal.SignalFormat.SampleRate, 1024) - 1500.0) < 10.0);
         }
 
         [TestMethod]
