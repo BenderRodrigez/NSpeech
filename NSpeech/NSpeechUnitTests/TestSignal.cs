@@ -265,16 +265,26 @@ namespace NSpeechUnitTests
         {
             PerformBackwardFurierTransformTest();
 
-            var autocorrelation = _fixedSpectrumSignal.Normalize().GetAutocorrelation();
+            var autocorrelation = _fixedSpectrumSignal.ExtractAnalysisInterval(0, 256).Normalize().GetAutocorrelation();
 
             foreach (var sample in autocorrelation.Samples)
             {
                 Assert.IsFalse(float.IsNaN(sample) || float.IsInfinity(sample));
             }
 
+            var firstExtremumPosition = -1;
+            for (int i = 1; i < autocorrelation.Samples.Length-1; i++)
+            {
+                if (autocorrelation.Samples[i - 1] < autocorrelation.Samples[i]
+                    && autocorrelation.Samples[i + 1] < autocorrelation.Samples[i])
+                {
+                    firstExtremumPosition = i;
+                    break;
+                }
+            }
 
-
-            Assert.Fail("Not implemented.");
+            Assert.AreNotEqual(-1, firstExtremumPosition);
+            Assert.AreEqual(0.0006, firstExtremumPosition/(double)autocorrelation.SignalFormat.SampleRate, 0.0001);
         }
 
         [TestMethod]
