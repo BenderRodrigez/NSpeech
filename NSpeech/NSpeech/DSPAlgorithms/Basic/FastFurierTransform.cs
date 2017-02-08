@@ -94,7 +94,7 @@ namespace NSpeech.DSPAlgorithms.Basic
                 throw new ArgumentException("Transform size should be a power of 2.", "transformSize");
 
             var spectrum = new Complex[transformSize];
-            Array.Copy(_samples, spectrum, transformSize);
+            Array.Copy(_samples, spectrum, _samples.Length);
             PerformTransform(spectrum, true, transformSize);
 
             return spectrum;
