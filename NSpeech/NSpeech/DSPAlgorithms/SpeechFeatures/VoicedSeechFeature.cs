@@ -27,7 +27,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             var corellation = GetCorellation(_windowSize, _overlapping);
             return
                 new Signal(
-                    GenerateGeneralFeature((int) Math.Round(_windowSize*_signal.SignalFormat.SampleRate), energy,
+                    GenerateGeneralFeature((int) Math.Round(_windowSize*_signal.SignalFormat.SampleRate), _overlapping, energy,
                         corellation).Select(x => (float) x).ToArray(), _signal.SignalFormat.SampleRate);
         }
 
@@ -55,13 +55,17 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
                     .ToArray();
         }
 
-        private double[] GenerateGeneralFeature(int windowSize, IReadOnlyList<double> energy, IReadOnlyList<double> corellation)
+        private double[] GenerateGeneralFeature(int windowSize, double overlapping, IReadOnlyList<double> energy, IReadOnlyList<double> corellation)
         {
             var tmp = new List<double>(energy.Count + windowSize / 2);
             tmp.AddRange(new double[windowSize / 2]);
             for (int i = 0; i < energy.Count && i < corellation.Count; i++)
             {
-                tmp.Add(corellation[i] * energy[i]);
+                var value = corellation[i]*energy[i];
+                for (int j = 0; j < windowSize*(1.0 - overlapping); j++)
+                {
+                    tmp.Add(value);
+                }
             }
             return tmp.ToArray();
         }
