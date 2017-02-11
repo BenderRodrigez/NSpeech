@@ -31,7 +31,7 @@ namespace NSpeechUnitTests
         {
             var filteredSignal = _fixedSpectrumSignal.Normalize().ApplyBandPassFiltration(100, 3000);
 
-            Assert.IsFalse(Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
+            Assert.IsFalse(Helpers.Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             //should compare sectrums
             var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(1024);
@@ -39,7 +39,7 @@ namespace NSpeechUnitTests
 
             var diffSpectrum = Helpers.DiffSignal(((Signal)initialSpectrum).Samples, ((Signal)modifiedSpectrum).Samples);
 
-            Assert.IsFalse(Equals(Helpers.GetExtremums(((Signal)initialSpectrum).Samples), Helpers.GetExtremums(diffSpectrum)));
+            Assert.IsFalse(Helpers.Equals(Helpers.GetExtremums(((Signal)initialSpectrum).Samples), Helpers.GetExtremums(diffSpectrum)));
         }
 
         [TestMethod]
@@ -49,7 +49,7 @@ namespace NSpeechUnitTests
             Assert.IsTrue(limitedSignal.Samples.All(x=> Math.Abs(x) >= 0.3 || Math.Abs(x) < 0.0001));
 
             limitedSignal = _fixedSpectrumSignal.Normalize().ApplyCentralLimitation(0.0);
-            Assert.IsTrue(Equals(limitedSignal, _fixedSpectrumSignal.Normalize()), "Signal shouldn't be changed");
+            Assert.IsTrue(Helpers.Equals(limitedSignal, _fixedSpectrumSignal.Normalize()), "Signal shouldn't be changed");
 
             try
             {
@@ -75,16 +75,16 @@ namespace NSpeechUnitTests
 
             var diffSpectrum = Helpers.DiffSignal(((Signal) initialSpectrum).Samples, ((Signal) modifiedSpectrum).Samples);
 
-            Assert.IsFalse(Equals(Helpers.GetExtremums(((Signal)initialSpectrum).Samples), Helpers.GetExtremums(diffSpectrum)));
+            Assert.IsFalse(Helpers.Equals(Helpers.GetExtremums(((Signal)initialSpectrum).Samples), Helpers.GetExtremums(diffSpectrum)));
 
             //Test to pass higher frequencies
             filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(100);
 
-            Assert.IsFalse(Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
+            Assert.IsFalse(Helpers.Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             modifiedSpectrum = filteredSignal.GetSpectrum(1024);
 
-            Assert.IsTrue(Equals(initialSpectrum, modifiedSpectrum));
+            Assert.IsTrue(Helpers.Equals(initialSpectrum, modifiedSpectrum));
         }
 
         [TestMethod]
@@ -106,11 +106,11 @@ namespace NSpeechUnitTests
             //Test to pass lower frequencies
             filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(3000);
 
-            Assert.IsFalse(Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
+            Assert.IsFalse(Helpers.Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             modifiedSpectrum = filteredSignal.GetSpectrum(1024);
 
-            Assert.IsTrue(Equals(initialSpectrum, modifiedSpectrum));
+            Assert.IsTrue(Helpers.Equals(initialSpectrum, modifiedSpectrum));
         }
 
         [TestMethod]
@@ -118,7 +118,7 @@ namespace NSpeechUnitTests
         {
             double snr;
             var noisedSignal = _silenceSignal.ApplyNoise(0.1f, out snr);
-            Assert.IsFalse(Equals(_silenceSignal, noisedSignal));
+            Assert.IsFalse(Helpers.Equals(_silenceSignal, noisedSignal));
             Assert.AreNotEqual(0.0, snr);
         }
 
@@ -126,7 +126,7 @@ namespace NSpeechUnitTests
         public void ApplyWindowFunctionTest()
         {
             var windowedSignal = _fixedSpectrumSignal.ApplyWindowFunction(WindowFunctions.Rectangular);
-            Assert.IsTrue(Equals(_fixedSpectrumSignal, windowedSignal), "Signals should be equals with and witout rectangular window function");
+            Assert.IsTrue(Helpers.Equals(_fixedSpectrumSignal, windowedSignal), "Signals should be equals with and witout rectangular window function");
 
             windowedSignal = _fixedSpectrumSignal.Normalize().ApplyWindowFunction(WindowFunctions.Hamming);
             var normalizedSignal = _fixedSpectrumSignal.Normalize();
@@ -166,7 +166,7 @@ namespace NSpeechUnitTests
 
             foreach (var sample in autocorrelation.Samples)
             {
-                Assert.IsFalse(float.IsNaN(sample) || float.IsInfinity(sample));
+                Assert.IsFalse(float.IsNaN(sample) || float.IsInfinity(sample), "Samples can't be NaN or Infinity");
             }
 
             var firstExtremumPosition = -1;
@@ -206,7 +206,7 @@ namespace NSpeechUnitTests
         {
             var lpc = _fixedSpectrumSignal.GetLinearPredictCoefficients(10);
             Assert.AreEqual(10, lpc.Length);
-            Assert.IsFalse(lpc.All(f => Math.Abs(f) < 0.00001));
+            Assert.IsFalse(lpc.All(f => float.IsNaN(f) || float.IsInfinity(f)), "Values shuld never be NaN or infinity.");
         }
 
         [TestMethod]
@@ -227,7 +227,7 @@ namespace NSpeechUnitTests
             var spectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(2048);
             var signal = spectrum.PerformBackwardFurierTransform(2048).Normalize();
 
-            Assert.IsTrue(Equals(_fixedSpectrumSignal.Normalize().ExtractAnalysisInterval(0, 2048), signal));
+            Assert.IsTrue(Helpers.Equals(_fixedSpectrumSignal.Normalize().ExtractAnalysisInterval(0, 2048), signal));
         }
 
         [TestMethod]

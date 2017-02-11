@@ -54,9 +54,10 @@ namespace NSpeech.Verification
                             .Select(x => x.GetLinearPredictCoefficients(10))
                             .ToArray();
                     var fullLpc = new float[pitchTrack.Length][];
-                    Array.Copy(lpc, bordersVoicedSpeech.Item1, fullLpc, 0, lpc.Length);
+                    Array.Copy(lpc, 0, fullLpc, bordersVoicedSpeech.Item1, lpc.Length);
                     for (int i = 0; i < pitchTrack.Length; i++)
                     {
+                        if(fullLpc[i] == null) fullLpc[i] = new float[10];
                         fullLpc[i] = Combine(pitchTrack[i], fullLpc[i]);
                     }
                     return fullLpc;
