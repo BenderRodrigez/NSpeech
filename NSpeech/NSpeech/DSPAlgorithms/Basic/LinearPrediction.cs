@@ -15,10 +15,33 @@ namespace NSpeech.DSPAlgorithms.Basic
         private double[] MakeInitialAutocorrelationalVector(int order)
         {
             var vector = new double[order+1];
-            var ops = new BasicOperations();
-            var autocorr = ops.CalcAutocorrelation(_signal);
-            Array.Copy(autocorr, vector, order + 1);//TODO: possible time loss for unnecessary calculations
+            for (int i = 0; i < vector.Length; i++)
+            {
+                vector[i] = AutoCorrelationCoefficient(_signal, i + 1);
+            }
             return vector;
+        }
+
+        /// <summary>
+        /// Calculates autocorrelation coefficient in direct way
+        /// </summary>
+        /// <param name="inputSignal">Some signal to process</param>
+        /// <param name="k">Latency factor</param>
+        /// <returns>Returns k-th autocorrelation coefficient</returns>
+        private double AutoCorrelationCoefficient(float[] inputSignal, int k)
+        {
+            var autoCorrelation = 0.0;
+            var energy = 0.0;
+
+            for (int j = 0; j < inputSignal.Length; j++)
+            {
+                if (j + k < inputSignal.Length)
+                {
+                    autoCorrelation += inputSignal[j] * inputSignal[j + k];
+                    energy += inputSignal[j] * inputSignal[j];
+                }
+            }
+            return energy > 0.0 ? autoCorrelation / energy : 0.0;
         }
 
         /// <summary>

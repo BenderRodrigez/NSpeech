@@ -14,5 +14,11 @@
     <Setting Name="WhiteNoise" Type="System.String" Scope="User">
       <Value Profile="(Default)">WhiteNoise.wav</Value>
     </Setting>
+    <Setting Name="Speech_DifferentDictor" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Speech_DifferentDictor.wav</Value>
+    </Setting>
+    <Setting Name="Speech_DifferentPhrase" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Speech_DifferentPhrase.wav</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

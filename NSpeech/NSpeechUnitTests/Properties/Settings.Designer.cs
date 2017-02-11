@@ -70,5 +70,29 @@ namespace NSpeechUnitTests.Properties {
                 this["WhiteNoise"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Speech_DifferentDictor.wav")]
+        public string Speech_DifferentDictor {
+            get {
+                return ((string)(this["Speech_DifferentDictor"]));
+            }
+            set {
+                this["Speech_DifferentDictor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Speech_DifferentPhrase.wav")]
+        public string Speech_DifferentPhrase {
+            get {
+                return ((string)(this["Speech_DifferentPhrase"]));
+            }
+            set {
+                this["Speech_DifferentPhrase"] = value;
+            }
+        }
     }
 }

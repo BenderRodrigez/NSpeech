@@ -204,7 +204,7 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void GetLinearPredictCoefficientsTest()
         {
-            var lpc = _fixedSpectrumSignal.GetLinearPredictCoefficients(10);
+            var lpc = _fixedSpectrumSignal.ExtractAnalysisInterval(0, 512).GetLinearPredictCoefficients(10);
             Assert.AreEqual(10, lpc.Length);
             Assert.IsFalse(lpc.All(f => float.IsNaN(f) || float.IsInfinity(f)), "Values shuld never be NaN or infinity.");
         }

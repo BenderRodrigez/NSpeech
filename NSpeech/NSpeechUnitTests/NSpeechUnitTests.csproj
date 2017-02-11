@@ -90,6 +90,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Files\Speech_DifferentDictor.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Files\Speech_DifferentPhrase.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Files\WhiteNoise.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
