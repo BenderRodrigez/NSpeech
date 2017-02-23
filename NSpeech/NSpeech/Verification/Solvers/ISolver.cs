@@ -1,4 +1,4 @@
-﻿namespace NSpeech.Solvers
+﻿namespace NSpeech.Verification.Solvers
 {
     /// <summary>
     /// Desccribes main methods for any solver for verification task

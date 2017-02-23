@@ -12,7 +12,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
         public Pitch(Signal signal, IEnumerable<Tuple<int, int>> speechMarks)
         {
-            _signal = signal;
+            _signal = signal.Normalize();
             _speechMarks = speechMarks;
 
             MaxFrequencyJumpPercents = 0.15;
@@ -84,7 +84,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
                     var acf = filterdData.GetAutocorrelation();
 
-                    var acfsSample = data.GetSpectrum(furieSize).GetAutocorrelation();
+                    var acfsSample = data.GetSpectrum(furieSize).ApplyGaussianBlur(BlurDiameter).GetAutocorrelation();
 
                     //extract candidates
                     var acfsCandidates = new List<Tuple<int, double>>();

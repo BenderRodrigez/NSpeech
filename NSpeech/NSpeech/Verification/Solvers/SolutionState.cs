@@ -1,4 +1,4 @@
-﻿namespace NSpeech.Solvers
+﻿namespace NSpeech.Verification.Solvers
 {
     public enum SolutionState
     {

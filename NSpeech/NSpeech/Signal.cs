@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NSpeech.DSPAlgorithms.Basic;
+using NSpeech.DSPAlgorithms.Filters;
 using NSpeech.DSPAlgorithms.Filters.Butterworth;
 using NSpeech.DSPAlgorithms.WindowFunctions;
 
@@ -101,7 +102,8 @@ namespace NSpeech
         {
             var furierTansform = new FastFurierTransform(Samples);
 
-            return new Signal(furierTansform.PerformBackwardTransform(size), SignalFormat);
+            return new Signal(furierTansform.PerformBackwardTransform(size).Select(x => (float) x).ToArray(),
+                SignalFormat);
         }
 
         /// <summary>
@@ -232,6 +234,14 @@ namespace NSpeech
         {
             var bpf = new BandPassFilter(lowerBoder, upperBorder, SignalFormat.SampleRate);
             return new Signal(bpf.Filter(Samples), SignalFormat);
+        }
+
+        public Signal ApplyGaussianBlur(int diameter)
+        {
+            if(diameter % 2 != 1)
+                throw new ArgumentException("Diameter should be even value");
+            var blur = new GaussianFilter(diameter);
+            return new Signal(blur.Filter(Samples), SignalFormat);
         }
     }
 }

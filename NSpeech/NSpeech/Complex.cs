@@ -7,6 +7,11 @@ namespace NSpeech
     /// </summary>
     public struct Complex
     {
+        public Complex(double real) : this()
+        {
+            Real = real;
+        }
+
         /// <summary>
         /// Real part
         /// </summary>

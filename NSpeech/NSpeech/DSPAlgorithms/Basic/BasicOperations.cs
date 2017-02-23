@@ -67,12 +67,10 @@ namespace NSpeech.DSPAlgorithms.Basic
         /// <returns>autocorrelation signal samples</returns>
         public float[] CalcAutocorrelation(float[] signal)
         {
-            var complexData = Array.ConvertAll(signal, input => new Complex { Real = input, Imaginary = 0.0 });
+            var complexData = Array.ConvertAll(signal, input => new Complex(input));
 
-
-            var nearestSize = Math.Ceiling(Math.Log(signal.Length, 2));
-            var newSize = (int)nearestSize + 1;
-            var doubleSized = new Complex[(int)Math.Pow(2, newSize)];
+            var nearestSize = (int)Math.Ceiling(Math.Log(signal.Length, 2) + 1);
+            var doubleSized = new Complex[(int)Math.Pow(2, nearestSize)];
             Array.Copy(complexData, doubleSized, complexData.Length);
             for (int i = complexData.Length; i < doubleSized.Length; i++)
             {
@@ -81,7 +79,7 @@ namespace NSpeech.DSPAlgorithms.Basic
 
             var furier = new FastFurierTransform(doubleSized);
 
-            var tmp = furier.PerformForwardTransform(doubleSized.Length).Select(x => (float)x.ComlexSqr()).ToArray();
+            var tmp = furier.PerformForwardTransform(doubleSized.Length).Select(x => new Complex(x.ComlexSqr())).ToArray();
 
             var backFurier = new FastFurierTransform(tmp);
             var resultedSignal = backFurier.PerformBackwardTransform(tmp.Length);

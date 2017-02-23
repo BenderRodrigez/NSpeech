@@ -100,7 +100,7 @@ namespace NSpeech.DSPAlgorithms.Basic
             return spectrum;
         }
 
-        public float[] PerformBackwardTransform(int transformSize)
+        public double[] PerformBackwardTransform(int transformSize)
         {
             if ((transformSize & (transformSize - 1)) != 0)
                 throw new ArgumentException("Transform size should be a power of 2.", "transformSize");
@@ -109,7 +109,7 @@ namespace NSpeech.DSPAlgorithms.Basic
             Array.Copy(_samples, spectrum, transformSize);
 
             PerformTransform(spectrum, false, transformSize);
-            return spectrum.Select(x=> (float)x.Real).ToArray();
+            return spectrum.Select(x=> x.Real).ToArray();
         }
     }
 }

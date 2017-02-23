@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSpeech;
 using NSpeech.Verification;
 using NSpeech.Verification.Clustering.Metrics;
+using NSpeech.Verification.Solvers;
 using NSpeechUnitTests.Properties;
 
 namespace NSpeechUnitTests
@@ -54,10 +55,11 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void VoiceKeyGenerationPitchTest()
         {
-            var dictor = new Dictor();
-            dictor.Name = "Test dictor";
-            dictor.Speech = _someSpeech;
-
+            var dictor = new Dictor
+            {
+                Name = "Test dictor",
+                Speech = _someSpeech
+            };
             dictor.GenerateVoiceKey(64, VoiceFeature.Pitch, Metrics.Euclidian);
             Assert.IsNotNull(dictor.Key);
         }
@@ -76,37 +78,91 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void VerificationLinearPredictionTest()
         {
-            Assert.Fail("Not implemented");
             var dictor = new Dictor();
             dictor.Name = "Test dictor";
             dictor.Speech = _someSpeech;
 
             dictor.GenerateVoiceKey(64, VoiceFeature.LinearPrediction, Metrics.Euclidian);
-            Assert.IsNotNull(dictor.Key);
+
+
+            var sameDictor = new Dictor
+            {
+                Name = dictor.Name,
+                Speech = _sameDictorSpeech
+            };
+            sameDictor.GenerateVoiceKey(64, VoiceFeature.LinearPrediction, Metrics.Euclidian);
+
+            var anotherDictor = new Dictor
+            {
+                Name = "Not the same dictor",
+                Speech = _anotherDictorSpeech
+            };
+
+            Assert.AreEqual(SolutionState.Verified, dictor.Verify(sameDictor.Speech, VoiceFeature.LinearPrediction));
+            Assert.AreEqual(SolutionState.Verified, sameDictor.Verify(dictor.Speech, VoiceFeature.LinearPrediction));
+
+            Assert.AreEqual(SolutionState.Blocked, dictor.Verify(anotherDictor.Speech, VoiceFeature.LinearPrediction));
+            Assert.AreEqual(SolutionState.Blocked, anotherDictor.Verify(sameDictor.Speech, VoiceFeature.LinearPrediction));
         }
 
         [TestMethod]
         public void VerificationPitchTest()
         {
-            Assert.Fail("Not implemented");
             var dictor = new Dictor();
             dictor.Name = "Test dictor";
             dictor.Speech = _someSpeech;
 
             dictor.GenerateVoiceKey(64, VoiceFeature.Pitch, Metrics.Euclidian);
-            Assert.IsNotNull(dictor.Key);
+
+            var sameDictor = new Dictor
+            {
+                Name = dictor.Name,
+                Speech = _sameDictorSpeech
+            };
+            sameDictor.GenerateVoiceKey(64, VoiceFeature.Pitch, Metrics.Euclidian);
+
+            var anotherDictor = new Dictor
+            {
+                Name = "Not the same dictor",
+                Speech = _anotherDictorSpeech
+            };
+            anotherDictor.GenerateVoiceKey(64, VoiceFeature.Pitch, Metrics.Euclidian);
+
+            Assert.AreEqual(SolutionState.Verified, dictor.Verify(sameDictor.Speech, VoiceFeature.Pitch));
+            Assert.AreEqual(SolutionState.Verified, sameDictor.Verify(dictor.Speech, VoiceFeature.Pitch));
+
+            Assert.AreEqual(SolutionState.Blocked, dictor.Verify(anotherDictor.Speech, VoiceFeature.Pitch));
+            Assert.AreEqual(SolutionState.Blocked, anotherDictor.Verify(sameDictor.Speech, VoiceFeature.Pitch));
         }
 
         [TestMethod]
         public void VerificationLinearPredictionAndPicthTest()
         {
-            Assert.Fail("Not implemented");
             var dictor = new Dictor();
             dictor.Name = "Test dictor";
             dictor.Speech = _someSpeech;
 
             dictor.GenerateVoiceKey(64, VoiceFeature.PitchAndLP, Metrics.Euclidian);
-            Assert.IsNotNull(dictor.Key);
+
+            var sameDictor = new Dictor
+            {
+                Name = dictor.Name,
+                Speech = _sameDictorSpeech
+            };
+            sameDictor.GenerateVoiceKey(64, VoiceFeature.PitchAndLP, Metrics.Euclidian);
+
+            var anotherDictor = new Dictor
+            {
+                Name = "Not the same dictor",
+                Speech = _anotherDictorSpeech
+            };
+            anotherDictor.GenerateVoiceKey(64, VoiceFeature.PitchAndLP, Metrics.Euclidian);
+
+            Assert.AreEqual(SolutionState.Verified, dictor.Verify(sameDictor.Speech, VoiceFeature.PitchAndLP));
+            Assert.AreEqual(SolutionState.Verified, sameDictor.Verify(dictor.Speech, VoiceFeature.PitchAndLP));
+
+            Assert.AreEqual(SolutionState.Blocked, dictor.Verify(anotherDictor.Speech, VoiceFeature.PitchAndLP));
+            Assert.AreEqual(SolutionState.Blocked, anotherDictor.Verify(sameDictor.Speech, VoiceFeature.PitchAndLP));
         }
     }
 }

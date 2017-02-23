@@ -2,8 +2,8 @@
 using System.Linq;
 using NSpeech.DSPAlgorithms.SpeechFeatures;
 using NSpeech.DSPAlgorithms.WindowFunctions;
-using NSpeech.Solvers;
 using NSpeech.Verification.Clustering.Metrics;
+using NSpeech.Verification.Solvers;
 
 namespace NSpeech.Verification
 {

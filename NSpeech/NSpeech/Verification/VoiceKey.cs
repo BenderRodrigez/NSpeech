@@ -1,6 +1,6 @@
-﻿using NSpeech.Solvers;
-using NSpeech.Verification.Clustering;
+﻿using NSpeech.Verification.Clustering;
 using NSpeech.Verification.Clustering.Metrics;
+using NSpeech.Verification.Solvers;
 
 namespace NSpeech.Verification
 {

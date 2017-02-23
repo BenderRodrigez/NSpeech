@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NSpeech.Solvers
+namespace NSpeech.Verification.Solvers
 {
     /// <summary>
     /// Implements speaker vrification descidion based on membership functions
@@ -50,7 +50,7 @@ namespace NSpeech.Solvers
         public FuzzySolver()
         {
             VerifyBorder = 0.5;
-            BlockBorder = 0.5;
+            BlockBorder = 0.2;
         }
 
         /// <summary>

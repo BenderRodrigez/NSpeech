@@ -53,7 +53,8 @@ namespace NSpeech
         {
             var furierTansform = new FastFurierTransform(Samples);
 
-            return new Signal(furierTansform.PerformBackwardTransform(size), SignalFormat);
+            return new Signal(furierTansform.PerformBackwardTransform(size).Select(x => (float) x).ToArray(),
+                SignalFormat);
         }
     }
 }
