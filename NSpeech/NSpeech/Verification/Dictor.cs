@@ -9,21 +9,43 @@ namespace NSpeech.Verification
 {
     public class Dictor
     {
-        public string Name { get; set; }
+        private VoiceKey _key;
+        public string Name { get; private set; }
 
-        public Signal Speech { get; set; }
+        public Signal Speech { get; private set; }
 
-        public VoiceKey Key { get; set; }
+        public VoiceFeature UsedSpeechFeature { get; private set; }
 
-        public void GenerateVoiceKey(int keySize, VoiceFeature featureSet, Metrics metric)
+        public KeySize VoicePrintKeySize { get; private set; }
+
+        public VoiceKey Key
+        {
+            get
+            {
+                if(_key == null)
+                    GenerateVoiceKey((int) VoicePrintKeySize, VoiceFeature.PitchAndLP, Metrics.Euclidian);
+                return _key;
+            }
+            private set { _key = value; }
+        }
+
+        public Dictor(string name, Signal speech, VoiceFeature speechFeature, KeySize size)
+        {
+            Name = name;
+            Speech = speech;
+            UsedSpeechFeature = speechFeature;
+            VoicePrintKeySize = size;
+        }
+
+        private void GenerateVoiceKey(int keySize, VoiceFeature featureSet, Metrics metric)
         {
             //here we use VQ to generate code book
-            Key = new VoiceKey(keySize, metric);
+            _key = new VoiceKey(keySize, metric);
 
             //get voice feature
             var feature = GetVoiceFeature(featureSet, Speech);
 
-            Key.Generate(feature);
+            _key.Generate(feature);
         }
 
         private float[][] GetVoiceFeature(VoiceFeature feature, Signal speech)

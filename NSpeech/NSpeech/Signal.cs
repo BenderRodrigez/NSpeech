@@ -69,7 +69,8 @@ namespace NSpeech
         {
             var max = Samples.Max(f => Math.Abs(f));
 
-            return new Signal(Samples.Select(x=> x/max).ToArray(), SignalFormat);
+            Samples = Samples.Select(x=> x/max).ToArray();
+            return this;
         }
 
         /// <summary>
@@ -102,8 +103,8 @@ namespace NSpeech
         {
             var furierTansform = new FastFurierTransform(Samples);
 
-            return new Signal(furierTansform.PerformBackwardTransform(size).Select(x => (float) x).ToArray(),
-                SignalFormat);
+            Samples = furierTansform.PerformBackwardTransform(size).Select(x => (float) x).ToArray();
+            return this;
         }
 
         /// <summary>
@@ -116,7 +117,8 @@ namespace NSpeech
         /// <returns>Noised signal</returns>
         public Signal ApplyNoise(float noiseLevel, out double snr, int maxEnergyStart = 0, int maxEnergyStop = -1)
         {
-            return new Signal(_operations.ApplyNoise(maxEnergyStart, maxEnergyStop, Samples, noiseLevel, out snr), SignalFormat);
+            Samples = _operations.ApplyNoise(maxEnergyStart, maxEnergyStop, Samples, noiseLevel, out snr);
+            return this;
         }
 
         /// <summary>
@@ -125,7 +127,8 @@ namespace NSpeech
         /// <returns>Autocorrelational signal</returns>
         public Signal GetAutocorrelation()
         {
-            return new Signal(_operations.CalcAutocorrelation(Samples), SignalFormat);
+            Samples = _operations.CalcAutocorrelation(Samples);
+            return this;
         }
 
         /// <summary>
@@ -163,7 +166,8 @@ namespace NSpeech
                 throw new ArgumentOutOfRangeException(nameof(level), level, "Value should be in range from 0.0 to 1.0");
 
             var maxSignal = Samples.Max(x => Math.Abs(x))*level;
-            return new Signal(Samples.Select(x => Math.Abs(x) > maxSignal ? x : 0.0f).ToArray(), SignalFormat.SampleRate);
+            Samples = Samples.Select(x => Math.Abs(x) > maxSignal ? x : 0.0f).ToArray();
+            return this;
         }
 
         /// <summary>
@@ -199,7 +203,8 @@ namespace NSpeech
         public Signal ApplyWindowFunction(WindowFunctions window)
         {
             var windowFunction = WindowFunctionSelector.SelectWindowFunction(window);
-            return new Signal(windowFunction(Samples), SignalFormat);
+            Samples = windowFunction(Samples);
+            return this;
         }
 
         /// <summary>
@@ -210,7 +215,8 @@ namespace NSpeech
         public Signal ApplyLowPassFiltration(float borderFrequency)
         {
             var lpf = new LowPassFilter(borderFrequency, SignalFormat.SampleRate);
-            return new Signal(lpf.Filter(Samples), SignalFormat);
+            Samples = lpf.Filter(Samples);
+            return this;
         }
 
         /// <summary>
@@ -221,7 +227,8 @@ namespace NSpeech
         public Signal ApplyHighPassFiltration(float borderFrequency)
         {
             var hpf = new HighPassFilter(borderFrequency, SignalFormat.SampleRate);
-            return new Signal(hpf.Filter(Samples), SignalFormat);
+            Samples = hpf.Filter(Samples);
+            return this;
         }
 
         /// <summary>
@@ -233,7 +240,8 @@ namespace NSpeech
         public Signal ApplyBandPassFiltration(float lowerBoder, float upperBorder)
         {
             var bpf = new BandPassFilter(lowerBoder, upperBorder, SignalFormat.SampleRate);
-            return new Signal(bpf.Filter(Samples), SignalFormat);
+            Samples = bpf.Filter(Samples);
+            return this;
         }
 
         public Signal ApplyGaussianBlur(int diameter)
@@ -241,7 +249,9 @@ namespace NSpeech
             if(diameter % 2 != 1)
                 throw new ArgumentException("Diameter should be even value");
             var blur = new GaussianFilter(diameter);
-            return new Signal(blur.Filter(Samples), SignalFormat);
+            Samples = blur.Filter(Samples);
+            return this;
         }
     }
 }
+
