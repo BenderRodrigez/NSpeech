@@ -96,9 +96,9 @@ namespace NSpeech.Verification
             return res;
         }
 
-        public SolutionState Verify(Signal speech, VoiceFeature feature)
+        public SolutionState Verify(Signal speech)
         {
-            var speechFeature = GetVoiceFeature(feature, speech);
+            var speechFeature = GetVoiceFeature(UsedSpeechFeature, speech);
 
             return Key.Verify(speechFeature);
         }

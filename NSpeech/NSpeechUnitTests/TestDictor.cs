@@ -71,11 +71,11 @@ namespace NSpeechUnitTests
 
             var anotherDictor = new Dictor("Not the same dictor", _anotherDictorSpeech, VoiceFeature.LinearPrediction, KeySize.Standart);
             
-            Assert.AreEqual(SolutionState.Verified, dictor.Verify(sameDictor.Speech, VoiceFeature.LinearPrediction));
-            Assert.AreEqual(SolutionState.Verified, sameDictor.Verify(dictor.Speech, VoiceFeature.LinearPrediction));
+            Assert.AreEqual(SolutionState.Verified, dictor.Verify(sameDictor.Speech));
+            Assert.AreEqual(SolutionState.Verified, sameDictor.Verify(dictor.Speech));
 
-            Assert.AreEqual(SolutionState.Blocked, dictor.Verify(anotherDictor.Speech, VoiceFeature.LinearPrediction));
-            Assert.AreEqual(SolutionState.Blocked, anotherDictor.Verify(sameDictor.Speech, VoiceFeature.LinearPrediction));
+            Assert.AreEqual(SolutionState.Blocked, dictor.Verify(anotherDictor.Speech));
+            Assert.AreEqual(SolutionState.Blocked, anotherDictor.Verify(sameDictor.Speech));
         }
 
         [TestMethod]
@@ -87,11 +87,11 @@ namespace NSpeechUnitTests
 
             var anotherDictor = new Dictor("Not the same dictor", _anotherDictorSpeech, VoiceFeature.Pitch, KeySize.Standart);
 
-            Assert.AreEqual(SolutionState.Verified, dictor.Verify(sameDictor.Speech, VoiceFeature.Pitch));
-            Assert.AreEqual(SolutionState.Verified, sameDictor.Verify(dictor.Speech, VoiceFeature.Pitch));
+            Assert.AreEqual(SolutionState.Verified, dictor.Verify(sameDictor.Speech));
+            Assert.AreEqual(SolutionState.Verified, sameDictor.Verify(dictor.Speech));
 
-            Assert.AreEqual(SolutionState.Blocked, dictor.Verify(anotherDictor.Speech, VoiceFeature.Pitch));
-            Assert.AreEqual(SolutionState.Blocked, anotherDictor.Verify(sameDictor.Speech, VoiceFeature.Pitch));
+            Assert.AreEqual(SolutionState.Blocked, dictor.Verify(anotherDictor.Speech));
+            Assert.AreEqual(SolutionState.Blocked, anotherDictor.Verify(sameDictor.Speech));
         }
 
         [TestMethod]
@@ -103,11 +103,11 @@ namespace NSpeechUnitTests
 
             var anotherDictor = new Dictor("Not the same dictor", _anotherDictorSpeech, VoiceFeature.PitchAndLP, KeySize.Standart);
 
-            Assert.AreEqual(SolutionState.Verified, dictor.Verify(sameDictor.Speech, VoiceFeature.PitchAndLP));
-            Assert.AreEqual(SolutionState.Verified, sameDictor.Verify(dictor.Speech, VoiceFeature.PitchAndLP));
+            Assert.AreEqual(SolutionState.Verified, dictor.Verify(sameDictor.Speech));
+            Assert.AreEqual(SolutionState.Verified, sameDictor.Verify(dictor.Speech));
 
-            Assert.AreEqual(SolutionState.Blocked, dictor.Verify(anotherDictor.Speech, VoiceFeature.PitchAndLP));
-            Assert.AreEqual(SolutionState.Blocked, anotherDictor.Verify(sameDictor.Speech, VoiceFeature.PitchAndLP));
+            Assert.AreEqual(SolutionState.Blocked, dictor.Verify(anotherDictor.Speech));
+            Assert.AreEqual(SolutionState.Blocked, anotherDictor.Verify(sameDictor.Speech));
         }
     }
 }
