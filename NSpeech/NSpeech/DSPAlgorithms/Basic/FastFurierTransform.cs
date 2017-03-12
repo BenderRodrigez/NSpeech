@@ -9,7 +9,7 @@ namespace NSpeech.DSPAlgorithms.Basic
 
         public FastFurierTransform(float[] samples)
         {
-            _samples = samples.Select(x=> new Complex{Real = x, Imaginary = 0.0}).ToArray();
+            _samples = samples.Select(x => new Complex {Real = x, Imaginary = 0.0}).ToArray();
         }
 
         public FastFurierTransform(Complex[] samples)
@@ -109,7 +109,7 @@ namespace NSpeech.DSPAlgorithms.Basic
             Array.Copy(_samples, spectrum, transformSize);
 
             PerformTransform(spectrum, false, transformSize);
-            return spectrum.Select(x=> x.Real).ToArray();
+            return spectrum.Select(x => x.Real).ToArray();
         }
     }
 }

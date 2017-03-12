@@ -3,9 +3,9 @@
 namespace NSpeech.Verification.Solvers
 {
     /// <summary>
-    /// Implements speaker vrification descidion based on membership functions
+    ///     Implements speaker vrification descidion based on membership functions
     /// </summary>
-    class FuzzySolver: ISolver
+    internal class FuzzySolver : ISolver
     {
         private const double BellFunctionCenter = 450.0;
         private const double BellFunctionSize = 450.0;
@@ -15,7 +15,43 @@ namespace NSpeech.Verification.Solvers
         private const double SigmoidalFunctionFullPosition = 1100.0;
 
         /// <summary>
-        /// Generalized bell function
+        ///     Init with basic parameters
+        /// </summary>
+        public FuzzySolver()
+        {
+            VerifyBorder = 0.5;
+            BlockBorder = 0.2;
+        }
+
+        /// <summary>
+        ///     An membership decision border for verified dictors set
+        /// </summary>
+        public double VerifyBorder { get; set; }
+
+        /// <summary>
+        ///     An membership decision border for blocked dictors set
+        /// </summary>
+        public double BlockBorder { get; set; }
+
+        /// <summary>
+        ///     Get an result of speaker verification
+        /// </summary>
+        /// <param name="feature">Value of decision criteria</param>
+        /// <returns>Solution</returns>
+        public SolutionState MakeDecision(double feature)
+        {
+            var ownVal = BellFunction(feature);
+            var foreignVal = SigmoidalFunction(feature);
+
+            if ((ownVal > VerifyBorder) && (ownVal > foreignVal))
+                return SolutionState.Verified;
+            if ((foreignVal > BlockBorder) && (foreignVal > ownVal))
+                return SolutionState.Blocked;
+            return SolutionState.NoParticularDescision;
+        }
+
+        /// <summary>
+        ///     Generalized bell function
         /// </summary>
         /// <param name="x">Input feature</param>
         /// <returns>Membership value</returns>
@@ -25,53 +61,13 @@ namespace NSpeech.Verification.Solvers
         }
 
         /// <summary>
-        /// S-shaped function
+        ///     S-shaped function
         /// </summary>
         /// <param name="x">Input feature</param>
         /// <returns>Membership value</returns>
         private double SigmoidalFunction(double x)
         {
             return 0.5*(Math.Tanh((x - SigmoidalFunctionHalfPosition)/SigmoidalFunctionFullPosition) + 1);
-        }
-
-        /// <summary>
-        /// An membership decision border for verified dictors set
-        /// </summary>
-        public double VerifyBorder { get; set; }
-
-        /// <summary>
-        /// An membership decision border for blocked dictors set
-        /// </summary>
-        public double BlockBorder { get; set; }
-
-        /// <summary>
-        /// Init with basic parameters
-        /// </summary>
-        public FuzzySolver()
-        {
-            VerifyBorder = 0.5;
-            BlockBorder = 0.2;
-        }
-
-        /// <summary>
-        /// Get an result of speaker verification
-        /// </summary>
-        /// <param name="feature">Value of decision criteria</param>
-        /// <returns>Solution</returns>
-        public SolutionState MakeDecision(double feature)
-        {
-            var ownVal = BellFunction(feature);
-            var foreignVal = SigmoidalFunction(feature);
-
-            if (ownVal > VerifyBorder && ownVal > foreignVal)
-            {
-                return SolutionState.Verified;
-            }
-            if (foreignVal > BlockBorder && foreignVal > ownVal)
-            {
-                return SolutionState.Blocked;
-            }
-            return SolutionState.NoParticularDescision;
         }
     }
 }

@@ -4,14 +4,11 @@ using System.Linq;
 
 namespace NSpeech.DSPAlgorithms.SpeechFeatures
 {
-    public class VoicedSeechFeature: ISpeechFeature
+    public class VoicedSeechFeature : ISpeechFeature
     {
+        private readonly double _overlapping;
         private readonly Signal _signal;
         private readonly double _windowSize;
-        private readonly double _overlapping;
-
-        public int LowPassFilterBorder { get; set; }
-        public float AdditiveNoiseLevel { get; set; }
 
         public VoicedSeechFeature(Signal speechSignal, double windowSize, double overlapping)
         {
@@ -21,13 +18,17 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             InitVariables();
         }
 
+        public int LowPassFilterBorder { get; set; }
+        public float AdditiveNoiseLevel { get; set; }
+
         public Signal GetFeature()
         {
             var energy = GetEnergy(_windowSize, _overlapping);
             var corellation = GetCorellation(_windowSize, _overlapping);
             return
                 new Signal(
-                    GenerateGeneralFeature((int) Math.Round(_windowSize*_signal.SignalFormat.SampleRate), _overlapping, energy,
+                    GenerateGeneralFeature((int) Math.Round(_windowSize*_signal.SignalFormat.SampleRate), _overlapping,
+                        energy,
                         corellation).Select(x => (float) x).ToArray(), _signal.SignalFormat.SampleRate);
         }
 
@@ -49,29 +50,28 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
         private double[] GetCorellation(double windowSize, double overlapping)
         {
             double snr;
-            return 
+            return
                 _signal.Split(windowSize, overlapping, WindowFunctions.WindowFunctions.Rectangular)
                     .Select(x => x.ApplyNoise(AdditiveNoiseLevel, out snr).GetCorrelation())
                     .ToArray();
         }
 
-        private double[] GenerateGeneralFeature(int windowSize, double overlapping, IReadOnlyList<double> energy, IReadOnlyList<double> corellation)
+        private double[] GenerateGeneralFeature(int windowSize, double overlapping, IReadOnlyList<double> energy,
+            IReadOnlyList<double> corellation)
         {
-            var tmp = new List<double>(energy.Count + windowSize / 2);
-            tmp.AddRange(new double[windowSize / 2]);
-            for (int i = 0; i < energy.Count && i < corellation.Count; i++)
+            var tmp = new List<double>(energy.Count + windowSize/2);
+            tmp.AddRange(new double[windowSize/2]);
+            for (var i = 0; (i < energy.Count) && (i < corellation.Count); i++)
             {
                 var value = corellation[i]*energy[i];
-                for (int j = 0; j < windowSize*(1.0 - overlapping); j++)
-                {
+                for (var j = 0; j < windowSize*(1.0 - overlapping); j++)
                     tmp.Add(value);
-                }
             }
             return tmp.ToArray();
         }
 
         /// <summary>
-        /// Returns voiced speech beginning and finish samples of the signal
+        ///     Returns voiced speech beginning and finish samples of the signal
         /// </summary>
         /// <param name="border">Solution border</param>
         /// <returns>Returns start (Item1) and stop (Item2) positions in signal</returns>
@@ -80,20 +80,14 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             var feature = GetFeature();
             var start = -1;
             var stop = -1;
-            for (int i = 0; i < feature.Samples.Length && feature.Samples.Length - i > -1; i++)
-            {
+            for (var i = 0; (i < feature.Samples.Length) && (feature.Samples.Length - i > -1); i++)
                 if (feature.Samples[i] > border)
                 {
                     if (start <= -1)
-                    {
                         start = i;
-                    }
                     if (stop <= -1)
-                    {
                         stop = feature.Samples.Length - i - 1;
-                    }
                 }
-            }
 
             if (start == -1)
                 start = 0;
@@ -103,7 +97,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
         }
 
         /// <summary>
-        /// Returns voiced speech borders in signal
+        ///     Returns voiced speech borders in signal
         /// </summary>
         /// <param name="border">Solution border</param>
         /// <returns>Returns list of start (Item1) and stop (Item2) positions in signal</returns>
@@ -112,10 +106,8 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             var feature = GetFeature();
             var marks = new List<Tuple<int, int>>();
             var start = -1;
-            for (int i = 0; i < feature.Samples.Length; i++)
-            {
+            for (var i = 0; i < feature.Samples.Length; i++)
                 if (feature.Samples[i] > border)
-                {
                     if (start > -1)
                     {
                         marks.Add(new Tuple<int, int>(start, i));
@@ -125,13 +117,9 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
                     {
                         start = i;
                     }
-                }
-            }
 
             if (start > -1)
-            {
                 marks.Add(new Tuple<int, int>(start, feature.Samples.Length - 1));
-            }
             return marks;
         }
     }

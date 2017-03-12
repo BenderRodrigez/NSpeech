@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace NSpeech.DSPAlgorithms.Basic
 {
-    class LinearPrediction
+    internal class LinearPrediction
     {
         private readonly float[] _signal;
 
@@ -14,16 +14,14 @@ namespace NSpeech.DSPAlgorithms.Basic
 
         private double[] MakeInitialAutocorrelationalVector(int order)
         {
-            var vector = new double[order+1];
-            for (int i = 0; i < vector.Length; i++)
-            {
+            var vector = new double[order + 1];
+            for (var i = 0; i < vector.Length; i++)
                 vector[i] = AutoCorrelationCoefficient(_signal, i + 1);
-            }
             return vector;
         }
 
         /// <summary>
-        /// Calculates autocorrelation coefficient in direct way
+        ///     Calculates autocorrelation coefficient in direct way
         /// </summary>
         /// <param name="inputSignal">Some signal to process</param>
         /// <param name="k">Latency factor</param>
@@ -33,19 +31,17 @@ namespace NSpeech.DSPAlgorithms.Basic
             var autoCorrelation = 0.0;
             var energy = 0.0;
 
-            for (int j = 0; j < inputSignal.Length; j++)
-            {
+            for (var j = 0; j < inputSignal.Length; j++)
                 if (j + k < inputSignal.Length)
                 {
-                    autoCorrelation += inputSignal[j] * inputSignal[j + k];
-                    energy += inputSignal[j] * inputSignal[j];
+                    autoCorrelation += inputSignal[j]*inputSignal[j + k];
+                    energy += inputSignal[j]*inputSignal[j];
                 }
-            }
-            return energy > 0.0 ? autoCorrelation / energy : 0.0;
+            return energy > 0.0 ? autoCorrelation/energy : 0.0;
         }
 
         /// <summary>
-        /// Calcs LPC coefficients by Durbin algorythm
+        ///     Calcs LPC coefficients by Durbin algorythm
         /// </summary>
         /// <param name="initialVector">Auto-correlation vector from 0 to N</param>
         /// <param name="order">Number of LPC coefficients</param>
@@ -56,30 +52,30 @@ namespace NSpeech.DSPAlgorithms.Basic
 
             var e = initialVector[0];
 
-            for (int i = 0; i < order; i++)
+            for (var i = 0; i < order; i++)
             {
                 var tmp0 = initialVector[i + 1];
-                for (int j = 0; j < i; j++)
-                    tmp0 -= lpcCoefficients[j] * initialVector[i - j];
+                for (var j = 0; j < i; j++)
+                    tmp0 -= lpcCoefficients[j]*initialVector[i - j];
 
                 if (Math.Abs(tmp0) >= e) break;
 
                 double pk;
-                lpcCoefficients[i] = pk = tmp0 / e;
-                e -= tmp0 * pk;
+                lpcCoefficients[i] = pk = tmp0/e;
+                e -= tmp0*pk;
 
-                for (int j = 0; j < i; j++)
+                for (var j = 0; j < i; j++)
                     tmp[j] = lpcCoefficients[j];
 
-                for (int j = 0; j < i; j++)
-                    lpcCoefficients[j] -= pk * tmp[i - j - 1];
+                for (var j = 0; j < i; j++)
+                    lpcCoefficients[j] -= pk*tmp[i - j - 1];
             }
             return lpcCoefficients;
         }
 
         public float[] GetCoefficients(int order)
         {
-            if(order < 1)
+            if (order < 1)
                 throw new ArgumentException("Invalid order parameter! Should larger than 0.", "order");
 
             return

@@ -10,24 +10,6 @@ namespace NSpeech.Verification
     public class Dictor
     {
         private VoiceKey _key;
-        public string Name { get; private set; }
-
-        public Signal Speech { get; private set; }
-
-        public VoiceFeature UsedSpeechFeature { get; private set; }
-
-        public KeySize VoicePrintKeySize { get; private set; }
-
-        public VoiceKey Key
-        {
-            get
-            {
-                if(_key == null)
-                    GenerateVoiceKey((int) VoicePrintKeySize, VoiceFeature.PitchAndLP, Metrics.Euclidian);
-                return _key;
-            }
-            private set { _key = value; }
-        }
 
         public Dictor(string name, Signal speech, VoiceFeature speechFeature, KeySize size)
         {
@@ -35,6 +17,25 @@ namespace NSpeech.Verification
             Speech = speech;
             UsedSpeechFeature = speechFeature;
             VoicePrintKeySize = size;
+        }
+
+        public string Name { get; private set; }
+
+        public Signal Speech { get; }
+
+        public VoiceFeature UsedSpeechFeature { get; }
+
+        public KeySize VoicePrintKeySize { get; }
+
+        public VoiceKey Key
+        {
+            get
+            {
+                if (_key == null)
+                    GenerateVoiceKey((int) VoicePrintKeySize, VoiceFeature.PitchAndLP, Metrics.Euclidian);
+                return _key;
+            }
+            private set { _key = value; }
         }
 
         private void GenerateVoiceKey(int keySize, VoiceFeature featureSet, Metrics metric)
@@ -71,15 +72,16 @@ namespace NSpeech.Verification
 
                     var bordersVoicedSpeech = voicedSpeech.GetVoicedSpeechBorder();
                     var lpc =
-                        speech.ExtractAnalysisInterval(bordersVoicedSpeech.Item1, bordersVoicedSpeech.Item2 - bordersVoicedSpeech.Item1)
+                        speech.ExtractAnalysisInterval(bordersVoicedSpeech.Item1,
+                                bordersVoicedSpeech.Item2 - bordersVoicedSpeech.Item1)
                             .Split(0.04, 0.95, WindowFunctions.Blackman)
                             .Select(x => x.GetLinearPredictCoefficients(10))
                             .ToArray();
                     var fullLpc = new float[pitchTrack.Length][];
                     Array.Copy(lpc, 0, fullLpc, bordersVoicedSpeech.Item1, lpc.Length);
-                    for (int i = 0; i < pitchTrack.Length; i++)
+                    for (var i = 0; i < pitchTrack.Length; i++)
                     {
-                        if(fullLpc[i] == null) fullLpc[i] = new float[10];
+                        if (fullLpc[i] == null) fullLpc[i] = new float[10];
                         fullLpc[i] = Combine(pitchTrack[i], fullLpc[i]);
                     }
                     return fullLpc;

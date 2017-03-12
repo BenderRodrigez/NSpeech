@@ -3,7 +3,7 @@
 namespace NSpeech
 {
     /// <summary>
-    /// Complex number
+    ///     Complex number
     /// </summary>
     public struct Complex
     {
@@ -13,17 +13,17 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Real part
+        ///     Real part
         /// </summary>
         public double Real { get; set; }
 
         /// <summary>
-        /// Imaginary part
+        ///     Imaginary part
         /// </summary>
         public double Imaginary { get; set; }
 
         /// <summary>
-        /// Represents the zero
+        ///     Represents the zero
         /// </summary>
         public static Complex Zero
         {
@@ -31,15 +31,15 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Represents the imaginary one. 
+        ///     Represents the imaginary one.
         /// </summary>
         public static Complex ImaginaryOne
         {
-            get { return new Complex{Real = 0.0, Imaginary = -1.0};}
+            get { return new Complex {Real = 0.0, Imaginary = -1.0}; }
         }
 
         /// <summary>
-        /// Complex square
+        ///     Complex square
         /// </summary>
         /// <returns>Value of the square</returns>
         public double ComlexSqr()

@@ -4,12 +4,12 @@ using System.Linq;
 namespace NSpeech.Verification.Clustering.Metrics
 {
     /// <summary>
-    /// Select specific metric selected by user (or not) with enumerable.
+    ///     Select specific metric selected by user (or not) with enumerable.
     /// </summary>
     internal static class MetricSelector
     {
         /// <summary>
-        /// Look at enumerable value and return specific object
+        ///     Look at enumerable value and return specific object
         /// </summary>
         /// <param name="selectedMetric">An metric</param>
         /// <returns>Metric calculator class</returns>

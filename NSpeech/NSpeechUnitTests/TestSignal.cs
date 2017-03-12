@@ -13,21 +13,20 @@ namespace NSpeechUnitTests
     {
         private Signal _fixedSpectrumSignal;
         private Signal _immutableFixedSpectrumSignal;
-        private Signal _silenceSignal;
         private Signal _immutableSilenceSignal;
+        private Signal _silenceSignal;
 
         [TestInitialize]
         public void Init()
         {
             var fixedFreqFileName = Path.Combine(Environment.CurrentDirectory, "Files", Settings.Default.SpectrumTest);
             var silenceFileName = Path.Combine(Environment.CurrentDirectory, "Files", Settings.Default.Silence);
-            
+
             int sampleRate;
             _fixedSpectrumSignal = new Signal(Helpers.ReadFile(fixedFreqFileName, out sampleRate), sampleRate);
             _immutableFixedSpectrumSignal = new Signal(Helpers.ReadFile(fixedFreqFileName, out sampleRate), sampleRate);
             _silenceSignal = new Signal(Helpers.ReadFile(silenceFileName, out sampleRate), sampleRate);
             _immutableSilenceSignal = new Signal(Helpers.ReadFile(silenceFileName, out sampleRate), sampleRate);
-
         }
 
         [TestMethod]
@@ -35,22 +34,25 @@ namespace NSpeechUnitTests
         {
             var filteredSignal = _fixedSpectrumSignal.Normalize().ApplyBandPassFiltration(100, 3000);
 
-            Assert.IsFalse(Helpers.Equals(filteredSignal, _immutableFixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
+            Assert.IsFalse(Helpers.Equals(filteredSignal, _immutableFixedSpectrumSignal),
+                "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             //should compare sectrums
             var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(1024);
             var modifiedSpectrum = filteredSignal.GetSpectrum(1024);
 
-            var diffSpectrum = Helpers.DiffSignal(((Signal)initialSpectrum).Samples, ((Signal)modifiedSpectrum).Samples);
+            var diffSpectrum = Helpers.DiffSignal(((Signal) initialSpectrum).Samples,
+                ((Signal) modifiedSpectrum).Samples);
 
-            Assert.IsFalse(Helpers.Equals(Helpers.GetExtremums(((Signal)initialSpectrum).Samples), Helpers.GetExtremums(diffSpectrum)));
+            Assert.IsFalse(Helpers.Equals(Helpers.GetExtremums(((Signal) initialSpectrum).Samples),
+                Helpers.GetExtremums(diffSpectrum)));
         }
 
         [TestMethod]
         public void ApplyCentralLimitationTest()
         {
             var limitedSignal = _fixedSpectrumSignal.Normalize().ApplyCentralLimitation(0.3);
-            Assert.IsTrue(limitedSignal.Samples.All(x=> Math.Abs(x) >= 0.3 || Math.Abs(x) < 0.0001));
+            Assert.IsTrue(limitedSignal.Samples.All(x => (Math.Abs(x) >= 0.3) || (Math.Abs(x) < 0.0001)));
 
             limitedSignal = _fixedSpectrumSignal.Normalize().ApplyCentralLimitation(0.0);
             Assert.IsTrue(Helpers.Equals(limitedSignal, _fixedSpectrumSignal.Normalize()), "Signal shouldn't be changed");
@@ -71,20 +73,24 @@ namespace NSpeechUnitTests
             //Test to filter lower frequencies
             var filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(3000);
 
-            Assert.IsFalse(Equals(filteredSignal, _immutableFixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
+            Assert.IsFalse(Equals(filteredSignal, _immutableFixedSpectrumSignal),
+                "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             //should compare sectrums
             var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(1024);
             var modifiedSpectrum = filteredSignal.GetSpectrum(1024);
 
-            var diffSpectrum = Helpers.DiffSignal(((Signal) initialSpectrum).Samples, ((Signal) modifiedSpectrum).Samples);
+            var diffSpectrum = Helpers.DiffSignal(((Signal) initialSpectrum).Samples,
+                ((Signal) modifiedSpectrum).Samples);
 
-            Assert.IsFalse(Helpers.Equals(Helpers.GetExtremums(((Signal)initialSpectrum).Samples), Helpers.GetExtremums(diffSpectrum)));
+            Assert.IsFalse(Helpers.Equals(Helpers.GetExtremums(((Signal) initialSpectrum).Samples),
+                Helpers.GetExtremums(diffSpectrum)));
 
             //Test to pass higher frequencies
             filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(100);
 
-            Assert.IsFalse(Helpers.Equals(filteredSignal, _immutableFixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
+            Assert.IsFalse(Helpers.Equals(filteredSignal, _immutableFixedSpectrumSignal),
+                "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             modifiedSpectrum = filteredSignal.GetSpectrum(1024);
 
@@ -97,20 +103,24 @@ namespace NSpeechUnitTests
             //Test to filter higher frequencies
             var filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(100);
 
-            Assert.IsFalse(Equals(filteredSignal, _immutableFixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
+            Assert.IsFalse(Equals(filteredSignal, _immutableFixedSpectrumSignal),
+                "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             //should compare sectrums
             var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(1024);
             var modifiedSpectrum = filteredSignal.GetSpectrum(1024);
 
-            var diffSpectrum = Helpers.DiffSignal(((Signal)initialSpectrum).Samples, ((Signal)modifiedSpectrum).Samples);
+            var diffSpectrum = Helpers.DiffSignal(((Signal) initialSpectrum).Samples,
+                ((Signal) modifiedSpectrum).Samples);
 
-            Assert.IsFalse(Equals(Helpers.GetExtremums(((Signal)initialSpectrum).Samples), Helpers.GetExtremums(diffSpectrum)));
+            Assert.IsFalse(Equals(Helpers.GetExtremums(((Signal) initialSpectrum).Samples),
+                Helpers.GetExtremums(diffSpectrum)));
 
             //Test to pass lower frequencies
             filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(3000);
 
-            Assert.IsFalse(Helpers.Equals(filteredSignal, _immutableFixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
+            Assert.IsFalse(Helpers.Equals(filteredSignal, _immutableFixedSpectrumSignal),
+                "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             modifiedSpectrum = filteredSignal.GetSpectrum(1024);
 
@@ -130,19 +140,19 @@ namespace NSpeechUnitTests
         public void ApplyWindowFunctionTest()
         {
             var windowedSignal = _fixedSpectrumSignal.ApplyWindowFunction(WindowFunctions.Rectangular);
-            Assert.IsTrue(Helpers.Equals(windowedSignal, _immutableFixedSpectrumSignal), "Signals should be equals with and witout rectangular window function");
+            Assert.IsTrue(Helpers.Equals(windowedSignal, _immutableFixedSpectrumSignal),
+                "Signals should be equals with and witout rectangular window function");
 
             windowedSignal = _fixedSpectrumSignal.Normalize().ApplyWindowFunction(WindowFunctions.Hamming);
             var normalizedSignal = _immutableFixedSpectrumSignal.Clone().Normalize();
-            for (int i = 0; i < windowedSignal.Samples.Length; i++)
-            {
-                Assert.AreEqual(HammingWindow(normalizedSignal.Samples[i], i, normalizedSignal.Samples.Length), windowedSignal.Samples[i], 0.00001, "Unexpected data starting from "+i);
-            }
+            for (var i = 0; i < windowedSignal.Samples.Length; i++)
+                Assert.AreEqual(HammingWindow(normalizedSignal.Samples[i], i, normalizedSignal.Samples.Length),
+                    windowedSignal.Samples[i], 0.00001, "Unexpected data starting from " + i);
         }
 
         private float HammingWindow(float x, int i, int length)
         {
-            return (float)(x * (0.54 - 0.46 * Math.Cos(2.0 * Math.PI * i / length)));
+            return (float) (x*(0.54 - 0.46*Math.Cos(2.0*Math.PI*i/length)));
         }
 
         [TestMethod]
@@ -169,23 +179,19 @@ namespace NSpeechUnitTests
             var autocorrelation = _fixedSpectrumSignal.ExtractAnalysisInterval(0, 256).Normalize().GetAutocorrelation();
 
             foreach (var sample in autocorrelation.Samples)
-            {
                 Assert.IsFalse(float.IsNaN(sample) || float.IsInfinity(sample), "Samples can't be NaN or Infinity");
-            }
 
             var firstExtremumPosition = -1;
-            for (int i = 1; i < autocorrelation.Samples.Length-1; i++)
-            {
-                if (autocorrelation.Samples[i - 1] < autocorrelation.Samples[i]
-                    && autocorrelation.Samples[i + 1] < autocorrelation.Samples[i])
+            for (var i = 1; i < autocorrelation.Samples.Length - 1; i++)
+                if ((autocorrelation.Samples[i - 1] < autocorrelation.Samples[i])
+                    && (autocorrelation.Samples[i + 1] < autocorrelation.Samples[i]))
                 {
                     firstExtremumPosition = i;
                     break;
                 }
-            }
 
             Assert.AreNotEqual(-1, firstExtremumPosition);
-            Assert.AreEqual(0.0006, firstExtremumPosition/(double)autocorrelation.SignalFormat.SampleRate, 0.0001);
+            Assert.AreEqual(0.0006, firstExtremumPosition/(double) autocorrelation.SignalFormat.SampleRate, 0.0001);
         }
 
         [TestMethod]
@@ -202,7 +208,9 @@ namespace NSpeechUnitTests
         public void GetEnergyTest()
         {
             var energy = _fixedSpectrumSignal.Normalize().GetEnergy();
-            Assert.AreEqual(_fixedSpectrumSignal.Normalize().Samples.Sum(x=>Math.Pow(x, 2))/_fixedSpectrumSignal.Samples.Length, energy, 0.0001);
+            Assert.AreEqual(
+                _fixedSpectrumSignal.Normalize().Samples.Sum(x => Math.Pow(x, 2))/_fixedSpectrumSignal.Samples.Length,
+                energy, 0.0001);
         }
 
         [TestMethod]
@@ -222,7 +230,9 @@ namespace NSpeechUnitTests
 
             var extremums = Helpers.GetExtremums(spectrum.Normalize().Samples);
             Assert.IsTrue(extremums.Count == 1);
-            Assert.IsTrue(Math.Abs(Helpers.ExtractFrequency(extremums[0], _fixedSpectrumSignal.SignalFormat.SampleRate, 1024) - 1500.0) < 10.0);
+            Assert.IsTrue(
+                Math.Abs(Helpers.ExtractFrequency(extremums[0], _fixedSpectrumSignal.SignalFormat.SampleRate, 1024) -
+                         1500.0) < 10.0);
         }
 
         [TestMethod]
@@ -238,16 +248,22 @@ namespace NSpeechUnitTests
         public void SplitTest()
         {
             var splited = _fixedSpectrumSignal.Split(0.01, 0.0, WindowFunctions.Rectangular);
-            var windowSizeInSamples = (int)(_fixedSpectrumSignal.SignalFormat.SampleRate * 0.01);
-            var asumedNumberOfElements = (int)Math.Floor((double)_fixedSpectrumSignal.SignalFormat.SampleRate/windowSizeInSamples);
+            var windowSizeInSamples = (int) (_fixedSpectrumSignal.SignalFormat.SampleRate*0.01);
+            var asumedNumberOfElements =
+                (int) Math.Floor((double) _fixedSpectrumSignal.SignalFormat.SampleRate/windowSizeInSamples);
 
-            Assert.IsTrue(splited.Length == asumedNumberOfElements);//assert what we have same number of elements as expected
+            Assert.IsTrue(splited.Length == asumedNumberOfElements);
+                //assert what we have same number of elements as expected
             Assert.IsTrue(splited[0].Samples.Length == windowSizeInSamples);
 
             splited = _fixedSpectrumSignal.Split(0.01, 0.99, WindowFunctions.Rectangular);
-            asumedNumberOfElements = (int)Math.Ceiling((double)(_fixedSpectrumSignal.SignalFormat.SampleRate - windowSizeInSamples) / (int)(windowSizeInSamples*0.01));
+            asumedNumberOfElements =
+                (int)
+                Math.Ceiling((double) (_fixedSpectrumSignal.SignalFormat.SampleRate - windowSizeInSamples)/
+                             (int) (windowSizeInSamples*0.01));
 
-            Assert.IsTrue(splited.Length == asumedNumberOfElements);//assert what we have same number of elements as expected
+            Assert.IsTrue(splited.Length == asumedNumberOfElements);
+                //assert what we have same number of elements as expected
             Assert.IsTrue(splited[0].Samples.Length == windowSizeInSamples);
         }
     }

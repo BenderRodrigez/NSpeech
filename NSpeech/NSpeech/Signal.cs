@@ -9,27 +9,17 @@ using NSpeech.DSPAlgorithms.WindowFunctions;
 namespace NSpeech
 {
     /// <summary>
-    /// Represent some signal
+    ///     Represent some signal
     /// </summary>
     public class Signal
     {
         /// <summary>
-        /// Signal data
-        /// </summary>
-        public float[] Samples { get; private set; }
-
-        /// <summary>
-        /// Format of the signal (curently only sampling rate)
-        /// </summary>
-        public Format SignalFormat { get; private set; }
-
-        /// <summary>
-        /// Provides access to the basic signal operations
+        ///     Provides access to the basic signal operations
         /// </summary>
         private readonly BasicOperations _operations;
 
         /// <summary>
-        /// Creates signal
+        ///     Creates signal
         /// </summary>
         /// <param name="samples"></param>
         /// <param name="sampleRate"></param>
@@ -41,7 +31,7 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Creates signal with some format info
+        ///     Creates signal with some format info
         /// </summary>
         /// <param name="samples"></param>
         /// <param name="signalFormat"></param>
@@ -53,7 +43,17 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Calculates energy of the whole signal
+        ///     Signal data
+        /// </summary>
+        public float[] Samples { get; private set; }
+
+        /// <summary>
+        ///     Format of the signal (curently only sampling rate)
+        /// </summary>
+        public Format SignalFormat { get; }
+
+        /// <summary>
+        ///     Calculates energy of the whole signal
         /// </summary>
         /// <returns>Energy value</returns>
         public double GetEnergy()
@@ -62,19 +62,19 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Normalize signal's samples to range from -1 to 1
+        ///     Normalize signal's samples to range from -1 to 1
         /// </summary>
         /// <returns>Normalized signal</returns>
         public Signal Normalize()
         {
             var max = Samples.Max(f => Math.Abs(f));
 
-            Samples = Samples.Select(x=> x/max).ToArray();
+            Samples = Samples.Select(x => x/max).ToArray();
             return this;
         }
 
         /// <summary>
-        /// Calulates correlation of the whole signal with provided delay
+        ///     Calulates correlation of the whole signal with provided delay
         /// </summary>
         /// <param name="delay">Correlation delay in samples</param>
         /// <returns>Corellation coefficient value</returns>
@@ -84,7 +84,7 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Calculates signal's complex spectrum
+        ///     Calculates signal's complex spectrum
         /// </summary>
         /// <param name="size">Furier transform size</param>
         /// <returns>Frequency domain signal</returns>
@@ -95,7 +95,7 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Converts amplitude spectrum into time domain signal
+        ///     Converts amplitude spectrum into time domain signal
         /// </summary>
         /// <param name="size">Furier transform size</param>
         /// <returns>Time domain signal</returns>
@@ -108,7 +108,7 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Apply additive noise to signal with specifed level.
+        ///     Apply additive noise to signal with specifed level.
         /// </summary>
         /// <param name="noiseLevel">Noise level</param>
         /// <param name="snr">Resulting Signal-to-Noise Raito</param>
@@ -122,7 +122,7 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Calculates signal's autocorrelation 
+        ///     Calculates signal's autocorrelation
         /// </summary>
         /// <returns>Autocorrelational signal</returns>
         public Signal GetAutocorrelation()
@@ -132,7 +132,7 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Returns linear prediction coefficients for the signal
+        ///     Returns linear prediction coefficients for the signal
         /// </summary>
         /// <param name="numberOfCoefficients">Number of the coefficients to calculate</param>
         /// <returns>Array of the coefficients</returns>
@@ -143,7 +143,7 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Makes copy of the signal from <paramref name="startPosition"/> sample with length of <paramref name="length"/>
+        ///     Makes copy of the signal from <paramref name="startPosition" /> sample with length of <paramref name="length" />
         /// </summary>
         /// <param name="startPosition">First sample to copy</param>
         /// <param name="length">Number of samples to copy</param>
@@ -156,13 +156,13 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Limit samples by amplitude value. Replace all small samples by zero
+        ///     Limit samples by amplitude value. Replace all small samples by zero
         /// </summary>
         /// <param name="level">Percents value from maximal sample to limit the signal</param>
         /// <returns>Limited signal</returns>
         public Signal ApplyCentralLimitation(double level)
         {
-            if(level < 0.0 || level > 1.0)
+            if ((level < 0.0) || (level > 1.0))
                 throw new ArgumentOutOfRangeException(nameof(level), level, "Value should be in range from 0.0 to 1.0");
 
             var maxSignal = Samples.Max(x => Math.Abs(x))*level;
@@ -171,7 +171,7 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Splits the signal on intervals of analysis
+        ///     Splits the signal on intervals of analysis
         /// </summary>
         /// <param name="intervalTime">Analysis interval time in seconds</param>
         /// <param name="overlap">Interval's overlap in percents</param>
@@ -179,10 +179,11 @@ namespace NSpeech
         /// <returns>Array of the analysis intervals</returns>
         public Signal[] Split(double intervalTime, double overlap, WindowFunctions window)
         {
-            var intervalInSamples = (int)Math.Round(SignalFormat.SampleRate*intervalTime);//Convert time to samples count
+            var intervalInSamples = (int) Math.Round(SignalFormat.SampleRate*intervalTime);
+                //Convert time to samples count
             var displacements = (int) Math.Round(intervalInSamples*(1.0 - overlap));
             if (displacements < 1)
-                displacements = 1;//we should have some displacement. Else we never finish this spliting.
+                displacements = 1; //we should have some displacement. Else we never finish this spliting.
             var intervals = new List<Signal>();
             for (var i = 0; i + intervalInSamples < Samples.Length; i += displacements)
             {
@@ -196,7 +197,7 @@ namespace NSpeech
 
 
         /// <summary>
-        /// Apply window function to signal's samples
+        ///     Apply window function to signal's samples
         /// </summary>
         /// <param name="window">Window function type</param>
         /// <returns>Windowed signal</returns>
@@ -208,7 +209,7 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Apply low-pass filter to signal
+        ///     Apply low-pass filter to signal
         /// </summary>
         /// <param name="borderFrequency">Cut frequency</param>
         /// <returns>Filtred signal</returns>
@@ -220,7 +221,7 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Apply high-pass filter to signal
+        ///     Apply high-pass filter to signal
         /// </summary>
         /// <param name="borderFrequency">Cut frequency</param>
         /// <returns>Filtred signal</returns>
@@ -232,7 +233,7 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Apply band-pass filter to signal
+        ///     Apply band-pass filter to signal
         /// </summary>
         /// <param name="lowerBoder">Lower cut frequency</param>
         /// <param name="upperBorder">Upper cut frequency</param>
@@ -246,7 +247,7 @@ namespace NSpeech
 
         public Signal ApplyGaussianBlur(int diameter)
         {
-            if(diameter % 2 != 1)
+            if (diameter%2 != 1)
                 throw new ArgumentException("Diameter should be even value");
             var blur = new GaussianFilter(diameter);
             Samples = blur.Filter(Samples);
@@ -254,7 +255,7 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Makes new signal object with new samples and old signal format
+        ///     Makes new signal object with new samples and old signal format
         /// </summary>
         /// <returns>Shallow copy of the object</returns>
         public Signal Clone()
@@ -265,7 +266,7 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Generates additive signal as product of sum of two signals
+        ///     Generates additive signal as product of sum of two signals
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
@@ -274,7 +275,7 @@ namespace NSpeech
         {
             if (a == null) throw new ArgumentNullException(nameof(a));
             if (b == null) throw new ArgumentNullException(nameof(b));
-            if(a.SignalFormat.SampleRate != b.SignalFormat.SampleRate)
+            if (a.SignalFormat.SampleRate != b.SignalFormat.SampleRate)
                 throw new ArgumentException("Signals should have the same Sample Rate");
 
             var shortest = a.Samples.Length < b.Samples.Length ? a.Samples : b.Samples;
@@ -282,18 +283,13 @@ namespace NSpeech
 
             var newSamples = new float[longest.Length];
 
-            for (int i = 0; i < shortest.Length; i++)
-            {
+            for (var i = 0; i < shortest.Length; i++)
                 newSamples[i] = a.Samples[i] + b.Samples[i];
-            }
 
-            for (int i = shortest.Length; i < longest.Length; i++)
-            {
+            for (var i = shortest.Length; i < longest.Length; i++)
                 newSamples[i] = longest[i];
-            }
 
             return new Signal(newSamples, a.SignalFormat);
         }
     }
 }
-

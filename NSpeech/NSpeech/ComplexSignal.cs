@@ -5,17 +5,12 @@ using NSpeech.DSPAlgorithms.Basic;
 namespace NSpeech
 {
     /// <summary>
-    /// Represent some signal with complex samples
+    ///     Represent some signal with complex samples
     /// </summary>
-    public class ComplexSignal: Signal
+    public class ComplexSignal : Signal
     {
         /// <summary>
-        /// Signal's samples
-        /// </summary>
-        public new Complex[] Samples { get; private set; }
-
-        /// <summary>
-        /// Creates new complex signal from descreet signal with samples placed in reals
+        ///     Creates new complex signal from descreet signal with samples placed in reals
         /// </summary>
         /// <param name="samples">Real signal</param>
         /// <param name="sampleRate">Sample rate</param>
@@ -25,27 +20,34 @@ namespace NSpeech
         }
 
         /// <summary>
-        /// Creates new instance of the complex signal
+        ///     Creates new instance of the complex signal
         /// </summary>
         /// <param name="samples">Signal's samples</param>
         /// <param name="sampleRate">Sample rate</param>
-        public ComplexSignal(Complex[] samples, int sampleRate):base(samples.Select(x=> (float)Math.Sqrt(x.ComlexSqr())).ToArray(), sampleRate)
+        public ComplexSignal(Complex[] samples, int sampleRate)
+            : base(samples.Select(x => (float) Math.Sqrt(x.ComlexSqr())).ToArray(), sampleRate)
         {
             Samples = samples;
         }
 
         /// <summary>
-        /// Creates new instance of the complex signal
+        ///     Creates new instance of the complex signal
         /// </summary>
         /// <param name="samples">Signal's samples</param>
         /// <param name="format">Signal's  format data</param>
-        public ComplexSignal(Complex[] samples, Format format) : base(samples.Select(x => (float)Math.Sqrt(x.ComlexSqr())).ToArray(), format)
+        public ComplexSignal(Complex[] samples, Format format)
+            : base(samples.Select(x => (float) Math.Sqrt(x.ComlexSqr())).ToArray(), format)
         {
             Samples = samples;
         }
 
         /// <summary>
-        /// Convert signal from frequency domain into time domain
+        ///     Signal's samples
+        /// </summary>
+        public new Complex[] Samples { get; }
+
+        /// <summary>
+        ///     Convert signal from frequency domain into time domain
         /// </summary>
         /// <param name="size">Furier transform size</param>
         /// <returns>Signal in time domain</returns>

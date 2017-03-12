@@ -7,6 +7,7 @@ namespace NSpeech.Verification
     public class VoiceKey
     {
         private readonly VectorQuantization _vq;
+
         public VoiceKey(int keySize, Metrics metric)
         {
             Key = new float[keySize][];

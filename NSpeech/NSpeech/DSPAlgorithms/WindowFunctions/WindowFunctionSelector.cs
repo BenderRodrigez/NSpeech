@@ -3,12 +3,12 @@
 namespace NSpeech.DSPAlgorithms.WindowFunctions
 {
     /// <summary>
-    /// Select specific window function
+    ///     Select specific window function
     /// </summary>
     internal static class WindowFunctionSelector
     {
         /// <summary>
-        /// Look at enumerable and return specific object
+        ///     Look at enumerable and return specific object
         /// </summary>
         /// <param name="selectedFunction">Selected window function type</param>
         /// <returns>Window function</returns>
@@ -17,14 +17,14 @@ namespace NSpeech.DSPAlgorithms.WindowFunctions
             switch (selectedFunction)
             {
                 case WindowFunctions.Rectangular:
-                    return (signal) =>
+                    return signal =>
                     {
                         var x = new float[signal.Length];
                         Array.Copy(signal, x, signal.Length);
                         return x;
                     };
                 case WindowFunctions.Blackman:
-                    return (signal) =>
+                    return signal =>
                     {
                         const double a = 0.16;
                         const double b = (1.0 - a)/2.0;
@@ -32,26 +32,23 @@ namespace NSpeech.DSPAlgorithms.WindowFunctions
                         const double d = a/2.0;
                         var x = new float[signal.Length];
                         for (var i = 0; i < x.Length; i++)
-                        {
                             x[i] = signal[i]*
                                    (float)
-                                       (b - c*Math.Cos(2.0*Math.PI*i/signal.Length) +
-                                        d*Math.Cos(4.0*Math.PI*i/signal.Length));
-                        }
+                                   (b - c*Math.Cos(2.0*Math.PI*i/signal.Length) +
+                                    d*Math.Cos(4.0*Math.PI*i/signal.Length));
                         return x;
                     };
                 case WindowFunctions.Hamming:
-                    return (signal) =>
+                    return signal =>
                     {
                         var x = new float[signal.Length];
-                        for (int i = 0; i < signal.Length; i++)
-                        {
+                        for (var i = 0; i < signal.Length; i++)
                             x[i] = (float) (signal[i]*(0.54 - 0.46*Math.Cos(2.0*Math.PI*i/signal.Length)));
-                        }
                         return x;
                     };
                 default:
-                    throw new ArgumentOutOfRangeException("selectedFunction", "Selected value and WindowFunction enumerable mismatch.");
+                    throw new ArgumentOutOfRangeException("selectedFunction",
+                        "Selected value and WindowFunction enumerable mismatch.");
             }
         }
     }
