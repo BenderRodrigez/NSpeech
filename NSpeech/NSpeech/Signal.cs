@@ -252,6 +252,48 @@ namespace NSpeech
             Samples = blur.Filter(Samples);
             return this;
         }
+
+        /// <summary>
+        /// Makes new signal object with new samples and old signal format
+        /// </summary>
+        /// <returns>Shallow copy of the object</returns>
+        public Signal Clone()
+        {
+            var newSamples = new float[Samples.Length];
+            Array.Copy(Samples, newSamples, Samples.Length);
+            return new Signal(newSamples, SignalFormat);
+        }
+
+        /// <summary>
+        /// Generates additive signal as product of sum of two signals
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static Signal operator +(Signal a, Signal b)
+        {
+            if (a == null) throw new ArgumentNullException(nameof(a));
+            if (b == null) throw new ArgumentNullException(nameof(b));
+            if(a.SignalFormat.SampleRate != b.SignalFormat.SampleRate)
+                throw new ArgumentException("Signals should have the same Sample Rate");
+
+            var shortest = a.Samples.Length < b.Samples.Length ? a.Samples : b.Samples;
+            var longest = a.Samples.Length > b.Samples.Length ? a.Samples : b.Samples;
+
+            var newSamples = new float[longest.Length];
+
+            for (int i = 0; i < shortest.Length; i++)
+            {
+                newSamples[i] = a.Samples[i] + b.Samples[i];
+            }
+
+            for (int i = shortest.Length; i < longest.Length; i++)
+            {
+                newSamples[i] = longest[i];
+            }
+
+            return new Signal(newSamples, a.SignalFormat);
+        }
     }
 }
 

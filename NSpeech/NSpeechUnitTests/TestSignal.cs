@@ -12,7 +12,9 @@ namespace NSpeechUnitTests
     public class TestSignal
     {
         private Signal _fixedSpectrumSignal;
+        private Signal _immutableFixedSpectrumSignal;
         private Signal _silenceSignal;
+        private Signal _immutableSilenceSignal;
 
         [TestInitialize]
         public void Init()
@@ -22,7 +24,9 @@ namespace NSpeechUnitTests
             
             int sampleRate;
             _fixedSpectrumSignal = new Signal(Helpers.ReadFile(fixedFreqFileName, out sampleRate), sampleRate);
+            _immutableFixedSpectrumSignal = new Signal(Helpers.ReadFile(fixedFreqFileName, out sampleRate), sampleRate);
             _silenceSignal = new Signal(Helpers.ReadFile(silenceFileName, out sampleRate), sampleRate);
+            _immutableSilenceSignal = new Signal(Helpers.ReadFile(silenceFileName, out sampleRate), sampleRate);
 
         }
 
@@ -31,7 +35,7 @@ namespace NSpeechUnitTests
         {
             var filteredSignal = _fixedSpectrumSignal.Normalize().ApplyBandPassFiltration(100, 3000);
 
-            Assert.IsFalse(Helpers.Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
+            Assert.IsFalse(Helpers.Equals(filteredSignal, _immutableFixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             //should compare sectrums
             var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(1024);
@@ -67,7 +71,7 @@ namespace NSpeechUnitTests
             //Test to filter lower frequencies
             var filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(3000);
 
-            Assert.IsFalse(Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
+            Assert.IsFalse(Equals(filteredSignal, _immutableFixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             //should compare sectrums
             var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(1024);
@@ -80,7 +84,7 @@ namespace NSpeechUnitTests
             //Test to pass higher frequencies
             filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(100);
 
-            Assert.IsFalse(Helpers.Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
+            Assert.IsFalse(Helpers.Equals(filteredSignal, _immutableFixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             modifiedSpectrum = filteredSignal.GetSpectrum(1024);
 
@@ -93,7 +97,7 @@ namespace NSpeechUnitTests
             //Test to filter higher frequencies
             var filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(100);
 
-            Assert.IsFalse(Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
+            Assert.IsFalse(Equals(filteredSignal, _immutableFixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             //should compare sectrums
             var initialSpectrum = _fixedSpectrumSignal.Normalize().GetSpectrum(1024);
@@ -106,7 +110,7 @@ namespace NSpeechUnitTests
             //Test to pass lower frequencies
             filteredSignal = _fixedSpectrumSignal.Normalize().ApplyHighPassFiltration(3000);
 
-            Assert.IsFalse(Helpers.Equals(filteredSignal, _fixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
+            Assert.IsFalse(Helpers.Equals(filteredSignal, _immutableFixedSpectrumSignal), "Equals(filteredSignal, _fixedSpectrumSignal)");
 
             modifiedSpectrum = filteredSignal.GetSpectrum(1024);
 
@@ -118,7 +122,7 @@ namespace NSpeechUnitTests
         {
             double snr;
             var noisedSignal = _silenceSignal.ApplyNoise(0.1f, out snr);
-            Assert.IsFalse(Helpers.Equals(_silenceSignal, noisedSignal));
+            Assert.IsFalse(Helpers.Equals(noisedSignal, _immutableSilenceSignal));
             Assert.AreNotEqual(0.0, snr);
         }
 
@@ -126,10 +130,10 @@ namespace NSpeechUnitTests
         public void ApplyWindowFunctionTest()
         {
             var windowedSignal = _fixedSpectrumSignal.ApplyWindowFunction(WindowFunctions.Rectangular);
-            Assert.IsTrue(Helpers.Equals(_fixedSpectrumSignal, windowedSignal), "Signals should be equals with and witout rectangular window function");
+            Assert.IsTrue(Helpers.Equals(windowedSignal, _immutableFixedSpectrumSignal), "Signals should be equals with and witout rectangular window function");
 
             windowedSignal = _fixedSpectrumSignal.Normalize().ApplyWindowFunction(WindowFunctions.Hamming);
-            var normalizedSignal = _fixedSpectrumSignal.Normalize();
+            var normalizedSignal = _immutableFixedSpectrumSignal.Clone().Normalize();
             for (int i = 0; i < windowedSignal.Samples.Length; i++)
             {
                 Assert.AreEqual(HammingWindow(normalizedSignal.Samples[i], i, normalizedSignal.Samples.Length), windowedSignal.Samples[i], 0.00001, "Unexpected data starting from "+i);
