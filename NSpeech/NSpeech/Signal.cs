@@ -151,7 +151,7 @@ namespace NSpeech
         public Signal ExtractAnalysisInterval(int startPosition, int length)
         {
             var interval = new float[length];
-            Array.Copy(Samples, startPosition, interval, 0, length < Samples.Length ? length : Samples.Length);
+            Array.Copy(Samples, startPosition, interval, 0, length+startPosition < Samples.Length ? length : Samples.Length - startPosition);
             return new Signal(interval, SignalFormat.SampleRate);
         }
 

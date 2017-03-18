@@ -11,7 +11,7 @@ namespace NSpeech.Verification
     {
         private VoiceKey _key;
 
-        public Dictor(string name, Signal speech, VoiceFeature speechFeature, KeySize size)
+        public Dictor(string name, Signal speech, VoiceFeature speechFeature = VoiceFeature.PitchAndLP, KeySize size = KeySize.Standart)
         {
             Name = name;
             Speech = speech;
