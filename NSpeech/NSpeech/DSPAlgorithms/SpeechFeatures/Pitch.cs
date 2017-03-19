@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NSpeech.DSPAlgorithms.Basic;
 
 namespace NSpeech.DSPAlgorithms.SpeechFeatures
 {
@@ -9,6 +10,8 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
         private readonly Signal _signal;
 
         private readonly IEnumerable<Tuple<int, int>> _speechMarks;
+
+        private readonly BasicOperations _operations;
 
         public Pitch(Signal signal, IEnumerable<Tuple<int, int>> speechMarks)
         {
@@ -24,6 +27,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             AnalysisInterval = 0.04;
             WindowFunction = WindowFunctions.WindowFunctions.Blackman;
             Overlapping = 0.95;
+            _operations = new BasicOperations();
         }
 
         public double AnalysisInterval { get; set; } //in seconds
@@ -65,6 +69,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             var lower = (int) Math.Round(_signal.SignalFormat.SampleRate/60.0); //60 Hz in ACF values array border
             var higher = (int) Math.Round(_signal.SignalFormat.SampleRate/600.0); //600 Hz in ACF values array border
             var globalCandidates = new List<List<Tuple<int, double>>>();
+
             foreach (var curentMark in _speechMarks)
             {
                 for (var i = prevStop; i < curentMark.Item1; i++)
@@ -81,13 +86,11 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
                     var candidates = new List<Tuple<int, double>>(); //int = position, double = amplitude
 
                     //generate acfs and acf on analysis interval
-                    var data = _signal.ExtractAnalysisInterval(samples, size);
-                    var filterdData = filtredSignal.ExtractAnalysisInterval(samples, size);
-
-                    data = data.ApplyWindowFunction(WindowFunction);
-                    filterdData = filterdData.ApplyWindowFunction(WindowFunction);
-
-                    filterdData = filterdData.ApplyCentralLimitation(CentralLimitation);
+                    var data = _signal.ExtractAnalysisInterval(samples, size).ApplyWindowFunction(WindowFunction);
+                    var filterdData =
+                        filtredSignal.ExtractAnalysisInterval(samples, size)
+                            .ApplyWindowFunction(WindowFunction)
+                            .ApplyCentralLimitation(CentralLimitation);
 
                     var acf = filterdData.GetAutocorrelation();
 

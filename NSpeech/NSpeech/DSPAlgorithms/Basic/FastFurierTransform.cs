@@ -5,18 +5,6 @@ namespace NSpeech.DSPAlgorithms.Basic
 {
     public class FastFurierTransform
     {
-        private readonly Complex[] _samples;
-
-        public FastFurierTransform(float[] samples)
-        {
-            _samples = samples.Select(x => new Complex {Real = x, Imaginary = 0.0}).ToArray();
-        }
-
-        public FastFurierTransform(Complex[] samples)
-        {
-            _samples = samples;
-        }
-
         private void PerformTransform(Complex[] data, bool forwardDirection, int transformSize)
         {
             var i2 = transformSize >> 1;
@@ -88,25 +76,36 @@ namespace NSpeech.DSPAlgorithms.Basic
             }
         }
 
-        public Complex[] PerformForwardTransform(int transformSize)
+        public Complex[] PerformForwardTransform(float[] samples, int transformSize)
+        {
+            return PerformForwardTransform(samples.Select(x => new Complex {Real = x, Imaginary = 0.0}).ToArray(),
+                transformSize);
+        }
+
+        public Complex[] PerformForwardTransform(Complex[] samples, int transformSize)
         {
             if ((transformSize & (transformSize - 1)) != 0)
                 throw new ArgumentException("Transform size should be a power of 2.", "transformSize");
 
             var spectrum = new Complex[transformSize];
-            Array.Copy(_samples, spectrum, _samples.Length > transformSize ? transformSize : _samples.Length);
+            Array.Copy(samples, spectrum, samples.Length > transformSize ? transformSize : samples.Length);
             PerformTransform(spectrum, true, transformSize);
 
             return spectrum;
         }
 
-        public double[] PerformBackwardTransform(int transformSize)
+        public double[] PerformBackwardTransform(float[] samples, int transformSize)
+        {
+            return PerformBackwardTransform(samples.Select(x => new Complex(x)).ToArray(), transformSize);
+        }
+
+        public double[] PerformBackwardTransform(Complex[] samples, int transformSize)
         {
             if ((transformSize & (transformSize - 1)) != 0)
                 throw new ArgumentException("Transform size should be a power of 2.", "transformSize");
 
             var spectrum = new Complex[transformSize];
-            Array.Copy(_samples, spectrum, transformSize);
+            Array.Copy(samples, spectrum, transformSize);
 
             PerformTransform(spectrum, false, transformSize);
             return spectrum.Select(x => x.Real).ToArray();

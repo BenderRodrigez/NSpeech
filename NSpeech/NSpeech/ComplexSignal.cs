@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using NSpeech.DSPAlgorithms.Basic;
 
 namespace NSpeech
 {
@@ -53,9 +52,7 @@ namespace NSpeech
         /// <returns>Signal in time domain</returns>
         public new Signal PerformBackwardFurierTransform(int size = 1024)
         {
-            var furierTansform = new FastFurierTransform(Samples);
-
-            return new Signal(furierTansform.PerformBackwardTransform(size).Select(x => (float) x).ToArray(),
+            return new Signal(Operations.Furier.PerformBackwardTransform(Samples, size).Select(x => (float) x).ToArray(),
                 SignalFormat);
         }
     }

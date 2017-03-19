@@ -16,7 +16,7 @@ namespace NSpeech
         /// <summary>
         ///     Provides access to the basic signal operations
         /// </summary>
-        private readonly BasicOperations _operations;
+        internal readonly BasicOperations Operations;
 
         /// <summary>
         ///     Creates signal
@@ -27,7 +27,7 @@ namespace NSpeech
         {
             Samples = samples;
             SignalFormat = new Format(sampleRate);
-            _operations = new BasicOperations();
+            Operations = new BasicOperations();
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace NSpeech
         {
             SignalFormat = signalFormat;
             Samples = samples;
-            _operations = new BasicOperations();
+            Operations = new BasicOperations();
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace NSpeech
         /// <returns>Energy value</returns>
         public double GetEnergy()
         {
-            return _operations.Energy(Samples);
+            return Operations.Energy(Samples);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace NSpeech
         /// <returns>Corellation coefficient value</returns>
         public double GetCorrelation(int delay = 1)
         {
-            return _operations.Correlation(delay, Samples);
+            return Operations.Correlation(delay, Samples);
         }
 
         /// <summary>
@@ -90,8 +90,7 @@ namespace NSpeech
         /// <returns>Frequency domain signal</returns>
         public ComplexSignal GetSpectrum(int size)
         {
-            var furierTransform = new FastFurierTransform(Samples);
-            return new ComplexSignal(furierTransform.PerformForwardTransform(size), SignalFormat);
+            return new ComplexSignal(Operations.Furier.PerformForwardTransform(Samples, size), SignalFormat);
         }
 
         /// <summary>
@@ -101,9 +100,7 @@ namespace NSpeech
         /// <returns>Time domain signal</returns>
         public Signal PerformBackwardFurierTransform(int size = 1024)
         {
-            var furierTansform = new FastFurierTransform(Samples);
-
-            Samples = furierTansform.PerformBackwardTransform(size).Select(x => (float) x).ToArray();
+            Samples = Operations.Furier.PerformBackwardTransform(Samples, size).Select(x => (float) x).ToArray();
             return this;
         }
 
@@ -117,7 +114,7 @@ namespace NSpeech
         /// <returns>Noised signal</returns>
         public Signal ApplyNoise(float noiseLevel, out double snr, int maxEnergyStart = 0, int maxEnergyStop = -1)
         {
-            Samples = _operations.ApplyNoise(maxEnergyStart, maxEnergyStop, Samples, noiseLevel, out snr);
+            Samples = Operations.ApplyNoise(maxEnergyStart, maxEnergyStop, Samples, noiseLevel, out snr);
             return this;
         }
 
@@ -127,7 +124,7 @@ namespace NSpeech
         /// <returns>Autocorrelational signal</returns>
         public Signal GetAutocorrelation()
         {
-            Samples = _operations.CalcAutocorrelation(Samples);
+            Samples = Operations.CalcAutocorrelation(Samples);
             return this;
         }
 

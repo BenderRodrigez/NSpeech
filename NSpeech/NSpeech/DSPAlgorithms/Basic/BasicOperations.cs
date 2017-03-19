@@ -5,6 +5,13 @@ namespace NSpeech.DSPAlgorithms.Basic
 {
     internal sealed class BasicOperations
     {
+        internal readonly FastFurierTransform Furier;
+
+        internal BasicOperations()
+        {
+            Furier = new FastFurierTransform();
+        }
+
         public double Energy(float[] signal)
         {
             return signal.Sum(x => Math.Pow(x, 2))/signal.Length;
@@ -72,13 +79,10 @@ namespace NSpeech.DSPAlgorithms.Basic
             for (var i = complexData.Length; i < doubleSized.Length; i++)
                 doubleSized[i] = Complex.Zero;
 
-            var furier = new FastFurierTransform(doubleSized);
-
             var tmp =
-                furier.PerformForwardTransform(doubleSized.Length).Select(x => new Complex(x.ComlexSqr())).ToArray();
+                Furier.PerformForwardTransform(doubleSized, doubleSized.Length).Select(x => new Complex(x.ComlexSqr())).ToArray();
 
-            var backFurier = new FastFurierTransform(tmp);
-            var resultedSignal = backFurier.PerformBackwardTransform(tmp.Length);
+            var resultedSignal = Furier.PerformBackwardTransform(tmp, tmp.Length);
             var result = new double[signal.Length];
             Array.Copy(resultedSignal, result, result.Length);
 
