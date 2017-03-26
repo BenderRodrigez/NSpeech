@@ -150,9 +150,9 @@ namespace NSpeechUnitTests
                     windowedSignal.Samples[i], 0.00001, "Unexpected data starting from " + i);
         }
 
-        private float HammingWindow(float x, int i, int length)
+        private double HammingWindow(double x, int i, int length)
         {
-            return (float) (x*(0.54 - 0.46*Math.Cos(2.0*Math.PI*i/length)));
+            return x*(0.54 - 0.46*Math.Cos(2.0*Math.PI*i/length));
         }
 
         [TestMethod]
@@ -179,7 +179,7 @@ namespace NSpeechUnitTests
             var autocorrelation = _fixedSpectrumSignal.ExtractAnalysisInterval(0, 256).Normalize().GetAutocorrelation();
 
             foreach (var sample in autocorrelation.Samples)
-                Assert.IsFalse(float.IsNaN(sample) || float.IsInfinity(sample), "Samples can't be NaN or Infinity");
+                Assert.IsFalse(double.IsNaN(sample) || double.IsInfinity(sample), "Samples can't be NaN or Infinity");
 
             var firstExtremumPosition = -1;
             for (var i = 1; i < autocorrelation.Samples.Length - 1; i++)
@@ -218,7 +218,7 @@ namespace NSpeechUnitTests
         {
             var lpc = _fixedSpectrumSignal.ExtractAnalysisInterval(0, 512).GetLinearPredictCoefficients(10);
             Assert.AreEqual(10, lpc.Length);
-            Assert.IsFalse(lpc.All(f => float.IsNaN(f) || float.IsInfinity(f)), "Values shuld never be NaN or infinity.");
+            Assert.IsFalse(lpc.All(f => double.IsNaN(f) || double.IsInfinity(f)), "Values shuld never be NaN or infinity.");
         }
 
         [TestMethod]

@@ -5,9 +5,9 @@ namespace NSpeech.DSPAlgorithms.Basic
 {
     internal class LinearPrediction
     {
-        private readonly float[] _signal;
+        private readonly double[] _signal;
 
-        public LinearPrediction(float[] signal)
+        public LinearPrediction(double[] signal)
         {
             _signal = signal;
         }
@@ -26,7 +26,7 @@ namespace NSpeech.DSPAlgorithms.Basic
         /// <param name="inputSignal">Some signal to process</param>
         /// <param name="k">Latency factor</param>
         /// <returns>Returns k-th autocorrelation coefficient</returns>
-        private double AutoCorrelationCoefficient(float[] inputSignal, int k)
+        private double AutoCorrelationCoefficient(double[] inputSignal, int k)
         {
             var autoCorrelation = 0.0;
             var energy = 0.0;
@@ -73,14 +73,13 @@ namespace NSpeech.DSPAlgorithms.Basic
             return lpcCoefficients;
         }
 
-        public float[] GetCoefficients(int order)
+        public double[] GetCoefficients(int order)
         {
             if (order < 1)
                 throw new ArgumentException("Invalid order parameter! Should larger than 0.", "order");
 
             return
                 DurbinAlgLpcCoefficients(MakeInitialAutocorrelationalVector(order), order)
-                    .Select(x => (float) x)
                     .ToArray();
         }
     }

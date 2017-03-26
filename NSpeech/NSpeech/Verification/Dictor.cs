@@ -49,7 +49,7 @@ namespace NSpeech.Verification
             _key.Generate(feature);
         }
 
-        private float[][] GetVoiceFeature(VoiceFeature feature, Signal speech)
+        private double[][] GetVoiceFeature(VoiceFeature feature, Signal speech)
         {
             var voicedSpeech = new VoicedSeechFeature(speech, 0.04, 0.95);
             switch (feature)
@@ -77,11 +77,11 @@ namespace NSpeech.Verification
                             .Split(0.04, 0.95, WindowFunctions.Blackman)
                             .Select(x => x.GetLinearPredictCoefficients(10))
                             .ToArray();
-                    var fullLpc = new float[pitchTrack.Length][];
+                    var fullLpc = new double[pitchTrack.Length][];
                     Array.Copy(lpc, 0, fullLpc, bordersVoicedSpeech.Item1, lpc.Length);
                     for (var i = 0; i < pitchTrack.Length; i++)
                     {
-                        if (fullLpc[i] == null) fullLpc[i] = new float[10];
+                        if (fullLpc[i] == null) fullLpc[i] = new double[10];
                         fullLpc[i] = Combine(pitchTrack[i], fullLpc[i]);
                     }
                     return fullLpc;
@@ -90,9 +90,9 @@ namespace NSpeech.Verification
             }
         }
 
-        private float[] Combine(float[] a, float[] b)
+        private double[] Combine(double[] a, double[] b)
         {
-            var res = new float[a.Length + b.Length];
+            var res = new double[a.Length + b.Length];
             Array.Copy(a, res, a.Length);
             Array.Copy(b, 0, res, a.Length, b.Length);
             return res;

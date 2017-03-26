@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Linq;
+using System.Windows;
 using Microsoft.Win32;
 using NAudio.Wave;
 using NSpeech;
@@ -59,7 +60,7 @@ namespace TestApplication
             resultLabel.Content = "Result: " + result;
         }
 
-        private static float[] ReadFile(string fileName, out int sampleRate)
+        private static double[] ReadFile(string fileName, out int sampleRate)
         {
             float[] file;
             using (var reader = new WaveFileReader(fileName))
@@ -69,7 +70,7 @@ namespace TestApplication
                 sampleProvider.Read(file, 0, (int)reader.SampleCount);
                 sampleRate = reader.WaveFormat.SampleRate;
             }
-            return file;
+            return file.Select(x=> (double)x).ToArray();
         }
     }
 }

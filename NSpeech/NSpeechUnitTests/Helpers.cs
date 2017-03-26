@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using NAudio.Wave;
 using NSpeech;
 
@@ -8,7 +9,7 @@ namespace NSpeechUnitTests
 {
     internal static class Helpers
     {
-        internal static float[] ReadFile(string fileName, out int sampleRate)
+        internal static double[] ReadFile(string fileName, out int sampleRate)
         {
             float[] file;
             using (var reader = new WaveFileReader(fileName))
@@ -18,7 +19,7 @@ namespace NSpeechUnitTests
                 sampleProvider.Read(file, 0, (int) reader.SampleCount);
                 sampleRate = reader.WaveFormat.SampleRate;
             }
-            return file;
+            return file.Select(x=> (double)x).ToArray();
         }
 
         internal static bool Equals(Signal a, Signal b)
@@ -60,7 +61,7 @@ namespace NSpeechUnitTests
             return sampleRate*sectrumPosition/(double) spectrumSize;
         }
 
-        internal static List<int> GetExtremums(float[] signal)
+        internal static List<int> GetExtremums(double[] signal)
         {
             var res = new List<int>();
             for (var i = 1; i < signal.Length/2 - 1; i++)
@@ -75,9 +76,9 @@ namespace NSpeechUnitTests
             return res;
         }
 
-        internal static float[] DiffSignal(float[] a, float[] b)
+        internal static double[] DiffSignal(double[] a, double[] b)
         {
-            var res = new float[a.Length];
+            var res = new double[a.Length];
             for (var i = 0; i < a.Length; i++)
                 res[i] = a[i] - b[i];
             return res;

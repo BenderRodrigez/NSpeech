@@ -16,7 +16,7 @@ namespace NSpeech.Verification.Clustering
         /// </summary>
         private readonly int _codeBookSize;
 
-        private readonly Func<float[], float[], double> _quantizationError;
+        private readonly Func<double[], double[], double> _quantizationError;
 
         /// <summary>
         ///     Init quantizer <see cref="VectorQuantization" />.
@@ -42,13 +42,13 @@ namespace NSpeech.Verification.Clustering
         ///     Remove all doubled and not used codewords from code book
         /// </summary>
         /// <returns>Code book without garbage</returns>
-        internal float[][] ClearCodeBook(float[][] trainingSet, float[][] codeBook)
+        internal double[][] ClearCodeBook(double[][] trainingSet, double[][] codeBook)
         {
             var effecivness = new int[codeBook.Length];
             foreach (var t in trainingSet)
                 effecivness[QuantazationIndex(t, codeBook)]++;
 
-            var clearCodeBook = new List<float[]>(codeBook.Length);
+            var clearCodeBook = new List<double[]>(codeBook.Length);
             for (var i = 0; i < effecivness.Length; i++)
                 if (effecivness[i] > 0)
                     clearCodeBook.Add(codeBook[i]);
@@ -58,11 +58,11 @@ namespace NSpeech.Verification.Clustering
         /// <summary>
         ///     Generates new codebook
         /// </summary>
-        internal float[][] Learn(int vectorLength, float[][] trainingSet)
+        internal double[][] Learn(int vectorLength, double[][] trainingSet)
         {
             var iteration = 1; //current iteration
-            var codeBook = new float[iteration][];
-            codeBook[0] = new float[vectorLength];
+            var codeBook = new double[iteration][];
+            codeBook[0] = new double[vectorLength];
             for (var j = 0; j < vectorLength; j++)
             {
                 var j1 = j;
@@ -77,12 +77,12 @@ namespace NSpeech.Verification.Clustering
 
             while (iteration < _codeBookSize)
             {
-                var newCodeBook = new float[iteration*2][];
+                var newCodeBook = new double[iteration*2][];
                 Parallel.For(0, codeBook.Length, cb =>
                 {
                     var maxDistance = double.NegativeInfinity;
-                    var centrOne = new float[vectorLength];
-                    var centrTwo = new float[vectorLength];
+                    var centrOne = new double[vectorLength];
+                    var centrTwo = new double[vectorLength];
                     for (var i = 0; i < trainingSet.Length - 1; i++)
                     {
                         if (QuantazationIndex(trainingSet[i], codeBook) != cb) continue;
@@ -101,15 +101,15 @@ namespace NSpeech.Verification.Clustering
                         }
                     }
 
-                    newCodeBook[(cb + 1)*2 - 1] = new float[vectorLength];
-                    newCodeBook[(cb + 1)*2 - 2] = new float[vectorLength];
+                    newCodeBook[(cb + 1)*2 - 1] = new double[vectorLength];
+                    newCodeBook[(cb + 1)*2 - 2] = new double[vectorLength];
 
                     if (centrOne.Sum() == 0.0)
                     {
                         var rand = new Random();
                         for (var i = 0; i < vectorLength; i++)
                             newCodeBook[(cb + 1)*2 - 1][i] = codeBook[cb][i] -
-                                                             codeBook[cb][i]*(float) rand.NextDouble()*0.1f;
+                                                             codeBook[cb][i]* rand.NextDouble()*0.1f;
                     }
                     else
                     {
@@ -120,7 +120,7 @@ namespace NSpeech.Verification.Clustering
                         var rand = new Random();
                         for (var i = 0; i < vectorLength; i++)
                             newCodeBook[(cb + 1)*2 - 2][i] = codeBook[cb][i] +
-                                                             codeBook[cb][i]*(float) rand.NextDouble()*0.1f;
+                                                             codeBook[cb][i]* rand.NextDouble()*0.1f;
                     }
                     else
                     {
@@ -139,13 +139,13 @@ namespace NSpeech.Verification.Clustering
                        (kMeansIntertionsCount < KMeansIterationsBorder)) //learning stop criteria
                 {
                     //yi = total_sum(xi)/N
-                    var tmpCodeBook = new float[codeBook.Length][];
+                    var tmpCodeBook = new double[codeBook.Length][];
                     var vectorsCount = new int[codeBook.Length];
                     var res = Parallel.For(0, trainingSet.Length, i =>
                     {
                         var codeBookIndex = QuantazationIndex(trainingSet[i], codeBook);
                         if (tmpCodeBook[codeBookIndex] == null)
-                            tmpCodeBook[codeBookIndex] = new float[vectorLength];
+                            tmpCodeBook[codeBookIndex] = new double[vectorLength];
                         for (var j = 0; j < vectorLength; j++)
                             tmpCodeBook[codeBookIndex][j] += trainingSet[i][j];
                         vectorsCount[codeBookIndex]++;
@@ -159,7 +159,7 @@ namespace NSpeech.Verification.Clustering
                     {
                         if (tmpCodeBook[i] == null)
                         {
-                            tmpCodeBook[i] = new float[vectorLength];
+                            tmpCodeBook[i] = new double[vectorLength];
                             Array.Copy(codeBook[i], tmpCodeBook[i], vectorLength);
                         }
                         else if (vectorsCount[i] > 0)
@@ -184,7 +184,7 @@ namespace NSpeech.Verification.Clustering
         ///     Calulates the average distortion measure for train set
         /// </summary>
         /// <returns>Average value</returns>
-        private double AverageQuantizationError(float[][] trainingSet, float[][] codeBook)
+        private double AverageQuantizationError(double[][] trainingSet, double[][] codeBook)
         {
 //D=(total_sum(d(x, Q(x))))/N
             var errorRate = trainingSet.Sum(t => _quantizationError(t, Quantize(t, codeBook)));
@@ -197,7 +197,7 @@ namespace NSpeech.Verification.Clustering
         /// </summary>
         /// <param name="x">Input data vector</param>
         /// <param name="codeBook"></param>
-        internal float[] Quantize(float[] x, float[][] codeBook)
+        internal double[] Quantize(double[] x, double[][] codeBook)
         {
 //Оператор квантования
             var minError = double.PositiveInfinity;
@@ -220,7 +220,7 @@ namespace NSpeech.Verification.Clustering
         /// <returns>Code word index in code book</returns>
         /// <param name="x">Test vector</param>
         /// <param name="codeBook">Code book</param>
-        private int QuantazationIndex(float[] x, float[][] codeBook)
+        private int QuantazationIndex(double[] x, double[][] codeBook)
         {
 //same as Quantize, but returns index of codeword
             var minError = double.PositiveInfinity;
@@ -243,7 +243,7 @@ namespace NSpeech.Verification.Clustering
         /// <param name="testSet">Source signal</param>
         /// <param name="codeBook">Vector quantization codebook</param>
         /// <returns>Energy value</returns>
-        internal double DistortionMeasureEnergy(float[][] testSet, float[][] codeBook)
+        internal double DistortionMeasureEnergy(double[][] testSet, double[][] codeBook)
         {
             double res = 0;
             for (var i = 0; i < testSet.Length; i++)

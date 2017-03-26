@@ -14,20 +14,14 @@ namespace NSpeech
     public class Signal
     {
         /// <summary>
-        ///     Provides access to the basic signal operations
-        /// </summary>
-        internal readonly BasicOperations Operations;
-
-        /// <summary>
         ///     Creates signal
         /// </summary>
         /// <param name="samples"></param>
         /// <param name="sampleRate"></param>
-        public Signal(float[] samples, int sampleRate)
+        public Signal(double[] samples, int sampleRate)
         {
             Samples = samples;
             SignalFormat = new Format(sampleRate);
-            Operations = new BasicOperations();
         }
 
         /// <summary>
@@ -35,17 +29,16 @@ namespace NSpeech
         /// </summary>
         /// <param name="samples"></param>
         /// <param name="signalFormat"></param>
-        public Signal(float[] samples, Format signalFormat)
+        public Signal(double[] samples, Format signalFormat)
         {
             SignalFormat = signalFormat;
             Samples = samples;
-            Operations = new BasicOperations();
         }
 
         /// <summary>
         ///     Signal data
         /// </summary>
-        public float[] Samples { get; private set; }
+        public double[] Samples { get; private set; }
 
         /// <summary>
         ///     Format of the signal (curently only sampling rate)
@@ -58,7 +51,7 @@ namespace NSpeech
         /// <returns>Energy value</returns>
         public double GetEnergy()
         {
-            return Operations.Energy(Samples);
+            return BasicOperations.Energy(Samples);
         }
 
         /// <summary>
@@ -80,7 +73,7 @@ namespace NSpeech
         /// <returns>Corellation coefficient value</returns>
         public double GetCorrelation(int delay = 1)
         {
-            return Operations.Correlation(delay, Samples);
+            return BasicOperations.Correlation(delay, Samples);
         }
 
         /// <summary>
@@ -90,7 +83,7 @@ namespace NSpeech
         /// <returns>Frequency domain signal</returns>
         public ComplexSignal GetSpectrum(int size)
         {
-            return new ComplexSignal(Operations.Furier.PerformForwardTransform(Samples, size), SignalFormat);
+            return new ComplexSignal(FastFurierTransform.PerformForwardTransform(Samples, size), SignalFormat);
         }
 
         /// <summary>
@@ -100,7 +93,7 @@ namespace NSpeech
         /// <returns>Time domain signal</returns>
         public Signal PerformBackwardFurierTransform(int size = 1024)
         {
-            Samples = Operations.Furier.PerformBackwardTransform(Samples, size).Select(x => (float) x).ToArray();
+            Samples = FastFurierTransform.PerformBackwardTransform(Samples, size).ToArray();
             return this;
         }
 
@@ -114,7 +107,7 @@ namespace NSpeech
         /// <returns>Noised signal</returns>
         public Signal ApplyNoise(float noiseLevel, out double snr, int maxEnergyStart = 0, int maxEnergyStop = -1)
         {
-            Samples = Operations.ApplyNoise(maxEnergyStart, maxEnergyStop, Samples, noiseLevel, out snr);
+            Samples = BasicOperations.ApplyNoise(maxEnergyStart, maxEnergyStop, Samples, noiseLevel, out snr);
             return this;
         }
 
@@ -124,8 +117,15 @@ namespace NSpeech
         /// <returns>Autocorrelational signal</returns>
         public Signal GetAutocorrelation()
         {
-            Samples = Operations.CalcAutocorrelation(Samples);
+            Samples = BasicOperations.CalcAutocorrelation(Samples);
             return this;
+        }
+
+        public Signal GetAutocorrelation(WindowFunctions windowFunction, double centralLimitationLevel)
+        {
+            var function = WindowFunctionSelector.SelectWindowFunction(windowFunction);
+            Samples = function(Samples);
+            return ApplyCentralLimitation(centralLimitationLevel).GetAutocorrelation();
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace NSpeech
         /// </summary>
         /// <param name="numberOfCoefficients">Number of the coefficients to calculate</param>
         /// <returns>Array of the coefficients</returns>
-        public float[] GetLinearPredictCoefficients(int numberOfCoefficients)
+        public double[] GetLinearPredictCoefficients(int numberOfCoefficients)
         {
             var lpc = new LinearPrediction(Samples);
             return lpc.GetCoefficients(numberOfCoefficients);
@@ -147,7 +147,7 @@ namespace NSpeech
         /// <returns>Part of the original signal</returns>
         public Signal ExtractAnalysisInterval(int startPosition, int length)
         {
-            var interval = new float[length];
+            var interval = new double[length];
             Array.Copy(Samples, startPosition, interval, 0, length+startPosition < Samples.Length ? length : Samples.Length - startPosition);
             return new Signal(interval, SignalFormat.SampleRate);
         }
@@ -183,6 +183,24 @@ namespace NSpeech
                 displacements = 1; //we should have some displacement. Else we never finish this spliting.
             var intervals = new List<Signal>();
             for (var i = 0; i + intervalInSamples < Samples.Length; i += displacements)
+            {
+                var intervalSamples = Samples.Skip(i).Take(intervalInSamples).ToArray();
+                var windowFunction = WindowFunctionSelector.SelectWindowFunction(window);
+
+                intervals.Add(new Signal(windowFunction(intervalSamples), SignalFormat.SampleRate));
+            }
+            return intervals.ToArray();
+        }
+
+        public Signal[] Split(double intervalTime, double overlap, WindowFunctions window, int from, int until)
+        {
+            var intervalInSamples = (int)Math.Round(SignalFormat.SampleRate * intervalTime);
+            //Convert time to samples count
+            var displacements = (int)Math.Round(intervalInSamples * (1.0 - overlap));
+            if (displacements < 1)
+                displacements = 1; //we should have some displacement. Else we never finish this spliting.
+            var intervals = new List<Signal>();
+            for (var i = from; i + intervalInSamples < Samples.Length && i + intervalInSamples < until; i += displacements)
             {
                 var intervalSamples = Samples.Skip(i).Take(intervalInSamples).ToArray();
                 var windowFunction = WindowFunctionSelector.SelectWindowFunction(window);
@@ -257,7 +275,7 @@ namespace NSpeech
         /// <returns>Shallow copy of the object</returns>
         public Signal Clone()
         {
-            var newSamples = new float[Samples.Length];
+            var newSamples = new double[Samples.Length];
             Array.Copy(Samples, newSamples, Samples.Length);
             return new Signal(newSamples, SignalFormat);
         }
@@ -278,7 +296,7 @@ namespace NSpeech
             var shortest = a.Samples.Length < b.Samples.Length ? a.Samples : b.Samples;
             var longest = a.Samples.Length > b.Samples.Length ? a.Samples : b.Samples;
 
-            var newSamples = new float[longest.Length];
+            var newSamples = new double[longest.Length];
 
             for (var i = 0; i < shortest.Length; i++)
                 newSamples[i] = a.Samples[i] + b.Samples[i];
@@ -287,6 +305,16 @@ namespace NSpeech
                 newSamples[i] = longest[i];
 
             return new Signal(newSamples, a.SignalFormat);
+        }
+
+        internal Signal GetSpectrumAutocorrelation(Func<double[], double[]> windowFunction, int spectrumSize, GaussianFilter gaussianFilter)
+        {
+            var spectrum = FastFurierTransform.PerformForwardTransform(windowFunction(Samples), spectrumSize);
+
+            Samples =
+                BasicOperations.CalcAutocorrelation(
+                    gaussianFilter.Filter(spectrum.Select(x => Math.Sqrt(x.ComlexSqr())).ToArray()));
+            return this;
         }
     }
 }

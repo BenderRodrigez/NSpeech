@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace NSpeech.DSPAlgorithms.Basic
 {
-    public class FastFurierTransform
+    public static class FastFurierTransform
     {
-        private void PerformTransform(Complex[] data, bool forwardDirection, int transformSize)
+        private static void PerformTransform(Complex[] data, bool forwardDirection, int transformSize)
         {
             var i2 = transformSize >> 1;
             var j = 0;
@@ -76,13 +77,13 @@ namespace NSpeech.DSPAlgorithms.Basic
             }
         }
 
-        public Complex[] PerformForwardTransform(float[] samples, int transformSize)
+        public static Complex[] PerformForwardTransform(double[] samples, int transformSize)
         {
             return PerformForwardTransform(samples.Select(x => new Complex {Real = x, Imaginary = 0.0}).ToArray(),
                 transformSize);
         }
 
-        public Complex[] PerformForwardTransform(Complex[] samples, int transformSize)
+        public static Complex[] PerformForwardTransform(Complex[] samples, int transformSize)
         {
             if ((transformSize & (transformSize - 1)) != 0)
                 throw new ArgumentException("Transform size should be a power of 2.", "transformSize");
@@ -94,12 +95,12 @@ namespace NSpeech.DSPAlgorithms.Basic
             return spectrum;
         }
 
-        public double[] PerformBackwardTransform(float[] samples, int transformSize)
+        public static double[] PerformBackwardTransform(double[] samples, int transformSize)
         {
             return PerformBackwardTransform(samples.Select(x => new Complex(x)).ToArray(), transformSize);
         }
 
-        public double[] PerformBackwardTransform(Complex[] samples, int transformSize)
+        public static double[] PerformBackwardTransform(Complex[] samples, int transformSize)
         {
             if ((transformSize & (transformSize - 1)) != 0)
                 throw new ArgumentException("Transform size should be a power of 2.", "transformSize");

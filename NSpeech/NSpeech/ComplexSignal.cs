@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using NSpeech.DSPAlgorithms.Basic;
 
 namespace NSpeech
 {
@@ -13,7 +14,7 @@ namespace NSpeech
         /// </summary>
         /// <param name="samples">Real signal</param>
         /// <param name="sampleRate">Sample rate</param>
-        public ComplexSignal(float[] samples, int sampleRate) : base(samples, sampleRate)
+        public ComplexSignal(double[] samples, int sampleRate) : base(samples, sampleRate)
         {
             Samples = samples.Select(x => new Complex {Real = x, Imaginary = 0.0}).ToArray();
         }
@@ -24,7 +25,7 @@ namespace NSpeech
         /// <param name="samples">Signal's samples</param>
         /// <param name="sampleRate">Sample rate</param>
         public ComplexSignal(Complex[] samples, int sampleRate)
-            : base(samples.Select(x => (float) Math.Sqrt(x.ComlexSqr())).ToArray(), sampleRate)
+            : base(samples.Select(x =>  Math.Sqrt(x.ComlexSqr())).ToArray(), sampleRate)
         {
             Samples = samples;
         }
@@ -35,7 +36,7 @@ namespace NSpeech
         /// <param name="samples">Signal's samples</param>
         /// <param name="format">Signal's  format data</param>
         public ComplexSignal(Complex[] samples, Format format)
-            : base(samples.Select(x => (float) Math.Sqrt(x.ComlexSqr())).ToArray(), format)
+            : base(samples.Select(x =>  Math.Sqrt(x.ComlexSqr())).ToArray(), format)
         {
             Samples = samples;
         }
@@ -52,8 +53,13 @@ namespace NSpeech
         /// <returns>Signal in time domain</returns>
         public new Signal PerformBackwardFurierTransform(int size = 1024)
         {
-            return new Signal(Operations.Furier.PerformBackwardTransform(Samples, size).Select(x => (float) x).ToArray(),
+            return new Signal(FastFurierTransform.PerformBackwardTransform(Samples, size).Select(x => x).ToArray(),
                 SignalFormat);
+        }
+
+        public Signal GetAplitudeSignal()
+        {
+            return new Signal(Samples.Select(x=> x.Real).ToArray(), SignalFormat);
         }
     }
 }

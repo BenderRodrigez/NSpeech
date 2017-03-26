@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NSpeech.DSPAlgorithms.Basic;
 
 namespace NSpeech.DSPAlgorithms.SpeechFeatures
 {
@@ -10,8 +9,6 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
         private readonly Signal _signal;
 
         private readonly IEnumerable<Tuple<int, int>> _speechMarks;
-
-        private readonly BasicOperations _operations;
 
         public Pitch(Signal signal, IEnumerable<Tuple<int, int>> speechMarks)
         {
@@ -27,7 +24,6 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             AnalysisInterval = 0.04;
             WindowFunction = WindowFunctions.WindowFunctions.Blackman;
             Overlapping = 0.95;
-            _operations = new BasicOperations();
         }
 
         public double AnalysisInterval { get; set; } //in seconds
@@ -50,7 +46,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
         public Signal GetFeature()
         {
-            return new Signal(TrackPitch().Select(x => (float) x).ToArray(), _signal.SignalFormat);
+            return new Signal(TrackPitch().Select(x => x).ToArray(), _signal.SignalFormat);
         }
 
         private double[] TrackPitch()

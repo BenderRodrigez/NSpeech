@@ -12,14 +12,14 @@ namespace NSpeech.DSPAlgorithms.WindowFunctions
         /// </summary>
         /// <param name="selectedFunction">Selected window function type</param>
         /// <returns>Window function</returns>
-        internal static Func<float[], float[]> SelectWindowFunction(WindowFunctions selectedFunction)
+        internal static Func<double[], double[]> SelectWindowFunction(WindowFunctions selectedFunction)
         {
             switch (selectedFunction)
             {
                 case WindowFunctions.Rectangular:
                     return signal =>
                     {
-                        var x = new float[signal.Length];
+                        var x = new double[signal.Length];
                         Array.Copy(signal, x, signal.Length);
                         return x;
                     };
@@ -30,10 +30,9 @@ namespace NSpeech.DSPAlgorithms.WindowFunctions
                         const double b = (1.0 - a)/2.0;
                         const double c = 0.5;
                         const double d = a/2.0;
-                        var x = new float[signal.Length];
+                        var x = new double[signal.Length];
                         for (var i = 0; i < x.Length; i++)
                             x[i] = signal[i]*
-                                   (float)
                                    (b - c*Math.Cos(2.0*Math.PI*i/signal.Length) +
                                     d*Math.Cos(4.0*Math.PI*i/signal.Length));
                         return x;
@@ -41,9 +40,9 @@ namespace NSpeech.DSPAlgorithms.WindowFunctions
                 case WindowFunctions.Hamming:
                     return signal =>
                     {
-                        var x = new float[signal.Length];
+                        var x = new double[signal.Length];
                         for (var i = 0; i < signal.Length; i++)
-                            x[i] = (float) (signal[i]*(0.54 - 0.46*Math.Cos(2.0*Math.PI*i/signal.Length)));
+                            x[i] = signal[i]*(0.54 - 0.46*Math.Cos(2.0*Math.PI*i/signal.Length));
                         return x;
                     };
                 default:

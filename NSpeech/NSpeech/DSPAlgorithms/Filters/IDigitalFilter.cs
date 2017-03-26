@@ -10,6 +10,6 @@
         /// </summary>
         /// <param name="signal">Some signal</param>
         /// <returns>Filtred signal</returns>
-        float[] Filter(float[] signal);
+        double[] Filter(double[] signal);
     }
 }

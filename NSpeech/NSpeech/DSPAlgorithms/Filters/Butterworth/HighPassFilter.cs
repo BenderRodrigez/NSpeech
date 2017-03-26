@@ -69,19 +69,19 @@ namespace NSpeech.DSPAlgorithms.Filters.Butterworth
         /// </summary>
         /// <param name="signal">Input signal</param>
         /// <returns>Filtred signal</returns>
-        public override float[] Filter(float[] signal)
+        public override double[] Filter(double[] signal)
         {
             _w0 = new double[FilterOrder];
             _w1 = new double[FilterOrder];
             _w2 = new double[FilterOrder];
-            var resSignal = new float[signal.Length];
+            var resSignal = new double[signal.Length];
             for (var i = 0; i < signal.Length; i++)
             {
                 var x = (double) signal[i];
                 for (var k = 0; k < FilterOrder; k++)
                     x = PassFilter(k, x);
 
-                resSignal[i] = (float) x;
+                resSignal[i] = x;
             }
             return resSignal;
         }

@@ -27,16 +27,16 @@ namespace NSpeech.DSPAlgorithms.Filters
         /// </summary>
         /// <param name="signal">Input signal</param>
         /// <returns>Blured signal</returns>
-        public float[] Filter(float[] signal)
+        public double[] Filter(double[] signal)
         {
-            var data = new float[signal.Length];
+            var data = new double[signal.Length];
             for (var i = (int) _delta; i < data.Length - _delta; i++)
             {
                 var res = 0.0;
                 for (var j = (int) -_delta; j <= _delta; j++)
                     res += signal[i + j]*
                            (Math.Exp(-Math.Pow(j, 2)/(2.0*Math.Pow(_sigma, 2)))/(Math.Sqrt(2*Math.PI)*_sigma))/_sum;
-                data[i] = (float) res;
+                data[i] = res;
             }
             return data;
         }

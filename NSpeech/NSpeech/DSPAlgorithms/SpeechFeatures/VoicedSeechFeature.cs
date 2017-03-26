@@ -29,7 +29,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
                 new Signal(
                     GenerateGeneralFeature((int) Math.Round(_windowSize*_signal.SignalFormat.SampleRate), _overlapping,
                         energy,
-                        corellation).Select(x => (float) x).ToArray(), _signal.SignalFormat.SampleRate);
+                        corellation).ToArray(), _signal.SignalFormat.SampleRate);
         }
 
         private void InitVariables()
@@ -107,13 +107,12 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             var marks = new List<Tuple<int, int>>();
             var start = -1;
             for (var i = 0; i < feature.Samples.Length; i++)
-                if (feature.Samples[i] > border)
-                    if (start > -1)
+                    if (feature.Samples[i] < border && start > -1)
                     {
                         marks.Add(new Tuple<int, int>(start, i));
                         start = -1;
                     }
-                    else
+                    else if(feature.Samples[i] > border && start < 0)
                     {
                         start = i;
                     }

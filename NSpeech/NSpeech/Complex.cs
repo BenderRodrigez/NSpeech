@@ -15,12 +15,12 @@ namespace NSpeech
         /// <summary>
         ///     Real part
         /// </summary>
-        public double Real { get; set; }
+        public double Real;
 
         /// <summary>
         ///     Imaginary part
         /// </summary>
-        public double Imaginary { get; set; }
+        public double Imaginary;
 
         /// <summary>
         ///     Represents the zero
@@ -45,6 +45,16 @@ namespace NSpeech
         public double ComlexSqr()
         {
             return Math.Pow(Real, 2) + Math.Pow(Imaginary, 2);
+        }
+
+        /// <summary>
+        ///     Complex square
+        /// </summary>
+        /// <returns>Value of the square in complex number format</returns>
+        public Complex ComlexSqr2()
+        {
+            Real = Math.Pow(Real, 2) + Math.Pow(Imaginary, 2);
+            return this;
         }
     }
 }

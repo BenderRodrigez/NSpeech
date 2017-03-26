@@ -13,7 +13,7 @@ namespace NSpeech.Verification.Clustering.Metrics
         /// </summary>
         /// <param name="selectedMetric">An metric</param>
         /// <returns>Metric calculator class</returns>
-        internal static Func<float[], float[], double> GetMetric(Metrics selectedMetric)
+        internal static Func<double[], double[], double> GetMetric(Metrics selectedMetric)
         {
             switch (selectedMetric)
             {

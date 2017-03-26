@@ -10,18 +10,18 @@ namespace NSpeech.Verification
 
         public VoiceKey(int keySize, Metrics metric)
         {
-            Key = new float[keySize][];
+            Key = new double[keySize][];
             _vq = new VectorQuantization(keySize, metric);
         }
 
-        public float[][] Key { get; private set; }
+        public double[][] Key { get; private set; }
 
-        public void Generate(float[][] trainData)
+        public void Generate(double[][] trainData)
         {
             Key = _vq.Learn(trainData[0].Length, trainData);
         }
 
-        public SolutionState Verify(float[][] testData)
+        public SolutionState Verify(double[][] testData)
         {
             var solver = new FuzzySolver();
             return solver.MakeDecision(_vq.DistortionMeasureEnergy(testData, Key));

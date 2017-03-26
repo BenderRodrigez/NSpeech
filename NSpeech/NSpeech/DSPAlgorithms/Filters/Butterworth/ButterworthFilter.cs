@@ -9,7 +9,7 @@
 
         public int FilterOrder { get; set; }
 
-        public abstract float[] Filter(float[] signal);
+        public abstract double[] Filter(double[] doubles);
 
         /// <summary>
         ///     Init filter parameters
