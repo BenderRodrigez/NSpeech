@@ -84,7 +84,7 @@ namespace NSpeechUnitTests
             return res;
         }
 
-        internal static void Dump(float[] data)
+        internal static void Dump(double[] data)
         {
             using (
                 var writer =
