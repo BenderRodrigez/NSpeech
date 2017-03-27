@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NSpeech.DSPAlgorithms.Filters;
+using NSpeech.DSPAlgorithms.WindowFunctions;
 
 namespace NSpeech.DSPAlgorithms.SpeechFeatures
 {
@@ -65,6 +67,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             var lower = (int) Math.Round(_signal.SignalFormat.SampleRate/60.0); //60 Hz in ACF values array border
             var higher = (int) Math.Round(_signal.SignalFormat.SampleRate/600.0); //600 Hz in ACF values array border
             var globalCandidates = new List<List<Tuple<int, double>>>();
+            var gaussianFilter = new GaussianFilter(BlurDiameter);
 
             foreach (var curentMark in _speechMarks)
             {
@@ -75,33 +78,28 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
                         globalCandidates.Add(new List<Tuple<int, double>>());
                     }
 
-                for (var samples = curentMark.Item1;
-                    (samples + size < _signal.Samples.Length) && (samples < curentMark.Item2);
-                    samples += jump)
+                var acfSamples = filtredSignal.Split(AnalysisInterval, Overlapping, WindowFunction, curentMark.Item1,
+                    curentMark.Item2);
+                var acfsSamples = _signal.Split(AnalysisInterval, Overlapping, WindowFunction, curentMark.Item1,
+                    curentMark.Item2);
+
+                for (int sample = 0; sample < acfSamples.Length && sample < acfsSamples.Length; sample++)
                 {
+                    var acf = acfSamples[sample].GetAutocorrelation(CentralLimitation).Samples;
+                    var acfsSample = acfsSamples[sample].GetSpectrumAutocorrelation(furieSize, gaussianFilter).Samples;
+
                     var candidates = new List<Tuple<int, double>>(); //int = position, double = amplitude
-
-                    //generate acfs and acf on analysis interval
-                    var data = _signal.ExtractAnalysisInterval(samples, size).ApplyWindowFunction(WindowFunction);
-                    var filterdData =
-                        filtredSignal.ExtractAnalysisInterval(samples, size)
-                            .ApplyWindowFunction(WindowFunction)
-                            .ApplyCentralLimitation(CentralLimitation);
-
-                    var acf = filterdData.GetAutocorrelation();
-
-                    var acfsSample = data.GetSpectrum(furieSize).ApplyGaussianBlur(BlurDiameter).GetAutocorrelation();
 
                     //extract candidates
                     var acfsCandidates = new List<Tuple<int, double>>();
-                    for (var i = 1; i < acfsSample.Samples.Length - 1; i++)
-                        if ((acfsSample.Samples[i] > acfsSample.Samples[i - 1]) &&
-                            (acfsSample.Samples[i] > acfsSample.Samples[i + 1]))
-                            acfsCandidates.Add(new Tuple<int, double>(i, acfsSample.Samples[i]));
+                    for (var i = 1; i < acfsSample.Length - 1; i++)
+                        if ((acfsSample[i] > acfsSample[i - 1]) &&
+                            (acfsSample[i] > acfsSample[i + 1]))
+                            acfsCandidates.Add(new Tuple<int, double>(i, acfsSample[i]));
 
-                    for (var i = higher; (i < acf.Samples.Length) && (i < lower); i++)
-                        if ((acf.Samples[i - 1] > acf.Samples[i - 2]) && (acf.Samples[i - 1] > acf.Samples[i]))
-                            candidates.Add(new Tuple<int, double>(i - 1, acf.Samples[i - 1]));
+                    for (var i = higher; (i < acf.Length) && (i < lower); i++)
+                        if ((acf[i - 1] > acf[i - 2]) && (acf[i - 1] > acf[i]))
+                            candidates.Add(new Tuple<int, double>(i - 1, acf[i - 1]));
                                 //add each maximum of function from 60 to 600 Hz
 
                     var aproximatedPosition = acfsCandidates.Any() ? acfsCandidates[0].Item1 : -1;

@@ -121,10 +121,8 @@ namespace NSpeech
             return this;
         }
 
-        public Signal GetAutocorrelation(WindowFunctions windowFunction, double centralLimitationLevel)
+        public Signal GetAutocorrelation(double centralLimitationLevel)
         {
-            var function = WindowFunctionSelector.SelectWindowFunction(windowFunction);
-            Samples = function(Samples);
             return ApplyCentralLimitation(centralLimitationLevel).GetAutocorrelation();
         }
 
@@ -182,11 +180,11 @@ namespace NSpeech
             if (displacements < 1)
                 displacements = 1; //we should have some displacement. Else we never finish this spliting.
             var intervals = new List<Signal>();
+            var windowFunction = WindowFunctionSelector.SelectWindowFunction(window);
             for (var i = 0; i + intervalInSamples < Samples.Length; i += displacements)
             {
-                var intervalSamples = Samples.Skip(i).Take(intervalInSamples).ToArray();
-                var windowFunction = WindowFunctionSelector.SelectWindowFunction(window);
-
+                var intervalSamples = new double[intervalInSamples];
+                Array.Copy(Samples, i, intervalSamples, 0, intervalInSamples);
                 intervals.Add(new Signal(windowFunction(intervalSamples), SignalFormat.SampleRate));
             }
             return intervals.ToArray();
@@ -199,12 +197,12 @@ namespace NSpeech
             var displacements = (int)Math.Round(intervalInSamples * (1.0 - overlap));
             if (displacements < 1)
                 displacements = 1; //we should have some displacement. Else we never finish this spliting.
+            var windowFunction = WindowFunctionSelector.SelectWindowFunction(window);
             var intervals = new List<Signal>();
             for (var i = from; i + intervalInSamples < Samples.Length && i + intervalInSamples < until; i += displacements)
             {
-                var intervalSamples = Samples.Skip(i).Take(intervalInSamples).ToArray();
-                var windowFunction = WindowFunctionSelector.SelectWindowFunction(window);
-
+                var intervalSamples = new double[intervalInSamples];
+                Array.Copy(Samples, i, intervalSamples, 0, intervalInSamples);
                 intervals.Add(new Signal(windowFunction(intervalSamples), SignalFormat.SampleRate));
             }
             return intervals.ToArray();
@@ -307,9 +305,9 @@ namespace NSpeech
             return new Signal(newSamples, a.SignalFormat);
         }
 
-        internal Signal GetSpectrumAutocorrelation(Func<double[], double[]> windowFunction, int spectrumSize, GaussianFilter gaussianFilter)
+        internal Signal GetSpectrumAutocorrelation(int spectrumSize, GaussianFilter gaussianFilter)
         {
-            var spectrum = FastFurierTransform.PerformForwardTransform(windowFunction(Samples), spectrumSize);
+            var spectrum = FastFurierTransform.PerformForwardTransform(Samples, spectrumSize);
 
             Samples =
                 BasicOperations.CalcAutocorrelation(
