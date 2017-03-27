@@ -32,7 +32,7 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void DictorCreationTest()
         {
-            var dictor = new Dictor("Test dictor", _someSpeech, VoiceFeature.LinearPrediction, KeySize.Standart);
+            var dictor = new Dictor("Test dictor", _someSpeech, VoiceFeature.LinearPrediction);
 
             Assert.IsNotNull(dictor.Name);
             Assert.AreEqual("Test dictor", dictor.Name);
@@ -43,7 +43,7 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void VoiceKeyGenerationLinearPredictionTest()
         {
-            var dictor = new Dictor("Test dictor", _someSpeech, VoiceFeature.LinearPrediction, KeySize.Standart);
+            var dictor = new Dictor("Test dictor", _someSpeech, VoiceFeature.LinearPrediction);
 
             Assert.IsNotNull(dictor.Key);
         }
@@ -51,7 +51,7 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void VoiceKeyGenerationPitchTest()
         {
-            var dictor = new Dictor("Test dictor", _someSpeech, VoiceFeature.Pitch, KeySize.Standart);
+            var dictor = new Dictor("Test dictor", _someSpeech, VoiceFeature.Pitch);
 
             Assert.IsNotNull(dictor.Key);
         }
@@ -59,7 +59,7 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void VoiceKeyGenerationLinearPredictionAndPicthTest()
         {
-            var dictor = new Dictor("Test dictor", _someSpeech, VoiceFeature.PitchAndLP, KeySize.Standart);
+            var dictor = new Dictor("Test dictor", _someSpeech);
 
             Assert.IsNotNull(dictor.Key);
         }
@@ -67,12 +67,11 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void VerificationLinearPredictionTest()
         {
-            var dictor = new Dictor("Test dictor", _someSpeech, VoiceFeature.LinearPrediction, KeySize.Standart);
+            var dictor = new Dictor("Test dictor", _someSpeech, VoiceFeature.LinearPrediction);
 
-            var sameDictor = new Dictor(dictor.Name, _sameDictorSpeech, VoiceFeature.LinearPrediction, KeySize.Standart);
+            var sameDictor = new Dictor(dictor.Name, _sameDictorSpeech, VoiceFeature.LinearPrediction);
 
-            var anotherDictor = new Dictor("Not the same dictor", _anotherDictorSpeech, VoiceFeature.LinearPrediction,
-                KeySize.Standart);
+            var anotherDictor = new Dictor("Not the same dictor", _anotherDictorSpeech, VoiceFeature.LinearPrediction);
 
             Assert.AreEqual(SolutionState.Verified, dictor.Verify(sameDictor.Speech));
             Assert.AreEqual(SolutionState.Verified, sameDictor.Verify(dictor.Speech));
@@ -84,12 +83,11 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void VerificationPitchTest()
         {
-            var dictor = new Dictor("Test dictor", _someSpeech, VoiceFeature.Pitch, KeySize.Standart);
+            var dictor = new Dictor("Test dictor", _someSpeech, VoiceFeature.Pitch);
 
-            var sameDictor = new Dictor(dictor.Name, _sameDictorSpeech, VoiceFeature.Pitch, KeySize.Standart);
+            var sameDictor = new Dictor(dictor.Name, _sameDictorSpeech, VoiceFeature.Pitch);
 
-            var anotherDictor = new Dictor("Not the same dictor", _anotherDictorSpeech, VoiceFeature.Pitch,
-                KeySize.Standart);
+            var anotherDictor = new Dictor("Not the same dictor", _anotherDictorSpeech, VoiceFeature.Pitch);
 
             Assert.AreEqual(SolutionState.Verified, dictor.Verify(sameDictor.Speech));
             Assert.AreEqual(SolutionState.Verified, sameDictor.Verify(dictor.Speech));
@@ -101,12 +99,11 @@ namespace NSpeechUnitTests
         [TestMethod]
         public void VerificationLinearPredictionAndPicthTest()
         {
-            var dictor = new Dictor("Test dictor", _someSpeech, VoiceFeature.PitchAndLP, KeySize.Standart);
+            var dictor = new Dictor("Test dictor", _someSpeech);
 
-            var sameDictor = new Dictor(dictor.Name, _sameDictorSpeech, VoiceFeature.PitchAndLP, KeySize.Standart);
+            var sameDictor = new Dictor(dictor.Name, _sameDictorSpeech);
 
-            var anotherDictor = new Dictor("Not the same dictor", _anotherDictorSpeech, VoiceFeature.PitchAndLP,
-                KeySize.Standart);
+            var anotherDictor = new Dictor("Not the same dictor", _anotherDictorSpeech);
 
             Assert.AreEqual(SolutionState.Verified, dictor.Verify(sameDictor.Speech));
             Assert.AreEqual(SolutionState.Verified, sameDictor.Verify(dictor.Speech));

@@ -58,7 +58,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             //analysis variables
             var size = (int) Math.Round(AnalysisInterval*_signal.SignalFormat.SampleRate);
             var offset = size*(1.0 - Overlapping);
-            var jump = (int) Math.Round(size*offset);
+            var jump = (int) Math.Round(offset);
             var furieSize = (int) Math.Pow(2, Math.Ceiling(Math.Log(size, 2) + 1));
             var resultImg = new List<double>(_signal.Samples.Length);
             var prevStop = 0;
