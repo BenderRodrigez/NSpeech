@@ -17,12 +17,7 @@ namespace NSpeech.DSPAlgorithms.WindowFunctions
             switch (selectedFunction)
             {
                 case WindowFunctions.Rectangular:
-                    return signal =>
-                    {
-                        var x = new double[signal.Length];
-                        Array.Copy(signal, x, signal.Length);
-                        return x;
-                    };
+                    return signal => signal;
                 case WindowFunctions.Blackman:
                     return signal =>
                     {
@@ -30,20 +25,18 @@ namespace NSpeech.DSPAlgorithms.WindowFunctions
                         const double b = (1.0 - a)/2.0;
                         const double c = 0.5;
                         const double d = a/2.0;
-                        var x = new double[signal.Length];
-                        for (var i = 0; i < x.Length; i++)
-                            x[i] = signal[i]*
+                        for (var i = 0; i < signal.Length; i++)
+                            signal[i] = signal[i]*
                                    (b - c*Math.Cos(2.0*Math.PI*i/signal.Length) +
                                     d*Math.Cos(4.0*Math.PI*i/signal.Length));
-                        return x;
+                        return signal;
                     };
                 case WindowFunctions.Hamming:
                     return signal =>
                     {
-                        var x = new double[signal.Length];
                         for (var i = 0; i < signal.Length; i++)
-                            x[i] = signal[i]*(0.54 - 0.46*Math.Cos(2.0*Math.PI*i/signal.Length));
-                        return x;
+                            signal[i] = signal[i]*(0.54 - 0.46*Math.Cos(2.0*Math.PI*i/signal.Length));
+                        return signal;
                     };
                 default:
                     throw new ArgumentOutOfRangeException("selectedFunction",

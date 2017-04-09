@@ -93,7 +93,7 @@ namespace NSpeech
         /// <returns>Time domain signal</returns>
         public Signal PerformBackwardFurierTransform(int size = 1024)
         {
-            Samples = FastFurierTransform.PerformBackwardTransform(Samples, size).ToArray();
+            Samples = FastFurierTransform.PerformBackwardTransform(Samples, size);
             return this;
         }
 
@@ -161,7 +161,10 @@ namespace NSpeech
                 throw new ArgumentOutOfRangeException(nameof(level), level, "Value should be in range from 0.0 to 1.0");
 
             var maxSignal = Samples.Max(x => Math.Abs(x))*level;
-            Samples = Samples.Select(x => Math.Abs(x) > maxSignal ? x : 0.0f).ToArray();
+            for (int i = 0; i < Samples.Length; i++)
+            {
+                Samples[i] = Math.Abs(Samples[i]) > maxSignal ? Samples[i] : 0.0f;
+            }
             return this;
         }
 

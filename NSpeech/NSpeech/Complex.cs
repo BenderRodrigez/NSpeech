@@ -53,7 +53,9 @@ namespace NSpeech
         /// <returns>Value of the square in complex number format</returns>
         public Complex ComlexSqr2()
         {
-            return new Complex(Math.Pow(Real, 2) + Math.Pow(Imaginary, 2));
+            Real = Math.Pow(Real, 2) + Math.Pow(Imaginary, 2);
+            Imaginary = 0;
+            return this;
         }
     }
 }

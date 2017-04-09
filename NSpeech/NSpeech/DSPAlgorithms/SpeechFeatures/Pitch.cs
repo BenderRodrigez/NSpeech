@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using NSpeech.DSPAlgorithms.Filters;
-using NSpeech.DSPAlgorithms.WindowFunctions;
 
 namespace NSpeech.DSPAlgorithms.SpeechFeatures
 {
@@ -66,7 +65,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             var prevStop = 0;
             var lower = (int) Math.Round(_signal.SignalFormat.SampleRate/60.0); //60 Hz in ACF values array border
             var higher = (int) Math.Round(_signal.SignalFormat.SampleRate/600.0); //600 Hz in ACF values array border
-            var globalCandidates = new List<List<Tuple<int, double>>>();
+            var globalCandidates = new List<List<Tuple<double, double>>>();
             var gaussianFilter = new GaussianFilter(BlurDiameter);
 
             foreach (var curentMark in _speechMarks)
@@ -75,7 +74,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
                     if (i%jump == 0)
                     {
                         resultImg.Add(0.0);
-                        globalCandidates.Add(new List<Tuple<int, double>>());
+                        globalCandidates.Add(new List<Tuple<double, double>>());
                     }
 
                 var acfSamples = filtredSignal.Split(AnalysisInterval, Overlapping, WindowFunction, curentMark.Item1,
@@ -88,7 +87,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
                     var acf = acfSamples[sample].GetAutocorrelation(CentralLimitation).Samples;
                     var acfsSample = acfsSamples[sample].GetSpectrumAutocorrelation(furieSize, gaussianFilter).Samples;
 
-                    var candidates = new List<Tuple<int, double>>(); //int = position, double = amplitude
+                    var candidates = new List<Tuple<double, double>>(); //int = position, double = amplitude
 
                     //extract candidates
                     var acfsCandidates = new List<Tuple<int, double>>();
@@ -99,11 +98,11 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
                     for (var i = higher; (i < acf.Length) && (i < lower); i++)
                         if ((acf[i - 1] > acf[i - 2]) && (acf[i - 1] > acf[i]))
-                            candidates.Add(new Tuple<int, double>(i - 1, acf[i - 1]));
+                            candidates.Add(new Tuple<double, double>(_signal.SignalFormat.SampleRate/(i - 1.0), acf[i - 1]));
                                 //add each maximum of function from 60 to 600 Hz
 
                     var aproximatedPosition = acfsCandidates.Any() ? acfsCandidates[0].Item1 : -1;
-                    var freqPosition = _signal.SignalFormat.SampleRate/furieSize*aproximatedPosition;
+                    var freqPosition = _signal.SignalFormat.SampleRate/(double)furieSize*aproximatedPosition;
                         //aproximated frequency value
 
                     if ((aproximatedPosition > -1) && (freqPosition > 60) && (freqPosition < 600))
@@ -125,7 +124,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             return resultImg.ToArray();
         }
 
-        private void ExtractPitch(List<double> img, IReadOnlyList<List<Tuple<int, double>>> globalCandidates,
+        private void ExtractPitch(List<double> img, IReadOnlyList<List<Tuple<double, double>>> globalCandidates,
             int sampleRate, double furieSize, int jumpSize)
         {
             if (img.Count == 0)

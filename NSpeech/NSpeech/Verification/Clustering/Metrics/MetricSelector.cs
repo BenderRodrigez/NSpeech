@@ -20,7 +20,7 @@ namespace NSpeech.Verification.Clustering.Metrics
                 case Metrics.Euclidian:
                     return (a, b) =>
                     {
-                        //d=total_sum(a^2-b^2)
+                        //d=total_sum((a-b)^2)
                         if (a.Length != b.Length)
                             throw new ArgumentException("Points have a different number of dimensions");
 

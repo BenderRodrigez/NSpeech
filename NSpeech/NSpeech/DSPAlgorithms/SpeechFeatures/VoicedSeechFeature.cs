@@ -44,7 +44,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
             return
                 file.Split(windowSize, overlapping, WindowFunctions.WindowFunctions.Rectangular)
-                    .Select(x => x.GetEnergy()*file.SignalFormat.SampleRate).ToArray();
+                    .Select(x => x.GetEnergy()*x.Samples.Length).ToArray();
         }
 
         private double[] GetCorellation(double windowSize, double overlapping)

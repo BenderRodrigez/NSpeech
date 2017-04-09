@@ -52,10 +52,9 @@ namespace NSpeech.DSPAlgorithms.Basic
             energy = 20.0*Math.Log10(energy);
             snr = signalEnergyLog - energy;
 
-            var noisedSignal = new double[signal.Length];
-            for (var i = 0; i < noisedSignal.Length; i++)
-                noisedSignal[i] = signal[i] + noise[i];
-            return noisedSignal;
+            for (var i = 0; i < signal.Length; i++)
+                signal[i] += noise[i];
+            return signal;
         }
 
         /// <summary>

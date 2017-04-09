@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using NSpeech.Verification.Clustering.Metrics;
@@ -199,7 +200,6 @@ namespace NSpeech.Verification.Clustering
         /// <param name="codeBook"></param>
         internal double[] Quantize(double[] x, double[][] codeBook)
         {
-//Оператор квантования
             var minError = double.PositiveInfinity;
             var min = 0;
             for (var i = 0; i < codeBook.Length; i++)
@@ -249,6 +249,13 @@ namespace NSpeech.Verification.Clustering
             for (var i = 0; i < testSet.Length; i++)
                 res += Math.Pow(_quantizationError(testSet[i], Quantize(testSet[i], codeBook)), 2);
             res /= testSet.Length;
+#if DEBUG
+            using (var writer = new StreamWriter(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dump.txt")))
+            {
+                for (var i = 0; i < testSet.Length; i++)
+                    writer.WriteLine(Math.Pow(_quantizationError(testSet[i], Quantize(testSet[i], codeBook)), 2));
+            }
+#endif
             return res;
         }
     }
