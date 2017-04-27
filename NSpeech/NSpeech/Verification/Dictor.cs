@@ -45,7 +45,7 @@ namespace NSpeech.Verification
             _key = new VoiceKey(keySize, metric);
 
             //get voice feature
-            var feature = GetVoiceFeature(featureSet, Speech);
+            var feature = GetVoiceFeature(featureSet, Speech.Clone());
 
             _key.Generate(feature);
         }
@@ -112,7 +112,7 @@ namespace NSpeech.Verification
 
         public SolutionState Verify(Signal speech)
         {
-            var speechFeature = GetVoiceFeature(UsedSpeechFeature, speech);
+            var speechFeature = GetVoiceFeature(UsedSpeechFeature, speech.Clone());
 
             return Key.Verify(speechFeature);
         }

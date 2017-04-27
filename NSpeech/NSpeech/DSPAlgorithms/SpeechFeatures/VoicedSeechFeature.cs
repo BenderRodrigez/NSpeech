@@ -81,13 +81,18 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             var start = -1;
             var stop = -1;
             for (var i = 0; (i < feature.Samples.Length) && (feature.Samples.Length - i > -1); i++)
-                if (feature.Samples[i] > border)
+            {
+                if (start <= -1 && feature.Samples[i] > border)
                 {
-                    if (start <= -1)
-                        start = i;
-                    if (stop <= -1)
-                        stop = feature.Samples.Length - i - 1;
+                    start = i;
                 }
+                if (stop <= -1 && feature.Samples[feature.Samples.Length - i - 1] > border)
+                {
+                    stop = feature.Samples.Length - i - 1;
+                }
+                if(start > -1 && stop > -1)
+                    return new Tuple<int, int>(start, stop);
+            }
 
             if (start == -1)
                 start = 0;
