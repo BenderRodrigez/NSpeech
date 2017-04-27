@@ -1,0 +1,37 @@
+﻿using System;
+using System.Linq;
+using NAudio.Wave;
+
+namespace ExperimentalProcessing
+{
+    public static class FileReader
+    {
+        public static float[] ReadFileNormalized(string fileName, out int sampleRate)
+        {
+            float[] speechFile;
+            using (var reader = new WaveFileReader(fileName))
+            {
+                var sampleProvider = reader.ToSampleProvider();
+                speechFile = new float[reader.SampleCount];
+                sampleProvider.Read(speechFile, 0, (int)reader.SampleCount);
+                sampleRate = reader.WaveFormat.SampleRate;
+            }
+            var max = speechFile.Max(x => Math.Abs(x));
+            speechFile = speechFile.Select(x => x / max).ToArray();
+            return speechFile;
+        }
+
+        public static float[] ReadFile(string fileName, out int sampleRate)
+        {
+            float[] speechFile;
+            using (var reader = new WaveFileReader(fileName))
+            {
+                var sampleProvider = reader.ToSampleProvider();
+                speechFile = new float[reader.SampleCount];
+                sampleProvider.Read(speechFile, 0, (int)reader.SampleCount);
+                sampleRate = reader.WaveFormat.SampleRate;
+            }
+            return speechFile;
+        }
+    }
+}

@@ -28,6 +28,13 @@ namespace NSpeech.Verification
 
         public KeySize VoicePrintKeySize { get; }
 
+#if DEBUG
+        public double[][] VoiceFeatureArray
+        {
+            get { return GetVoiceFeature(UsedSpeechFeature, Speech.Clone()); }
+        }
+#endif
+
         public VoiceKey Key
         {
             get
