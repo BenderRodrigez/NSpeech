@@ -427,7 +427,10 @@ namespace ExperimentalProcessing
 //                }
             }
 
-            var trainDataAcf = new Dictor("", _inputFile, VoiceFeature.Pitch).VoiceFeatureArray;
+            var dictor = new Dictor("", _inputFile, VoiceFeature.Pitch);
+            var trainDataAcf = dictor.VoiceFeatureArray;
+            _acf = dictor.AcfFeature;
+            _acfs = dictor.AscfFeature;
             SamplePosition = 0;
             _pitch = trainDataAcf;
             PlotPitch(trainDataAcf);
@@ -506,6 +509,7 @@ namespace ExperimentalProcessing
             var heatMap = new LineSeries();
             for (int i = 0; i < _acf[pos].Length; i++)
                 heatMap.Points.Add(new DataPoint(i/_sampleFreq, _acf[pos][i]));
+            heatMap.Color = OxyColors.Green;
             AcfPlotModel.Series.Clear();
             AcfPlotModel.Series.Add(heatMap);
             AcfPlotModel.InvalidatePlot(true);

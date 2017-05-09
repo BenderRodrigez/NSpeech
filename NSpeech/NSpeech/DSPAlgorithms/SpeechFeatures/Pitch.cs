@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NSpeech.DSPAlgorithms.Filters;
 
@@ -13,7 +14,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
         public Pitch(Signal signal, IEnumerable<Tuple<int, int>> speechMarks)
         {
-            _signal = signal.Normalize();
+            _signal = signal.Clone().Normalize();
             _speechMarks = speechMarks;
 
             MaxFrequencyJumpPercents = 0.15;
@@ -45,15 +46,21 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
         public double MaxFrequencyJumpPercents { get; set; }
 
+#if DEBUG
+        public double[][] Acf { get; set; }
+
+        public double[][] Acfs { get; set; }
+#endif
+
         public Signal GetFeature()
         {
-            return new Signal(TrackPitch().Select(x => x).ToArray(), _signal.SignalFormat);
+            return new Signal(TrackPitch().Select(x=> _signal.SignalFormat.SampleRate/x).ToArray(), _signal.SignalFormat);
         }
 
         private double[] TrackPitch()
         {
             //preprocessing
-            var filtredSignal = _signal.ApplyHighPassFiltration(HighPassFilterBorder);
+            var filtredSignal = _signal.Clone().ApplyHighPassFiltration(HighPassFilterBorder);
             filtredSignal = filtredSignal.ApplyLowPassFiltration(LowPassFilterBorder);
 
             //analysis variables
@@ -67,6 +74,10 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             var higher = (int) Math.Round(_signal.SignalFormat.SampleRate/600.0); //600 Hz in ACF values array border
             var globalCandidates = new List<List<Tuple<double, double>>>();
             var gaussianFilter = new GaussianFilter(BlurDiameter);
+#if DEBUG
+            var acfImg = new List<double[]>();
+            var acfsImg = new List<double[]>();
+#endif
 
             foreach (var curentMark in _speechMarks)
             {
@@ -74,6 +85,11 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
                     if (i%jump == 0)
                     {
                         resultImg.Add(0.0);
+#if DEBUG
+                        acfsImg.Add(new double[(int)furieSize / 8].Select(x => double.NaN).ToArray());
+                        acfImg.Add(new double[size].Select(x => double.NaN).ToArray());
+
+#endif
                         globalCandidates.Add(new List<Tuple<double, double>>());
                     }
 
@@ -89,6 +105,11 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
                     var candidates = new List<Tuple<double, double>>(); //int = position, double = amplitude
 
+#if DEBUG
+                    acfsImg.Add(acfsSample);
+                    acfImg.Add(acf);
+#endif
+
                     //extract candidates
                     var acfsCandidates = new List<Tuple<int, double>>();
                     for (var i = 1; i < acfsSample.Length - 1; i++)
@@ -98,7 +119,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
                     for (var i = higher; (i < acf.Length) && (i < lower); i++)
                         if ((acf[i - 1] > acf[i - 2]) && (acf[i - 1] > acf[i]))
-                            candidates.Add(new Tuple<double, double>(_signal.SignalFormat.SampleRate/(i - 1.0), acf[i - 1]));
+                            candidates.Add(new Tuple<double, double>(i - 1.0, acf[i - 1]));
                                 //add each maximum of function from 60 to 600 Hz
 
                     var aproximatedPosition = acfsCandidates.Any() ? acfsCandidates[0].Item1 : -1;
@@ -121,6 +142,10 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
                 prevStop = curentMark.Item2 + 1;
             }
             ExtractPitch(resultImg, globalCandidates, _signal.SignalFormat.SampleRate, furieSize, jump);
+#if DEBUG
+            Acf = acfImg.ToArray();
+            Acfs = acfsImg.ToArray();
+#endif
             return resultImg.ToArray();
         }
 

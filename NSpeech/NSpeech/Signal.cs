@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NSpeech.DSPAlgorithms.Basic;
 using NSpeech.DSPAlgorithms.Filters;
@@ -312,9 +313,13 @@ namespace NSpeech
         {
             var spectrum = FastFurierTransform.PerformForwardTransform(Samples, spectrumSize);
 
+            Array.Resize(ref spectrum, spectrumSize/8);
+
+            var filteredSpectrum = gaussianFilter.Filter(spectrum.Select(x => Math.Sqrt(x.ComlexSqr())).ToArray());
+            var avg = filteredSpectrum.Average();
+
             Samples =
-                BasicOperations.CalcAutocorrelation(
-                    gaussianFilter.Filter(spectrum.Select(x => Math.Sqrt(x.ComlexSqr())).ToArray()));
+                BasicOperations.CalcAutocorrelation(filteredSpectrum.Select(x=> x - avg).ToArray());
             return this;
         }
     }

@@ -8,21 +8,30 @@ namespace NSpeech.DSPAlgorithms.Basic
     {
         private static void PerformTransform(Complex[] data, bool forwardDirection, int transformSize)
         {
-            var i2 = transformSize >> 1;
-            var j = 0;
-            for (var i = 0; i < transformSize - 1; i++)
+            int n, i, i1, j, k, i2, l, l1, l2;
+            double c1, c2, tx, ty, t1, t2, u1, u2, z;
+            var pow = Math.Log(transformSize, 2);
+
+            // Calculate the number of points
+            n = 1;
+            for (i = 0; i < pow; i++)
+                n *= 2;
+
+            // Do the bit reversal
+            i2 = n >> 1;
+            j = 0;
+            for (i = 0; i < transformSize - 1; i++)
             {
                 if (i < j)
                 {
-                    var real = data[i].Real;
-                    var imaginary = data[i].Imaginary;
+                    tx = data[i].Real;
+                    ty = data[i].Imaginary;
                     data[i].Real = data[j].Real;
                     data[i].Imaginary = data[j].Imaginary;
-                    data[j].Real = real;
-                    data[j].Imaginary = imaginary;
+                    data[j].Real = tx;
+                    data[j].Imaginary = ty;
                 }
-
-                var k = i2;
+                k = i2;
 
                 while (k <= j)
                 {
@@ -32,47 +41,45 @@ namespace NSpeech.DSPAlgorithms.Basic
                 j += k;
             }
 
-            var c1 = -1.0;
-            var c2 = 0.0;
-            var l2 = 1;
-            var pow = Math.Log(transformSize, 2);
-            for (var l = 0; l < pow; l++)
+            // Compute the FFT 
+            c1 = -1.0f;
+            c2 = 0.0f;
+            l2 = 1;
+            for (l = 0; l < pow; l++)
             {
-                var l1 = l2;
+                l1 = l2;
                 l2 <<= 1;
-                var u1 = 1.0;
-                var u2 = 0.0;
+                u1 = 1.0f;
+                u2 = 0.0f;
                 for (j = 0; j < l1; j++)
                 {
-                    for (var i = j; i < transformSize; i += l2)
+                    for (i = j; i < transformSize; i += l2)
                     {
-                        var i1 = i + l1;
-                        var real = u1*data[i1].Real - u2*data[i1].Imaginary;
-                        var imaginary = u1*data[i1].Imaginary + u2*data[i1].Real;
-                        data[i1].Real = data[i].Real - real;
-                        data[i1].Imaginary = data[i].Imaginary - imaginary;
-                        data[i].Real += real;
-                        data[i].Imaginary += imaginary;
+                        i1 = i + l1;
+                        t1 = u1 * data[i1].Real - u2 * data[i1].Imaginary;
+                        t2 = u1 * data[i1].Imaginary + u2 * data[i1].Real;
+                        data[i1].Real = data[i].Real - t1;
+                        data[i1].Imaginary = data[i].Imaginary - t2;
+                        data[i].Real += t1;
+                        data[i].Imaginary += t2;
                     }
-
-                    var z = u1*c1 - u2*c2;
-                    u2 = u1*c2 + u2*c1;
+                    z = u1 * c1 - u2 * c2;
+                    u2 = u1 * c2 + u2 * c1;
                     u1 = z;
                 }
-
-                c2 = Math.Sqrt((1.0 - c1)/2.0);
-
-                c1 = Math.Sqrt((1.0 + c1)/2.0);
-
+                c2 = (float)Math.Sqrt((1.0f - c1) / 2.0f);
                 if (forwardDirection)
-                {
                     c2 = -c2;
+                c1 = (float)Math.Sqrt((1.0f + c1) / 2.0f);
+            }
 
-                    for (var i = 0; i < transformSize; i++)
-                    {
-                        data[i].Real /= transformSize;
-                        data[i].Imaginary /= transformSize;
-                    }
+            // Scaling for forward transform 
+            if (forwardDirection)
+            {
+                for (i = 0; i < n; i++)
+                {
+                    data[i].Real /= n;
+                    data[i].Imaginary /= n;
                 }
             }
         }
