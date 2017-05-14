@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -14,11 +15,13 @@ namespace NSpeechUnitTests
     {
         private const string BaseSamplesPath = "E:\\База образцов голоса\\Productive DB\\";
         private Dictionary<string, List<Dictor>> _speechRecords;
+        private Dictionary<Dictor, string> _filePaths;
 
         [TestInitialize]
         public void Init()
         {
             _speechRecords = new Dictionary<string, List<Dictor>>();
+            _filePaths = new Dictionary<Dictor, string>();
             foreach (var phrase in Directory.GetDirectories(BaseSamplesPath))
             {
                 foreach (var file in Directory.GetFiles(phrase))
@@ -30,6 +33,7 @@ namespace NSpeechUnitTests
                     if (!_speechRecords.ContainsKey(dictor.Name))
                         _speechRecords.Add(dictor.Name, new List<Dictor>());
                     _speechRecords[dictor.Name].Add(dictor);
+                    _filePaths.Add(dictor, file);
                 }
             }
         }
@@ -44,25 +48,34 @@ namespace NSpeechUnitTests
             {
                 foreach (var testDictor in _speechRecords.Values.SelectMany(x => x))
                 {
-                    var result = trainDictor.Verify(testDictor.Speech);
-
-                    if (trainDictor.Name == testDictor.Name)
+                    try
                     {
-                        if (result == SolutionState.Verified)
-                            success++;
+                        var result = trainDictor.Verify(testDictor.Speech);
+
+                        if (trainDictor.Name == testDictor.Name)
+                        {
+                            if (result == SolutionState.Verified)
+                                success++;
+                            else
+                            {
+                                sameDictorFails++;
+                            }
+                        }
                         else
                         {
-                            sameDictorFails++;
+                            if (result == SolutionState.Blocked)
+                                success++;
+                            else
+                            {
+                                foriginDictorFails++;
+                            }
                         }
                     }
-                    else
+                    catch (Exception)
                     {
-                        if (result == SolutionState.Blocked)
-                            success++;
-                        else
-                        {
-                            foriginDictorFails++;
-                        }
+                        Debug.WriteLine("Train: " + _filePaths[trainDictor]);
+                        Debug.WriteLine("Test: " + _filePaths[testDictor]);
+                        throw;
                     }
                 }
             }

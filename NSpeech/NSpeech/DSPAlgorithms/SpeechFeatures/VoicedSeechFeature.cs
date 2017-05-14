@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace NSpeech.DSPAlgorithms.SpeechFeatures
@@ -12,7 +13,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
         public VoicedSeechFeature(Signal speechSignal, double windowSize, double overlapping)
         {
-            _signal = speechSignal;
+            _signal = speechSignal.Clone().Normalize();
             _windowSize = windowSize;
             _overlapping = overlapping;
             InitVariables();
@@ -40,7 +41,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
         private double[] GetEnergy(double windowSize, double overlapping)
         {
-            var file = _signal.ApplyLowPassFiltration(LowPassFilterBorder);
+            var file = _signal.Clone().ApplyLowPassFiltration(LowPassFilterBorder);
 
             return
                 file.Split(windowSize, overlapping, WindowFunctions.WindowFunctions.Rectangular)
@@ -51,7 +52,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
         {
             double snr;
             return
-                _signal.Split(windowSize, overlapping, WindowFunctions.WindowFunctions.Rectangular)
+                _signal.Clone().Split(windowSize, overlapping, WindowFunctions.WindowFunctions.Rectangular)
                     .Select(x => x.ApplyNoise(AdditiveNoiseLevel, out snr).GetCorrelation())
                     .ToArray();
         }
@@ -63,7 +64,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             tmp.AddRange(new double[windowSize/2]);
             for (var i = 0; (i < energy.Count) && (i < corellation.Count); i++)
             {
-                var value = corellation[i]*energy[i];
+                var value = corellation[i]*Math.Pow(energy[i], 2);
                 for (var j = 0; j < windowSize*(1.0 - overlapping); j++)
                     tmp.Add(value);
             }
@@ -125,6 +126,28 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             if (start > -1)
                 marks.Add(new Tuple<int, int>(start, feature.Samples.Length - 1));
             return marks;
+        }
+
+        private void Dump(Signal signal)
+        {
+            using (var writer = new StreamWriter(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dump.txt")))
+            {
+                foreach (var sample in signal.Samples)
+                {
+                    writer.WriteLine(sample);
+                }
+            }
+        }
+
+        private void Dump(double[] signal)
+        {
+            using (var writer = new StreamWriter(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "dump.txt")))
+            {
+                foreach (var sample in signal)
+                {
+                    writer.WriteLine(sample);
+                }
+            }
         }
     }
 }

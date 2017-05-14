@@ -15,7 +15,7 @@ namespace NSpeech.Verification
         public Dictor(string name, Signal speech, VoiceFeature speechFeature = VoiceFeature.PitchAndLP, KeySize size = KeySize.Standart)
         {
             Name = name;
-            Speech = speech;
+            Speech = speech.Clone();
             UsedSpeechFeature = speechFeature;
             VoicePrintKeySize = size;
         }
@@ -27,24 +27,6 @@ namespace NSpeech.Verification
         public VoiceFeature UsedSpeechFeature { get; }
 
         public KeySize VoicePrintKeySize { get; }
-
-#if DEBUG
-        public double[][] VoiceFeatureArray
-        {
-            get
-            {
-                double[][] acf;
-                double[][] acfs;
-                var res = GetVoiceFeature(UsedSpeechFeature, Speech.Clone(), out acf, out acfs);
-                AcfFeature = acf;
-                AscfFeature = acfs;
-                return res;
-            }
-        }
-
-        public double[][] AcfFeature { get; private set; }
-        public double[][] AscfFeature { get; private set; }
-#endif
 
         public VoiceKey Key
         {
@@ -70,77 +52,33 @@ namespace NSpeech.Verification
 
         private double[][] GetVoiceFeature(VoiceFeature feature, Signal speech)
         {
-            var voicedSpeech = new VoicedSeechFeature(speech.Clone().Normalize(), 0.04, 0.95);
+            var voicedSpeech = new VoicedSeechFeature(speech, 0.04, 0.95);
+            var marks = voicedSpeech.GetVoicedSpeechMarkers();
+            var start = marks[0].Item1;
+            var stop = marks[marks.Count - 1].Item2;
             switch (feature)
             {
                 case VoiceFeature.Pitch:
-                    var pitch = new Pitch(speech, voicedSpeech.GetVoicedSpeechMarkers());
+                    var pitch = new Pitch(speech, marks);
                     return pitch.GetFeature().Samples.Select(x => new[] { x }).ToArray();
                 case VoiceFeature.LinearPrediction:
-                    var borders = voicedSpeech.GetVoicedSpeechBorder();
                     return
-                        speech.ExtractAnalysisInterval(borders.Item1, borders.Item2 - borders.Item1)
+                        speech.ExtractAnalysisInterval(start, stop - start)
                             .Split(0.04, 0.95, WindowFunctions.Blackman)
                             .Select(x => x.GetLinearPredictCoefficients(10))
                             .ToArray();
                 case VoiceFeature.PitchAndLP:
                     var pitchTrack =
-                        new Pitch(speech, voicedSpeech.GetVoicedSpeechMarkers()).GetFeature()
+                        new Pitch(speech, marks).GetFeature()
                             .Samples.Select(x => new[] { x })
                             .ToArray();
-
-                    var bordersVoicedSpeech = voicedSpeech.GetVoicedSpeechBorder();
+                    
                     var lpc =
-                        speech.ExtractAnalysisInterval(bordersVoicedSpeech.Item1,
-                                bordersVoicedSpeech.Item2 - bordersVoicedSpeech.Item1)
+                        speech.ExtractAnalysisInterval(start, stop - start)
                             .Split(0.04, 0.95, WindowFunctions.Blackman)
                             .Select(x => x.GetLinearPredictCoefficients(10))
                             .ToArray();
-                    return MixFeatures(lpc, pitchTrack, bordersVoicedSpeech.Item1, (int)Math.Round(0.05 * (0.04 * speech.SignalFormat.SampleRate)));
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(feature), feature, null);
-            }
-        }
-
-        private double[][] GetVoiceFeature(VoiceFeature feature, Signal speech, out double[][] acf, out double[][] acfs)
-        {
-            var voicedSpeech = new VoicedSeechFeature(speech.Clone().Normalize(), 0.04, 0.95);
-            switch (feature)
-            {
-                case VoiceFeature.Pitch:
-                    var pitch = new Pitch(speech, voicedSpeech.GetVoicedSpeechMarkers());
-                    var resPitch = pitch.GetFeature().Samples.Select(x => new[] {x}).ToArray();
-                    acf = pitch.Acf;
-                    acfs = pitch.Acfs;
-                    return resPitch;
-                case VoiceFeature.LinearPrediction:
-                    var borders = voicedSpeech.GetVoicedSpeechBorder();
-                    acf = null;
-                    acfs = null;
-                    return
-                        speech.ExtractAnalysisInterval(borders.Item1, borders.Item2 - borders.Item1)
-                            .Split(0.04, 0.95, WindowFunctions.Blackman)
-                            .Select(x => x.GetLinearPredictCoefficients(10))
-                            .ToArray();
-                case VoiceFeature.PitchAndLP:
-                    var pitch2 =
-                        new Pitch(speech, voicedSpeech.GetVoicedSpeechMarkers());
-                        var pitchTrack = pitch2.GetFeature()
-                            .Samples.Select(x => new[] {x})
-                            .ToArray();
-
-                    var bordersVoicedSpeech = voicedSpeech.GetVoicedSpeechBorder();
-                    var lpc =
-                        speech.ExtractAnalysisInterval(bordersVoicedSpeech.Item1,
-                                bordersVoicedSpeech.Item2 - bordersVoicedSpeech.Item1)
-                            .Split(0.04, 0.95, WindowFunctions.Blackman)
-                            .Select(x => x.GetLinearPredictCoefficients(10))
-                            .ToArray();
-
-                    acf = pitch2.Acf;
-                    acfs = pitch2.Acfs;
-
-                    return MixFeatures(lpc, pitchTrack, bordersVoicedSpeech.Item1, (int)Math.Round(0.05 * (0.04 * speech.SignalFormat.SampleRate)));
+                    return MixFeatures(lpc, pitchTrack, start, (int)Math.Round(0.05 * (0.04 * speech.SignalFormat.SampleRate)));
                 default:
                     throw new ArgumentOutOfRangeException(nameof(feature), feature, null);
             }
@@ -162,14 +100,6 @@ namespace NSpeech.Verification
                 newFeature.Add(feature.ToArray());
             }
             return newFeature.ToArray();
-        }
-
-        private double[] Combine(double[] a, double[] b)
-        {
-            var res = new double[a.Length + b.Length];
-            Array.Copy(a, res, a.Length);
-            Array.Copy(b, 0, res, a.Length, b.Length);
-            return res;
         }
 
         public SolutionState Verify(Signal speech)

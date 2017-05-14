@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using NSpeech.DSPAlgorithms.Filters;
 
@@ -46,12 +45,6 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
         public double MaxFrequencyJumpPercents { get; set; }
 
-#if DEBUG
-        public double[][] Acf { get; set; }
-
-        public double[][] Acfs { get; set; }
-#endif
-
         public Signal GetFeature()
         {
             return new Signal(TrackPitch().Select(x=> _signal.SignalFormat.SampleRate/x).ToArray(), _signal.SignalFormat);
@@ -74,10 +67,6 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
             var higher = (int) Math.Round(_signal.SignalFormat.SampleRate/600.0); //600 Hz in ACF values array border
             var globalCandidates = new List<List<Tuple<double, double>>>();
             var gaussianFilter = new GaussianFilter(BlurDiameter);
-#if DEBUG
-            var acfImg = new List<double[]>();
-            var acfsImg = new List<double[]>();
-#endif
 
             foreach (var curentMark in _speechMarks)
             {
@@ -85,11 +74,6 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
                     if (i%jump == 0)
                     {
                         resultImg.Add(0.0);
-#if DEBUG
-                        acfsImg.Add(new double[(int)furieSize / 8].Select(x => double.NaN).ToArray());
-                        acfImg.Add(new double[size].Select(x => double.NaN).ToArray());
-
-#endif
                         globalCandidates.Add(new List<Tuple<double, double>>());
                     }
 
@@ -104,11 +88,6 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
                     var acfsSample = acfsSamples[sample].GetSpectrumAutocorrelation(furieSize, gaussianFilter).Samples;
 
                     var candidates = new List<Tuple<double, double>>(); //int = position, double = amplitude
-
-#if DEBUG
-                    acfsImg.Add(acfsSample);
-                    acfImg.Add(acf);
-#endif
 
                     //extract candidates
                     var acfsCandidates = new List<Tuple<int, double>>();
@@ -142,10 +121,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
                 prevStop = curentMark.Item2 + 1;
             }
             ExtractPitch(resultImg, globalCandidates, _signal.SignalFormat.SampleRate, furieSize, jump);
-#if DEBUG
-            Acf = acfImg.ToArray();
-            Acfs = acfsImg.ToArray();
-#endif
+
             return resultImg.ToArray();
         }
 

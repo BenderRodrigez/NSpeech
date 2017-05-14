@@ -263,80 +263,80 @@ namespace ExperimentalProcessing
             }
             _results.IsNoised = UseNoise;
 
-            var trainDataAcf = new Dictor("", _inputFile, VoiceFeature.Pitch).VoiceFeatureArray;
-            SamplePosition = 0;
-            _pitch = trainDataAcf;
-            var distortion = CalcDistortion(trainDataAcf, expDataReader.PitchTrajectory);
-            var results = string.Empty;
-            if (distortion.Length > 0)
-            {
-                var unimportantErrors = 100.0;
-                var smallErrors = 100.0;
-                var bigErrors = 100.0;
-                var voicedSpeechDetectionErrors = 100.0;
-
-                if (distortion.Any(x => (x >= 0.0 && x < 1.0)))
-                {
-                    var bothTonalIntervals = distortion.Where(x => (x >= 0.0 && x < 1.0)).Count();
-
-                    if (distortion.Any(x => x >= 0.0 && x <= 0.05))
-                    {
-                        unimportantErrors = distortion.Where(x => x >= 0.0 && x <= 0.05).Count()*100.0/bothTonalIntervals;
-                    }
-
-                    if (distortion.Any(x => x > 0.05 && x <= 0.15))
-                    {
-                        smallErrors = distortion.Where(x => x > 0.05 && x <= 0.15).Count()*100.0/
-                                                   bothTonalIntervals;
-                    }
-
-                    if (distortion.Any(x => x > 0.15 && x < 1.0))
-                    {
-                        bigErrors = distortion.Where(x => x > 0.15 && x < 1.0).Count()*100.0/bothTonalIntervals;
-                    }
-
-                    if (distortion.Any(x => x >= 1.0 && x < 2.0))
-                    {
-                        voicedSpeechDetectionErrors = distortion.Where(x => x >= 1.0 && x < 2.0).Count()*100.0/distortion.Length;
-                    }
-                }
-
-                _results.VoicedSpeechDetectorErrorRate = voicedSpeechDetectionErrors;
-                _results.SmallErrorsRate = smallErrors;
-                _results.BigErrorsRate = bigErrors;
-
-                results = string.Format(
-                    "{5}\r\n\r\nНесущественных ошибок: {0:#0.###}%\r\nМалых ошибок: {1:#0.###}%\r\nБольших ошибок: {2:#0.###}%\r\nСреднее: {3:#0.###}\r\nКоличество ошибка выделителя тональных участков: {4:#0.###}%\r\n",
-                    unimportantErrors, //unimpotant errors
-                    smallErrors, //small errors
-                    bigErrors, //big errors
-                    double.NaN, //total average
-                    voicedSpeechDetectionErrors,//voiced speech selecting error
-                    args[0]); //filename
-            }
-            Dispatcher.InvokeAsync(() =>
-            {
-                var resultsWindow = new ResultsWindow
-                {
-                    Results = results,
-                    Owner = this
-                };
-                resultsWindow.Show();
-            });
-            _results.FileName = FileName;
-            _results.IsNoised = UseNoise;
-            _results.IsPhoneChanel = SimulatePhoneCnanel;
-            _results.PitchData = _pitch.Select(x => x[0] > 0 ? _sampleFreq / x[0] : 0.0).ToArray();
-            _results.DistortionData = distortion;
-            _results.EthalonPitchData = expDataReader.PitchTrajectory;
-            _results.SampleRate = (int)_sampleFreq;
-            _results.DictorName = expDataReader.DictorName;
-            _results.Phrase = expDataReader.Phrase;
-            _results.SignalData = _inputFile.Samples;
-
-            PlotPitch(trainDataAcf, expDataReader.PitchTrajectory, distortion);
-            PlotAcfPreview();
-            PlotAcfsPreview();
+//            var trainDataAcf = new Dictor("", _inputFile, VoiceFeature.Pitch).VoiceFeatureArray;
+//            SamplePosition = 0;
+//            _pitch = trainDataAcf;
+//            var distortion = CalcDistortion(trainDataAcf, expDataReader.PitchTrajectory);
+//            var results = string.Empty;
+//            if (distortion.Length > 0)
+//            {
+//                var unimportantErrors = 100.0;
+//                var smallErrors = 100.0;
+//                var bigErrors = 100.0;
+//                var voicedSpeechDetectionErrors = 100.0;
+//
+//                if (distortion.Any(x => (x >= 0.0 && x < 1.0)))
+//                {
+//                    var bothTonalIntervals = distortion.Where(x => (x >= 0.0 && x < 1.0)).Count();
+//
+//                    if (distortion.Any(x => x >= 0.0 && x <= 0.05))
+//                    {
+//                        unimportantErrors = distortion.Where(x => x >= 0.0 && x <= 0.05).Count()*100.0/bothTonalIntervals;
+//                    }
+//
+//                    if (distortion.Any(x => x > 0.05 && x <= 0.15))
+//                    {
+//                        smallErrors = distortion.Where(x => x > 0.05 && x <= 0.15).Count()*100.0/
+//                                                   bothTonalIntervals;
+//                    }
+//
+//                    if (distortion.Any(x => x > 0.15 && x < 1.0))
+//                    {
+//                        bigErrors = distortion.Where(x => x > 0.15 && x < 1.0).Count()*100.0/bothTonalIntervals;
+//                    }
+//
+//                    if (distortion.Any(x => x >= 1.0 && x < 2.0))
+//                    {
+//                        voicedSpeechDetectionErrors = distortion.Where(x => x >= 1.0 && x < 2.0).Count()*100.0/distortion.Length;
+//                    }
+//                }
+//
+//                _results.VoicedSpeechDetectorErrorRate = voicedSpeechDetectionErrors;
+//                _results.SmallErrorsRate = smallErrors;
+//                _results.BigErrorsRate = bigErrors;
+//
+//                results = string.Format(
+//                    "{5}\r\n\r\nНесущественных ошибок: {0:#0.###}%\r\nМалых ошибок: {1:#0.###}%\r\nБольших ошибок: {2:#0.###}%\r\nСреднее: {3:#0.###}\r\nКоличество ошибка выделителя тональных участков: {4:#0.###}%\r\n",
+//                    unimportantErrors, //unimpotant errors
+//                    smallErrors, //small errors
+//                    bigErrors, //big errors
+//                    double.NaN, //total average
+//                    voicedSpeechDetectionErrors,//voiced speech selecting error
+//                    args[0]); //filename
+//            }
+//            Dispatcher.InvokeAsync(() =>
+//            {
+//                var resultsWindow = new ResultsWindow
+//                {
+//                    Results = results,
+//                    Owner = this
+//                };
+//                resultsWindow.Show();
+//            });
+//            _results.FileName = FileName;
+//            _results.IsNoised = UseNoise;
+//            _results.IsPhoneChanel = SimulatePhoneCnanel;
+//            _results.PitchData = _pitch.Select(x => x[0] > 0 ? _sampleFreq / x[0] : 0.0).ToArray();
+//            _results.DistortionData = distortion;
+//            _results.EthalonPitchData = expDataReader.PitchTrajectory;
+//            _results.SampleRate = (int)_sampleFreq;
+//            _results.DictorName = expDataReader.DictorName;
+//            _results.Phrase = expDataReader.Phrase;
+//            _results.SignalData = _inputFile.Samples;
+//
+//            PlotPitch(trainDataAcf, expDataReader.PitchTrajectory, distortion);
+//            PlotAcfPreview();
+//            PlotAcfsPreview();
             WindowCursor = Cursors.Arrow;
             OnPropertyChanged("WindowCursor");
         }
@@ -428,12 +428,12 @@ namespace ExperimentalProcessing
             }
 
             var dictor = new Dictor("", _inputFile, VoiceFeature.Pitch);
-            var trainDataAcf = dictor.VoiceFeatureArray;
-            _acf = dictor.AcfFeature;
-            _acfs = dictor.AscfFeature;
+//            var trainDataAcf = dictor.VoiceFeatureArray;
+//            _acf = dictor.AcfFeature;
+//            _acfs = dictor.AscfFeature;
             SamplePosition = 0;
-            _pitch = trainDataAcf;
-            PlotPitch(trainDataAcf);
+//            _pitch = trainDataAcf;
+//            PlotPitch(trainDataAcf);
             PlotAcfPreview();
             PlotAcfsPreview();
             WindowCursor = Cursors.Arrow;

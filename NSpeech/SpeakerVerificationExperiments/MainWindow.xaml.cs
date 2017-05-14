@@ -229,47 +229,47 @@ namespace SpeakerVerificationExperiments
         {
             WindowCursor = Cursors.Wait;
             OnPropertyChanged("WindowCursor");
-            int sampleRate;
-            var inputFile = FileReader.ReadFileNormalized(fileName.ToString(), out sampleRate);
-
-            var testDictor = new Dictor("Test", new Signal(inputFile.Select(x=> (double)x).ToArray(), sampleRate), _selectedFeature);
-            var trainDataAcf = testDictor.VoiceFeatureArray;
-
-            if (AddDeltaToFeatures)
-            {
-                trainDataAcf = DeltaGenerator.AddDelta(trainDataAcf);
-            }
-
-            PlotData(trainDataAcf, (int)Math.Round(sampleRate * AnalysisInterval * (1.0 - Overlaping)), sampleRate, TestDataModel);
-
-//            switch (_uesdAlgorithm)
+//            int sampleRate;
+//            var inputFile = FileReader.ReadFileNormalized(fileName.ToString(), out sampleRate);
+//
+//            var testDictor = new Dictor("Test", new Signal(inputFile.Select(x=> (double)x).ToArray(), sampleRate), _selectedFeature);
+//            var trainDataAcf = testDictor.VoiceFeatureArray;
+//
+//            if (AddDeltaToFeatures)
 //            {
-//                case UsedQuatizationAlgorithm.Lbg:
-//                    SaveDistortionEnergyToFile(
-//                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-//                            "distortionMeasure.txt"), trainDataAcf);
-//                    break;
-//                case UsedQuatizationAlgorithm.Kohonen:
-//                    SaveDistortionEnergyToFileNeuron(
-//                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-//                            "distortionMeasure.txt"), trainDataAcf);
-//                    break;
-//                default:
-//                    throw new ArgumentOutOfRangeException();
+//                trainDataAcf = DeltaGenerator.AddDelta(trainDataAcf);
 //            }
-
-            if (VqCodeBook.Verify(trainDataAcf) == SolutionState.Verified)
-            {
-                MessageBox.Show("Верификация успешно пройдена.", "Система верификации.", MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-            }
-            else
-            {
-                MessageBox.Show("Верификация не пройдена.", "Система верификации.", MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-
-            WindowCursor = Cursors.Arrow;
+//
+//            PlotData(trainDataAcf, (int)Math.Round(sampleRate * AnalysisInterval * (1.0 - Overlaping)), sampleRate, TestDataModel);
+//
+////            switch (_uesdAlgorithm)
+////            {
+////                case UsedQuatizationAlgorithm.Lbg:
+////                    SaveDistortionEnergyToFile(
+////                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+////                            "distortionMeasure.txt"), trainDataAcf);
+////                    break;
+////                case UsedQuatizationAlgorithm.Kohonen:
+////                    SaveDistortionEnergyToFileNeuron(
+////                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+////                            "distortionMeasure.txt"), trainDataAcf);
+////                    break;
+////                default:
+////                    throw new ArgumentOutOfRangeException();
+////            }
+//
+//            if (VqCodeBook.Verify(trainDataAcf) == SolutionState.Verified)
+//            {
+//                MessageBox.Show("Верификация успешно пройдена.", "Система верификации.", MessageBoxButton.OK,
+//                    MessageBoxImage.Information);
+//            }
+//            else
+//            {
+//                MessageBox.Show("Верификация не пройдена.", "Система верификации.", MessageBoxButton.OK,
+//                    MessageBoxImage.Error);
+//            }
+//
+//            WindowCursor = Cursors.Arrow;
             OnPropertyChanged("WindowCursor");
         }
 
@@ -304,32 +304,32 @@ namespace SpeakerVerificationExperiments
         {
             WindowCursor = Cursors.Wait;
             OnPropertyChanged("WindowCursor");
-            int sampleRate;
-            var inputFile = FileReader.ReadFileNormalized(fileName.ToString(), out sampleRate);
-
-            double[][] trainDataAcf = 
-            new Dictor("", new Signal(inputFile.Select(x => (double) x).ToArray(), sampleRate), _selectedFeature)
-                .VoiceFeatureArray;
-
-            if (AddDeltaToFeatures)
-            {
-                trainDataAcf = DeltaGenerator.AddDelta(trainDataAcf);
-            }
-
-            PlotData(trainDataAcf, (int) Math.Round(sampleRate*AnalysisInterval*(1.0 - Overlaping)), sampleRate, TrainDataModel);
-
-            switch (_uesdAlgorithm)
-            {
-                case UsedQuatizationAlgorithm.Lbg:
-                    VqCodeBook = new Dictor("", new Signal(inputFile.Select(x=> (double)x).ToArray(), sampleRate), _selectedFeature).Key;
-                    PlotData(VqCodeBook.Key, (int)Math.Round(sampleRate * AnalysisInterval * (1.0 - Overlaping)), sampleRate, CodeBookModel);
-                    break;
-                case UsedQuatizationAlgorithm.Kohonen:
-                    
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+//            int sampleRate;
+//            var inputFile = FileReader.ReadFileNormalized(fileName.ToString(), out sampleRate);
+//
+//            double[][] trainDataAcf = 
+//            new Dictor("", new Signal(inputFile.Select(x => (double) x).ToArray(), sampleRate), _selectedFeature)
+//                .VoiceFeatureArray;
+//
+//            if (AddDeltaToFeatures)
+//            {
+//                trainDataAcf = DeltaGenerator.AddDelta(trainDataAcf);
+//            }
+//
+//            PlotData(trainDataAcf, (int) Math.Round(sampleRate*AnalysisInterval*(1.0 - Overlaping)), sampleRate, TrainDataModel);
+//
+//            switch (_uesdAlgorithm)
+//            {
+//                case UsedQuatizationAlgorithm.Lbg:
+//                    VqCodeBook = new Dictor("", new Signal(inputFile.Select(x=> (double)x).ToArray(), sampleRate), _selectedFeature).Key;
+//                    PlotData(VqCodeBook.Key, (int)Math.Round(sampleRate * AnalysisInterval * (1.0 - Overlaping)), sampleRate, CodeBookModel);
+//                    break;
+//                case UsedQuatizationAlgorithm.Kohonen:
+//                    
+//                    break;
+//                default:
+//                    throw new ArgumentOutOfRangeException();
+//            }
 
             WindowCursor = Cursors.Arrow;
             OnPropertyChanged("WindowCursor");
