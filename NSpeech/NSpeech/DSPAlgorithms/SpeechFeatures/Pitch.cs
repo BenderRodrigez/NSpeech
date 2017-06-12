@@ -47,7 +47,7 @@ namespace NSpeech.DSPAlgorithms.SpeechFeatures
 
         public Signal GetFeature()
         {
-            return new Signal(TrackPitch().Select(x=> _signal.SignalFormat.SampleRate/x).ToArray(), _signal.SignalFormat);
+            return new Signal(TrackPitch().Select(x=> x != 0.0?_signal.SignalFormat.SampleRate/x:0.0).ToArray(), _signal.SignalFormat);
         }
 
         private double[] TrackPitch()

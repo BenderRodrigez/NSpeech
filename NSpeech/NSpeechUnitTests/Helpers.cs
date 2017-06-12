@@ -30,7 +30,7 @@ namespace NSpeechUnitTests
                 return false;
 
             for (var i = 0; i < a.Samples.Length; i++)
-                res &= Math.Abs(a.Samples[i] - b.Samples[i]) < 0.0001;
+                res &= Math.Abs(a.Samples[i] - b.Samples[i]) < 0.001;
             return res;
         }
 

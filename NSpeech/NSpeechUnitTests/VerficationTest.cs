@@ -39,6 +39,7 @@ namespace NSpeechUnitTests
         }
 
         [TestMethod]
+        [Ignore]
         public void RunTest()
         {
             var sameDictorFails = 0;
