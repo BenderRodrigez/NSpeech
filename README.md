@@ -10,6 +10,12 @@ Known limitations:
 2. May work slow for too long voice samples (I recomend to not use phrases longer than 1 sentence);
 3. Verification based on Linear Prediction not working right now.
 
+Base repo url:
+`https://gitlab.com/BenderRodrigez/NSpeech`
+
+Gihub read-only mirror:
+`https://github.com/BenderRodrigez/NSpeech`
+
 This project is shared with MIT License terms.
 
 If you want to make some contribution, feel free and make an merge request, or open an issue.
